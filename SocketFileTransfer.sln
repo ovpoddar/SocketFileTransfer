@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketFileTransfer", "SocketFileTransfer\SocketFileTransfer.csproj", "{469F28D1-D188-44E2-B058-5B589D25B10C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocketFileTransfer", "SocketFileTransfer\SocketFileTransfer.csproj", "{469F28D1-D188-44E2-B058-5B589D25B10C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
