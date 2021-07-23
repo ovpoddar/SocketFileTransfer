@@ -2,13 +2,7 @@
 using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Model;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.Pages
@@ -36,7 +30,7 @@ namespace SocketFileTransfer.Pages
         private void OnMouseEnterButton1(object sender, EventArgs e)
         {
             var senderButton = sender as CButton;
-            senderButton.BackColor = Color.FromArgb(63,64,64);
+            senderButton.BackColor = Color.FromArgb(63, 64, 64);
         }
         private void OnMouseLeaveButton1(object sender, EventArgs e)
         {

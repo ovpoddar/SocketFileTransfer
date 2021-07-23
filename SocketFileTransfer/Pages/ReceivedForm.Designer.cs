@@ -38,6 +38,7 @@ namespace SocketFileTransfer.Pages
             this.ClientSize = new System.Drawing.Size(384, 573);
             this.Name = "ReceivedForm";
             this.Text = "ReceivedForm";
+            this.Load += new System.EventHandler(this.ReceivedForm_Load);
             this.ResumeLayout(false);
 
         }
