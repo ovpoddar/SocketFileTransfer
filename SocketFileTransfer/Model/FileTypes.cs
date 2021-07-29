@@ -3,6 +3,7 @@
     public enum FileTypes
     {
         File,
-        Data
+        Text,
+        Commend
     }
 }

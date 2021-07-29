@@ -1,6 +1,7 @@
 ﻿using SocketFileTransfer.Model;
 using SocketFileTransfer.Pages;
 using System;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -22,12 +23,21 @@ namespace SocketFileTransfer
             switch (e)
             {
                 case TypeOfConnect.Send:
-                    OpenChildForm(new SendForm());
+                    var connectSend = new SendForm();
+                    connectSend.OnTransmissionIpFound += GotTransmissionIp;
+                    OpenChildForm(connectSend);
                     break;
                 case TypeOfConnect.Received:
-                    OpenChildForm(new ReceivedForm());
+                    var connectReceived = new ReceivedForm();
+                    connectReceived.OnTransmissionIpFound += GotTransmissionIp;
+                    OpenChildForm(connectReceived);
                     break;
             }
+        }
+
+        private void GotTransmissionIp(object sender, ConnectionDetails e)
+        {
+            OpenChildForm(new TransmissionPage(e));
         }
 
         private void BtnExit_Click(object sender, EventArgs e)
