@@ -1,4 +1,5 @@
-﻿using SocketFileTransfer.ExtendClass;
+﻿using SocketFileTransfer.CustomControl;
+using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Model;
 using System;
 using System.Collections;
@@ -25,12 +26,8 @@ namespace SocketFileTransfer.Pages
         public SendForm()
         {
             InitializeComponent();
-
-            // TODO: make sure the interface up when the application start
-
             foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
             {
-                // TODO: work with only wifi for now
                 // TODO: later date work on lan
                 if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 && ni.OperationalStatus == OperationalStatus.Up)
                 {
@@ -120,6 +117,7 @@ namespace SocketFileTransfer.Pages
             var name = Encoding.ASCII.GetString(model.Buffer, 0, receved);
             Invoke(new MethodInvoker(() =>
             {
+                var random = new Random();
                 listBox1.Items.Add($"{model.Ip} {name}");
             }));
         }

@@ -2,6 +2,7 @@
 using SocketFileTransfer.Pages;
 using System;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -13,9 +14,30 @@ namespace SocketFileTransfer
         public Home()
         {
             InitializeComponent();
-            var indexpage = new Pages.Index();
-            indexpage.SelectItem += SelectConnectMethod;
-            OpenChildForm(indexpage);
+            var check = TestForWIFIOrLanConnection();
+            if (check)
+            {
+                var indexpage = new Pages.Index();
+                indexpage.SelectItem += SelectConnectMethod;
+                OpenChildForm(indexpage);
+            }
+
+        }
+
+        private bool TestForWIFIOrLanConnection()
+        {
+            if (NetworkInterface.GetIsNetworkAvailable())
+            {
+                foreach (var NetWorkInterface in NetworkInterface.GetAllNetworkInterfaces())
+                {
+                    if ((
+                        //NetWorkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
+                        NetWorkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211) && 
+                        NetWorkInterface.OperationalStatus == OperationalStatus.Up)
+                        return true;
+                }
+            }
+            return false;
         }
 
         private void SelectConnectMethod(object sender, TypeOfConnect e)

@@ -33,7 +33,9 @@ namespace SocketFileTransfer
             this.btnMinimize = new System.Windows.Forms.Button();
             this.BtnExit = new System.Windows.Forms.Button();
             this.panelBody = new System.Windows.Forms.Panel();
+            this.LblMessage = new System.Windows.Forms.Label();
             this.PanelHeader.SuspendLayout();
+            this.panelBody.SuspendLayout();
             this.SuspendLayout();
             // 
             // PanelHeader
@@ -78,11 +80,22 @@ namespace SocketFileTransfer
             // 
             // panelBody
             // 
+            this.panelBody.Controls.Add(this.LblMessage);
             this.panelBody.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelBody.Location = new System.Drawing.Point(0, 38);
             this.panelBody.Name = "panelBody";
             this.panelBody.Size = new System.Drawing.Size(400, 612);
             this.panelBody.TabIndex = 1;
+            // 
+            // LblMessage
+            // 
+            this.LblMessage.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.LblMessage.Location = new System.Drawing.Point(64, 222);
+            this.LblMessage.Name = "LblMessage";
+            this.LblMessage.Size = new System.Drawing.Size(269, 58);
+            this.LblMessage.TabIndex = 0;
+            this.LblMessage.Text = "Turn On your WiFi And Restart the application";
+            this.LblMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Home
             // 
@@ -101,6 +114,7 @@ namespace SocketFileTransfer
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.PanelHeader.ResumeLayout(false);
+            this.panelBody.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -111,5 +125,6 @@ namespace SocketFileTransfer
         private System.Windows.Forms.Panel panelBody;
         private System.Windows.Forms.Button BtnExit;
         private System.Windows.Forms.Button btnMinimize;
+        private System.Windows.Forms.Label LblMessage;
     }
 }
