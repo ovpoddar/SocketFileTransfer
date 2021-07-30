@@ -1,16 +1,12 @@
-﻿using SocketFileTransfer.CustomControl;
-using SocketFileTransfer.ExtendClass;
+﻿using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Windows.Forms;
 

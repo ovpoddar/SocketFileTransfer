@@ -1,16 +1,11 @@
-﻿using SocketFileTransfer.Model;
+﻿using SocketFileTransfer.CustomControl;
+using SocketFileTransfer.Model;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.Pages
@@ -99,6 +94,7 @@ namespace SocketFileTransfer.Pages
             if (message.Contains(':'))
             {
                 // prepare for file;
+                Logging(FileTypes.File, message, TypeOfConnect.Received);
             }
             else if (message.Contains("@@"))
             {
@@ -107,6 +103,7 @@ namespace SocketFileTransfer.Pages
             else
             {
                 // Simple Sting
+                Logging(FileTypes.Text, message, TypeOfConnect.Received);
             }
             _socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
         }
@@ -119,18 +116,71 @@ namespace SocketFileTransfer.Pages
                 var message = Encoding.ASCII.GetBytes($"{fileinfo.Name}:{fileinfo.Length}:{fileinfo.Extension}");
                 socket.Send(message, 0, message.Length, SocketFlags.None);
                 socket.SendFile(file);
+
+                Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
                 return;
             }
             else if (fileTypes == FileTypes.File && !File.Exists(file) || fileTypes == FileTypes.Text)
             {
                 var message = Encoding.ASCII.GetBytes(file);
                 socket.Send(message, 0, message.Length, SocketFlags.None);
+                Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
             }
             else
             {
                 var message = Encoding.ASCII.GetBytes($"@@ {file.ToUpper()}");
                 socket.Send(message, 0, message.Length, SocketFlags.None);
             }
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (TxtMessage.Text.Length <= 0)
+            {
+                BtnOprate.Text = "->";
+            }
+            else
+            {
+                BtnOprate.Text = "+";
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (TxtMessage.Text.Length <= 0)
+            {
+                OpenFileDialog ofd = new OpenFileDialog();
+                ofd.Multiselect = false;
+
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    SendData(ofd.FileName, FileTypes.File, _socket);
+                }
+            }
+            else
+            {
+                SendData(TxtMessage.Text, FileTypes.Text, _socket);
+                TxtMessage.Text = "";
+            }
+        }
+
+        public void Logging(FileTypes fileTypes, string message, TypeOfConnect typeOfConnect)
+        {
+            switch (fileTypes)
+            {
+                case FileTypes.File:
+                    var component = message.Split(":");
+                    PanelContainer.Controls.Add(new CPFile(component[0], component[1], component[2], typeOfConnect));
+                    break;
+                case FileTypes.Text:
+                    PanelContainer.Controls.Add(new CPFile(message, typeOfConnect));
+                    break;
+                case FileTypes.Commend:
+                    break;
+                default:
+                    break;
+            }
+
         }
     }
 }

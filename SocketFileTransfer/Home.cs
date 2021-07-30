@@ -1,7 +1,6 @@
 ﻿using SocketFileTransfer.Model;
 using SocketFileTransfer.Pages;
 using System;
-using System.Net;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -32,7 +31,7 @@ namespace SocketFileTransfer
                 {
                     if ((
                         //NetWorkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
-                        NetWorkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211) && 
+                        NetWorkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211) &&
                         NetWorkInterface.OperationalStatus == OperationalStatus.Up)
                         return true;
                 }
