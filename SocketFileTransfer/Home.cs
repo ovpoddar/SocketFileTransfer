@@ -13,8 +13,8 @@ namespace SocketFileTransfer
         public Home()
         {
             InitializeComponent();
-            var check = TestForWIFIOrLanConnection();
-            if (check)
+     
+            if (TestForWIFIOrLanConnection())
             {
                 var indexpage = new Pages.Index();
                 indexpage.SelectItem += SelectConnectMethod;
@@ -25,18 +25,19 @@ namespace SocketFileTransfer
 
         private bool TestForWIFIOrLanConnection()
         {
-            if (NetworkInterface.GetIsNetworkAvailable())
+            if (!NetworkInterface.GetIsNetworkAvailable()) return false;
+
+            var interfaceTest = false;
+
+            foreach (var netWorkInterface in NetworkInterface.GetAllNetworkInterfaces())
             {
-                foreach (var NetWorkInterface in NetworkInterface.GetAllNetworkInterfaces())
-                {
-                    if ((
-                        //NetWorkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
-                        NetWorkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211) &&
-                        NetWorkInterface.OperationalStatus == OperationalStatus.Up)
-                        return true;
-                }
+                interfaceTest =
+                    //NetWorkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
+                    netWorkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 &&
+                    netWorkInterface.OperationalStatus == OperationalStatus.Up;
             }
-            return false;
+
+            return interfaceTest;
         }
 
         private void SelectConnectMethod(object sender, TypeOfConnect e)
@@ -70,9 +71,8 @@ namespace SocketFileTransfer
         {
             //open only form
             if (_currentChildForm != null)
-            {
                 _currentChildForm.Close();
-            }
+            
             _currentChildForm = childForm;
             //End
             childForm.TopLevel = false;
@@ -86,9 +86,10 @@ namespace SocketFileTransfer
 
 
         [DllImport("user32.DLL", EntryPoint = "ReleaseCapture")]
-        private extern static void ReleaseCapture();
+        private static extern void ReleaseCapture();
+
         [DllImport("user32.DLL", EntryPoint = "SendMessage")]
-        private extern static void SendMessage(System.IntPtr hWnd, int wMsg, int wParam, int lParam);
+        private static extern void SendMessage(IntPtr hWnd, int wMsg, int wParam, int lParam);
 
         private void PanelHeader_MouseDown(object sender, MouseEventArgs e)
         {
