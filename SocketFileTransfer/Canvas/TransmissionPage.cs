@@ -109,7 +109,6 @@ namespace SocketFileTransfer.Canvas
             else
                 Logging(FileTypes.Text, message, TypeOfConnect.Received);
 
-
             _socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
         }
 
