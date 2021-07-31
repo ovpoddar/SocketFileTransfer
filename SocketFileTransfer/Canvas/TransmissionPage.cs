@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace SocketFileTransfer.Pages
+namespace SocketFileTransfer.Canvas
 {
     public partial class TransmissionPage : Form
     {
