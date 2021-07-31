@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -9,34 +10,27 @@ namespace SocketFileTransfer.Canvas
     public partial class Home : Form
     {
         private Form _currentChildForm;
+
         public Home()
         {
             InitializeComponent();
-     
-            if (TestForWIFIOrLanConnection())
-            {
-                var indexpage = new Canvas.Index();
-                indexpage.SelectItem += SelectConnectMethod;
-                OpenChildForm(indexpage);
-            }
 
+            if (!TestForWIFIOrLanConnection()) return;
+
+            var index = new Index();
+            index.SelectItem += SelectConnectMethod; 
+            OpenChildForm(index);
         }
 
         private bool TestForWIFIOrLanConnection()
         {
-            if (!NetworkInterface.GetIsNetworkAvailable()) return false;
-
-            var interfaceTest = false;
-
-            foreach (var netWorkInterface in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                interfaceTest =
-                    //NetWorkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
-                    netWorkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 &&
-                    netWorkInterface.OperationalStatus == OperationalStatus.Up;
-            }
-
-            return interfaceTest;
+            if (!NetworkInterface.GetIsNetworkAvailable()) return false; 
+            
+            var netWorkInterfaces = NetworkInterface.GetAllNetworkInterfaces().ToList(); 
+            
+            return netWorkInterfaces.Any(i =>
+                i.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 &&
+                i.OperationalStatus == OperationalStatus.Up);
         }
 
         private void SelectConnectMethod(object sender, TypeOfConnect e)
@@ -53,19 +47,17 @@ namespace SocketFileTransfer.Canvas
                     connectReceived.OnTransmissionIpFound += GotTransmissionIp;
                     OpenChildForm(connectReceived);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(e), e, null);
             }
         }
 
-        private void GotTransmissionIp(object sender, ConnectionDetails e)
-        {
+        private void GotTransmissionIp(object sender, ConnectionDetails e) =>
             OpenChildForm(new TransmissionPage(e));
-        }
-
-        private void BtnExit_Click(object sender, EventArgs e)
-        {
+        
+        private void BtnExit_Click(object sender, EventArgs e) =>
             Application.Exit();
-        }
-
+        
         private void OpenChildForm(Form childForm)
         {
             //open only form
@@ -96,9 +88,7 @@ namespace SocketFileTransfer.Canvas
             SendMessage(this.Handle, 0x112, 0xf012, 0);
         }
 
-        private void btnMinimize_Click(object sender, EventArgs e)
-        {
+        private void btnMinimize_Click(object sender, EventArgs e) =>
             WindowState = FormWindowState.Minimized;
-        }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using SocketFileTransfer.CustomControl;
-using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Model;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using SocketFileTransfer.Extensions;
 
 namespace SocketFileTransfer.Canvas
 {

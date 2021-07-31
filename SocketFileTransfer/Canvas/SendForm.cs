@@ -1,5 +1,4 @@
-﻿using SocketFileTransfer.ExtendClass;
-using SocketFileTransfer.Model;
+﻿using SocketFileTransfer.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,6 +8,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using SocketFileTransfer.Extensions;
 
 namespace SocketFileTransfer.Canvas
 {
