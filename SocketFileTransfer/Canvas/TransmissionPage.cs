@@ -88,7 +88,7 @@ namespace SocketFileTransfer.Canvas
 
         private void OnReceivedEnd(IAsyncResult ar)
         {
-            var buffer = (byte[])ar.AsyncState;
+            var buffer = ar.AsyncState as byte[];
             var received = _socket.EndReceive(ar);
 
             if (received == 0)
