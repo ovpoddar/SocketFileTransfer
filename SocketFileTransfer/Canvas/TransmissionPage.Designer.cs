@@ -63,7 +63,7 @@ namespace SocketFileTransfer.Canvas
             this.TxtMessage.Name = "TxtMessage";
             this.TxtMessage.Size = new System.Drawing.Size(332, 31);
             this.TxtMessage.TabIndex = 0;
-            this.TxtMessage.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.TxtMessage.TextChanged += new System.EventHandler(this.TextBox1_TextChanged);
             // 
             // BtnOprate
             // 
@@ -77,7 +77,7 @@ namespace SocketFileTransfer.Canvas
             this.BtnOprate.Text = "+";
             this.BtnOprate.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.BtnOprate.UseVisualStyleBackColor = true;
-            this.BtnOprate.Click += new System.EventHandler(this.button1_Click);
+            this.BtnOprate.Click += new System.EventHandler(this.Button1_Click);
             // 
             // TransmissionPage
             // 

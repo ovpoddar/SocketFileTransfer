@@ -136,29 +136,22 @@ namespace SocketFileTransfer.Canvas
             }
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void TextBox1_TextChanged(object sender, EventArgs e)
         {
-            if (TxtMessage.Text.Length <= 0)
-            {
-                BtnOprate.Text = "->";
-            }
-            else
-            {
-                BtnOprate.Text = "+";
-            }
+            BtnOprate.Text = TxtMessage.Text.Length <= 0 ? "->" : "+";
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Button1_Click(object sender, EventArgs e)
         {
             if (TxtMessage.Text.Length <= 0)
             {
-                OpenFileDialog ofd = new OpenFileDialog();
-                ofd.Multiselect = false;
+                var ofd = new OpenFileDialog
+                {
+                    Multiselect = false
+                };
 
                 if (ofd.ShowDialog() == DialogResult.OK)
-                {
                     SendData(ofd.FileName, FileTypes.File, _socket);
-                }
             }
             else
             {
@@ -181,7 +174,7 @@ namespace SocketFileTransfer.Canvas
                 case FileTypes.Commend:
                     break;
                 default:
-                    break;
+                    throw new ArgumentOutOfRangeException(nameof(fileTypes), fileTypes, null);
             }
 
         }
