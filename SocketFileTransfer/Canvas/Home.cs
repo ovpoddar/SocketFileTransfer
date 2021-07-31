@@ -1,11 +1,10 @@
-﻿using SocketFileTransfer.Canvas;
-using SocketFileTransfer.Model;
-using System;
+﻿using System;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using SocketFileTransfer.Model;
 
-namespace SocketFileTransfer
+namespace SocketFileTransfer.Canvas
 {
     public partial class Home : Form
     {

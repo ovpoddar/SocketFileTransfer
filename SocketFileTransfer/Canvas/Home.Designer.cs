@@ -1,5 +1,5 @@
 ﻿
-namespace SocketFileTransfer
+namespace SocketFileTransfer.Canvas
 {
     partial class Home
     {
