@@ -1,17 +1,16 @@
-﻿using SocketFileTransfer.Model;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
+using SocketFileTransfer.Models;
 
 namespace SocketFileTransfer.CustomControl
 {
-    public partial class CPFile : UserControl
+    public partial class CpFile : UserControl
     {
-
-        public CPFile()
+        public CpFile()
         {
             InitializeComponent();
         }
-        public CPFile(string name, TypeOfConnect typeOfConnect)
+        public CpFile(string name, TypeOfConnect typeOfConnect)
         {
             InitializeComponent();
 
@@ -23,31 +22,26 @@ namespace SocketFileTransfer.CustomControl
 
             LblName.Visible = true;
 
-            setbackground(typeOfConnect);
+            SetBackground(typeOfConnect);
         }
 
-        private void setbackground(TypeOfConnect typeOfConnect)
+        private void SetBackground(TypeOfConnect typeOfConnect)
         {
-            switch (typeOfConnect)
+            BackColor = typeOfConnect switch
             {
-                case TypeOfConnect.Send:
-                    BackColor = Color.Blue;
-                    break;
-                case TypeOfConnect.Received:
-                    BackColor = Color.Green;
-                    break;
-                default:
-                    break;
-            }
+                TypeOfConnect.Send => Color.Blue,
+                TypeOfConnect.Received => Color.Green,
+                _ => BackColor
+            };
         }
 
-        public CPFile(string filename, string fileSize, string filetype, TypeOfConnect typeOfConnect)
+        public CpFile(string filename, string fileSize, string fileType, TypeOfConnect typeOfConnect)
         {
             InitializeComponent();
 
             LblName.Text = filename;
             LblSize.Text = fileSize;
-            LblType.Text = filetype;
+            LblType.Text = fileType;
 
             LblName.Visible = true;
             LblSize.Visible = true;
@@ -55,7 +49,7 @@ namespace SocketFileTransfer.CustomControl
 
             LblName.Visible = false;
 
-            setbackground(typeOfConnect);
+            SetBackground(typeOfConnect);
         }
     }
 }

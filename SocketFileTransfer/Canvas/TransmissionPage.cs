@@ -1,5 +1,4 @@
 ﻿using SocketFileTransfer.CustomControl;
-using SocketFileTransfer.Model;
 using System;
 using System.IO;
 using System.Net;
@@ -7,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using SocketFileTransfer.Models;
 
 namespace SocketFileTransfer.Canvas
 {
@@ -170,10 +170,10 @@ namespace SocketFileTransfer.Canvas
             {
                 case FileTypes.File:
                     var component = message.Split(":");
-                    PanelContainer.Controls.Add(new CPFile(component[0], component[1], component[2], typeOfConnect));
+                    PanelContainer.Controls.Add(new CpFile(component[0], component[1], component[2], typeOfConnect));
                     break;
                 case FileTypes.Text:
-                    PanelContainer.Controls.Add(new CPFile(message, typeOfConnect));
+                    PanelContainer.Controls.Add(new CpFile(message, typeOfConnect));
                     break;
                 case FileTypes.Commend:
                     break;

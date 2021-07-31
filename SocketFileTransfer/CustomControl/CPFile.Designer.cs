@@ -1,7 +1,7 @@
 ﻿
 namespace SocketFileTransfer.CustomControl
 {
-    partial class CPFile
+    partial class CpFile
     {
         /// <summary> 
         /// Required designer variable.
@@ -82,7 +82,7 @@ namespace SocketFileTransfer.CustomControl
             this.Controls.Add(this.LblName);
             this.Controls.Add(this.LblType);
             this.Controls.Add(this.LblText);
-            this.Name = "CPFile";
+            this.Name = "CpFile";
             this.Size = new System.Drawing.Size(384, 103);
             this.ResumeLayout(false);
             this.PerformLayout();

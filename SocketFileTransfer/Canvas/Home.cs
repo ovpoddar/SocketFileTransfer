@@ -3,7 +3,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using SocketFileTransfer.Model;
+using SocketFileTransfer.Models;
 
 namespace SocketFileTransfer.Canvas
 {

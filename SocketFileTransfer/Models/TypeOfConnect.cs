@@ -1,4 +1,4 @@
-﻿namespace SocketFileTransfer.Model
+﻿namespace SocketFileTransfer.Models
 {
     public enum TypeOfConnect
     {

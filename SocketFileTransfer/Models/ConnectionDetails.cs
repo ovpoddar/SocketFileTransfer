@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace SocketFileTransfer.Model
+namespace SocketFileTransfer.Models
 {
     public class ConnectionDetails
     {
