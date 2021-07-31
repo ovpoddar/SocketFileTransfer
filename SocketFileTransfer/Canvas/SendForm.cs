@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace SocketFileTransfer.Pages
+namespace SocketFileTransfer.Canvas
 {
     public partial class SendForm : Form
     {
@@ -18,6 +18,7 @@ namespace SocketFileTransfer.Pages
         private Thread Workerthread { get; set; }
         private Thread Loopingthread { get; set; }
         private ArrayList IpAdressList { get; set; } = new ArrayList();
+        private readonly List<NetworkStream> _streams = new List<NetworkStream>();
         private bool _canScan = true;
         public SendForm()
         {
@@ -74,8 +75,6 @@ namespace SocketFileTransfer.Pages
             Loopingthread.Start();
         }
 
-
-        private readonly List<NetworkStream> _streams = new List<NetworkStream>();
         private void Ping_PingCompleted(object sender, PingCompletedEventArgs e)
         {
             var ip = (string)e.UserState;

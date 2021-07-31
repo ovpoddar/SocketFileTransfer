@@ -1,5 +1,5 @@
 ﻿
-namespace SocketFileTransfer.Pages
+namespace SocketFileTransfer.Canvas
 {
     partial class ReceivedForm
     {

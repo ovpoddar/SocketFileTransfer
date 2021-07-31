@@ -1,5 +1,5 @@
-﻿using SocketFileTransfer.Model;
-using SocketFileTransfer.Pages;
+﻿using SocketFileTransfer.Canvas;
+using SocketFileTransfer.Model;
 using System;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
@@ -16,7 +16,7 @@ namespace SocketFileTransfer
             var check = TestForWIFIOrLanConnection();
             if (check)
             {
-                var indexpage = new Pages.Index();
+                var indexpage = new Canvas.Index();
                 indexpage.SelectItem += SelectConnectMethod;
                 OpenChildForm(indexpage);
             }

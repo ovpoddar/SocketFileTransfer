@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
 
-namespace SocketFileTransfer.Pages
+namespace SocketFileTransfer.Canvas
 {
     public partial class ReceivedForm : Form
     {
