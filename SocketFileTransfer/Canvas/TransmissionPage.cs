@@ -17,6 +17,7 @@ namespace SocketFileTransfer.Canvas
         public TransmissionPage(ConnectionDetails connectionDetails)
         {
             InitializeComponent();
+
             var worker = new Thread(() =>
             {
                 switch (connectionDetails.TypeOfConnect)
@@ -24,11 +25,14 @@ namespace SocketFileTransfer.Canvas
                     case TypeOfConnect.Send:
                         ConnectPort(connectionDetails.EndPoint);
                         break;
+                    case TypeOfConnect.Received:
+                        break;
                     default:
                         OpenPortToConnect(connectionDetails.EndPoint);
                         break;
                 }
             });
+
             worker.Start();
         }
 
@@ -37,11 +41,11 @@ namespace SocketFileTransfer.Canvas
             _iPEndPoint = endPoint;
             try
             {
-                var sarverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                sarverSocket.Bind(new IPEndPoint(IPAddress.Any, endPoint.Port));
-                sarverSocket.Listen(10);
-                sarverSocket.BeginAccept(AcceptClient, sarverSocket);
+                serverSocket.Bind(new IPEndPoint(IPAddress.Any, endPoint.Port));
+                serverSocket.Listen(10);
+                serverSocket.BeginAccept(AcceptClient, serverSocket);
             }
             catch (Exception ex)
             {
@@ -51,10 +55,11 @@ namespace SocketFileTransfer.Canvas
 
         private void AcceptClient(IAsyncResult ar)
         {
-            var sarverSocket = (Socket)ar.AsyncState;
-            _socket = sarverSocket.EndAccept(ar);
+            var serverSocket = (Socket)ar.AsyncState;
 
-            if (_socket.RemoteEndPoint == _iPEndPoint)
+            if (serverSocket != null) _socket = serverSocket.EndAccept(ar);
+
+            if (Equals(_socket.RemoteEndPoint, _iPEndPoint))
             {
                 var buffer = new byte[_socket.ReceiveBufferSize];
                 _socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
@@ -85,77 +90,75 @@ namespace SocketFileTransfer.Canvas
         {
             var buffer = (byte[])ar.AsyncState;
             var received = _socket.EndReceive(ar);
+
             if (received == 0)
-            {
                 return;
-            }
+
+            if (buffer == null) throw new Exception("Buffer error");
+
             var message = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
 
             if (message.Contains(':'))
-            {
                 // prepare for file;
                 Logging(FileTypes.File, message, TypeOfConnect.Received);
-            }
-            else if (message.Contains("@@"))
+            
+            else if (message.Contains("@@")) 
             {
-                // It's a commend
+                    // It's a commend
             }
             else
-            {
-                // Simple Sting
                 Logging(FileTypes.Text, message, TypeOfConnect.Received);
-            }
+
+
             _socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
         }
 
         private void SendData(string file, FileTypes fileTypes, Socket socket)
         {
-            if (fileTypes == FileTypes.File && File.Exists(file))
+            switch (fileTypes)
             {
-                var fileinfo = new FileInfo(file);
-                var message = Encoding.ASCII.GetBytes($"{fileinfo.Name}:{fileinfo.Length}:{fileinfo.Extension}");
-                socket.Send(message, 0, message.Length, SocketFlags.None);
-                socket.SendFile(file);
+                case FileTypes.File when File.Exists(file):
+                {
+                    var fileInfo = new FileInfo(file);
+                    var message = Encoding.ASCII.GetBytes($"{fileInfo.Name}:{fileInfo.Length}:{fileInfo.Extension}");
+                    socket.Send(message, 0, message.Length, SocketFlags.None);
+                    socket.SendFile(file);
 
-                Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
-                return;
-            }
-            else if (fileTypes == FileTypes.File && !File.Exists(file) || fileTypes == FileTypes.Text)
-            {
-                var message = Encoding.ASCII.GetBytes(file);
-                socket.Send(message, 0, message.Length, SocketFlags.None);
-                Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
-            }
-            else
-            {
-                var message = Encoding.ASCII.GetBytes($"@@ {file.ToUpper()}");
-                socket.Send(message, 0, message.Length, SocketFlags.None);
+                    Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
+                    return;
+                }
+                case FileTypes.File when !File.Exists(file):
+                case FileTypes.Text:
+                {
+                    var message = Encoding.ASCII.GetBytes(file);
+                    socket.Send(message, 0, message.Length, SocketFlags.None);
+                    Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
+                    break;
+                }
+                case FileTypes.Commend:
+                    break;
+                default:
+                {
+                    var message = Encoding.ASCII.GetBytes($"@@ {file.ToUpper()}");
+                    socket.Send(message, 0, message.Length, SocketFlags.None);
+                    break;
+                }
             }
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            if (TxtMessage.Text.Length <= 0)
-            {
-                BtnOprate.Text = "->";
-            }
-            else
-            {
-                BtnOprate.Text = "+";
-            }
+            BtnOprate.Text = TxtMessage.Text.Length <= 0 ? "->" : "+";
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             if (TxtMessage.Text.Length <= 0)
             {
-                OpenFileDialog ofd = new OpenFileDialog();
-                ofd.Multiselect = false;
+                var ofd = new OpenFileDialog {Multiselect = false};
 
                 if (ofd.ShowDialog() == DialogResult.OK)
-                {
                     SendData(ofd.FileName, FileTypes.File, _socket);
-                }
             }
             else
             {
@@ -178,9 +181,8 @@ namespace SocketFileTransfer.Canvas
                 case FileTypes.Commend:
                     break;
                 default:
-                    break;
+                    throw new ArgumentOutOfRangeException(nameof(fileTypes), fileTypes, null);
             }
-
         }
     }
 }

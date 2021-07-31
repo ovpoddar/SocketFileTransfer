@@ -22,17 +22,17 @@ namespace SocketFileTransfer.Canvas
             InitializeComponent();
         }
 
-        public void StartBrodcast()
+        public void StartBroadcast()
         {
-            var tcpListner = new TcpListener(IPAddress.Any, 1400);
-            tcpListner.Start();
-            tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
+            var tcpListener = new TcpListener(IPAddress.Any, 1400);
+            tcpListener.Start();
+            tcpListener.BeginAcceptTcpClient(BrodcastSignal, tcpListener);
         }
 
         private void BrodcastSignal(IAsyncResult ar)
         {
-            var tcpListner = (TcpListener)ar.AsyncState;
-            var client = tcpListner.EndAcceptTcpClient(ar);
+            var tcpListener = (TcpListener)ar.AsyncState;
+            var client = tcpListener.EndAcceptTcpClient(ar);
             var buffer = new byte[client.ReceiveBufferSize];
             var stream = client.GetStream();
 
@@ -45,7 +45,7 @@ namespace SocketFileTransfer.Canvas
             var bytes = new byte[client.ReceiveBufferSize];
             stream.BeginRead(bytes, 0, bytes.Length, DataReceived, _currentAdded);
 
-            tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
+            tcpListener.BeginAcceptTcpClient(BrodcastSignal, tcpListener);
 
         }
 
@@ -59,29 +59,29 @@ namespace SocketFileTransfer.Canvas
         private void DataReceived(IAsyncResult ar)
         {
             var currentAdded = (int)ar.AsyncState;
-            var receved = _clientStreams[currentAdded].EndRead(ar);
-            if (receved == 0)
-            {
-                return;
-            }
-            var message = Encoding.ASCII.GetString(_clientsData[currentAdded], 0, receved);
-            if (message == "@@Connected")
-            {
-                OnTransmissionIpFound.Raise(this, new ConnectionDetails
-                {
-                    EndPoint = (IPEndPoint)_clients[currentAdded].Client.RemoteEndPoint,
-                    TypeOfConnect = TypeOfConnect.Received
-                });
+            var received = _clientStreams[currentAdded].EndRead(ar);
 
-                for (var i = 0; i < _currentAdded; i++)
-                {
-                    _clients[i].Close();
-                    _clients[i].Dispose();
-                    _clientStreams[i].Close();
-                    _clientStreams[i].Dispose();
-                }
-                Dispose();
+            if (received == 0)
+                return;
+            
+            var message = Encoding.ASCII.GetString(_clientsData[currentAdded], 0, received);
+           
+            if (message != "@@Connected") return;
+           
+            OnTransmissionIpFound.Raise(this, new ConnectionDetails
+            {
+                EndPoint = (IPEndPoint)_clients[currentAdded].Client.RemoteEndPoint,
+                TypeOfConnect = TypeOfConnect.Received
+            });
+
+            for (var i = 0; i < _currentAdded; i++)
+            {
+                _clients[i].Close();
+                _clients[i].Dispose();
+                _clientStreams[i].Close();
+                _clientStreams[i].Dispose();
             }
+            Dispose();
         }
     }
 }
