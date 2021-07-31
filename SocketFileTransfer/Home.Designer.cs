@@ -70,7 +70,7 @@ namespace SocketFileTransfer
             this.BtnExit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BtnExit.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.BtnExit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(238)))), ((int)(((byte)(238)))));
-            this.BtnExit.Location = new System.Drawing.Point(352, 0);
+            this.BtnExit.Location = new System.Drawing.Point(349, 0);
             this.BtnExit.Name = "BtnExit";
             this.BtnExit.Size = new System.Drawing.Size(48, 38);
             this.BtnExit.TabIndex = 0;

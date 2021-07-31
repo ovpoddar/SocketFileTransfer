@@ -24,9 +24,12 @@ namespace SocketFileTransfer.Canvas
                     case TypeOfConnect.Send:
                         ConnectPort(connectionDetails.EndPoint);
                         break;
-                    default:
+
+                    case TypeOfConnect.Received:
                         OpenPortToConnect(connectionDetails.EndPoint);
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(connectionDetails), connectionDetails, null);
                 }
             });
             worker.Start();

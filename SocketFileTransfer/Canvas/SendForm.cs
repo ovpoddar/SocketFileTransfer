@@ -15,9 +15,9 @@ namespace SocketFileTransfer.Canvas
     public partial class SendForm : Form
     {
         public EventHandler<ConnectionDetails> OnTransmissionIpFound;
-        private Thread Workerthread { get; set; }
-        private Thread Loopingthread { get; set; }
-        private ArrayList IpAdressList { get; set; } = new ArrayList();
+        private Thread WorkerThread { get; set; }
+        private Thread LoopingThread { get; set; }
+        private ArrayList IpAddressList { get; set; } = new ArrayList();
         private readonly List<NetworkStream> _streams = new List<NetworkStream>();
         private bool _canScan = true;
         public SendForm()
@@ -26,16 +26,12 @@ namespace SocketFileTransfer.Canvas
             foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
             {
                 // TODO: later date work on lan
-                if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 && ni.OperationalStatus == OperationalStatus.Up)
-                {
-                    foreach (var ip in ni.GetIPProperties().UnicastAddresses)
-                    {
-                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
-                        {
-                            IpAdressList.Add(ip.Address.ToString());
-                        }
-                    }
-                }
+                if (ni.NetworkInterfaceType != NetworkInterfaceType.Wireless80211 ||
+                    ni.OperationalStatus != OperationalStatus.Up) continue;
+
+                foreach (var ip in ni.GetIPProperties().UnicastAddresses)
+                    if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                        IpAddressList.Add(ip.Address.ToString());
             }
         }
 
@@ -46,9 +42,9 @@ namespace SocketFileTransfer.Canvas
 
         private void StartScan()
         {
-            Workerthread = new Thread(() =>
+            WorkerThread = new Thread(() =>
             {
-                foreach (string ipadress in IpAdressList)
+                foreach (string ipadress in IpAddressList)
                 {
                     var ipRange = ipadress.Split('.');
                     for (var i = 0; i < 255; i++)
@@ -62,44 +58,43 @@ namespace SocketFileTransfer.Canvas
 
                 }
             });
-            Workerthread.Start();
+            WorkerThread.Start();
 
-            Loopingthread = new Thread(() =>
+            LoopingThread = new Thread(() =>
             {
-                while (_canScan && !Workerthread.IsAlive)
+                while (_canScan && !WorkerThread.IsAlive)
                 {
-                    Workerthread.Join();
-                    Workerthread.Start();
+                    WorkerThread.Join();
+                    WorkerThread.Start();
                 }
             });
-            Loopingthread.Start();
+            LoopingThread.Start();
         }
 
         private void Ping_PingCompleted(object sender, PingCompletedEventArgs e)
         {
             var ip = (string)e.UserState;
-            if (e.Reply.Status == IPStatus.Success)
+
+            if (e.Reply == null || e.Reply.Status != IPStatus.Success) return;
+
+            var client = new TcpClient();
+            try
             {
-                var client = new TcpClient();
-                try
+                client.Connect(ip, 1400);
+                _streams.Add(client.GetStream());
+                var current = _streams.Count - 1;
+                var model = new TransfarModel
                 {
-                    client.Connect(ip, 1400);
-                    _streams.Add(client.GetStream());
-                    var current = _streams.Count - 1;
-                    var model = new TransfarModel
-                    {
-                        Buffer = new byte[client.ReceiveBufferSize],
-                        Ip = ip,
-                        Id = current,
-                        Client = client,
-                    };
-                    _streams[current].BeginRead(model.Buffer, 0, model.Buffer.Length, DataReceved, model);
-                }
-                catch
-                {
-                    client.Dispose();
-                    return;
-                }
+                    Buffer = new byte[client.ReceiveBufferSize],
+                    Ip = ip,
+                    Id = current,
+                    Client = client,
+                };
+                _streams[current].BeginRead(model.Buffer, 0, model.Buffer.Length, DataReceved, model);
+            }
+            catch
+            {
+                client.Dispose();
             }
         }
 
@@ -107,8 +102,10 @@ namespace SocketFileTransfer.Canvas
         {
             var model = (TransfarModel)ar.AsyncState;
             var receved = _streams[model.Id].EndRead(ar);
+
             if (model.Client.ReceiveBufferSize < 0)
                 return;
+
             var name = Encoding.ASCII.GetString(model.Buffer, 0, receved);
             Invoke(new MethodInvoker(() =>
             {
@@ -120,8 +117,10 @@ namespace SocketFileTransfer.Canvas
         private void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             _canScan = false;
+
             var ip = listBox1.SelectedItem.ToString().Split(' ')[0];
             var message = Encoding.ASCII.GetBytes("@@Connected");
+
             _streams[listBox1.SelectedIndex].Write(message, 0, message.Length);
             _streams[listBox1.SelectedIndex].Flush();
 
@@ -130,11 +129,13 @@ namespace SocketFileTransfer.Canvas
                 EndPoint = IPEndPoint.Parse(ip + ":1400"),
                 TypeOfConnect = TypeOfConnect.Send
             });
-            for (var i = 0; i < _streams.Count; i++)
+
+            foreach (var t in _streams)
             {
-                _streams[i].Close();
-                _streams[i].Dispose();
+                t.Close();
+                t.Dispose();
             }
+
 
             Dispose();
         }

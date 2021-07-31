@@ -23,22 +23,17 @@ namespace SocketFileTransfer.CustomControl
 
             LblName.Visible = true;
 
-            setbackground(typeOfConnect);
+            Setbackground(typeOfConnect);
         }
 
-        private void setbackground(TypeOfConnect typeOfConnect)
+        private void Setbackground(TypeOfConnect typeOfConnect)
         {
-            switch (typeOfConnect)
+            BackColor = typeOfConnect switch
             {
-                case TypeOfConnect.Send:
-                    BackColor = Color.Blue;
-                    break;
-                case TypeOfConnect.Received:
-                    BackColor = Color.Green;
-                    break;
-                default:
-                    break;
-            }
+                TypeOfConnect.Send => Color.Blue,
+                TypeOfConnect.Received => Color.Green,
+                _ => BackColor
+            };
         }
 
         public CPFile(string filename, string fileSize, string filetype, TypeOfConnect typeOfConnect)
@@ -55,7 +50,7 @@ namespace SocketFileTransfer.CustomControl
 
             LblName.Visible = false;
 
-            setbackground(typeOfConnect);
+            Setbackground(typeOfConnect);
         }
     }
 }
