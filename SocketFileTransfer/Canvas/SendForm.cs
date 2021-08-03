@@ -25,10 +25,10 @@ namespace SocketFileTransfer.Canvas
 
         private void SendForm_Load(object sender, EventArgs e)
         {
-            StartScan(TransfarMedia.Ethernet);
+            StartScan();
         }
 
-        private void StartScan(TransfarMedia transfarMedia)
+        private void StartScan()
         {
             var thread = new Thread(() =>
             {
