@@ -2,10 +2,14 @@
 using SocketFileTransfer.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
+using System.Linq;
+using System.Security.Principal;
 
 namespace SocketFileTransfer.Canvas
 {
@@ -20,7 +24,61 @@ namespace SocketFileTransfer.Canvas
         public ReceivedForm()
         {
             InitializeComponent();
+            StartHotspot();
+            if (CheckHotSpot() || CheckEthernet())
+                StartBrodcast();
+            else
+                LblMsg.Text = "Faild To start Your hotspot. Please do it maually or connect your self with a network cable which is connected with router.";
         }
+
+        private void StartHotspot()
+        {
+            var id = WindowsIdentity.GetCurrent();
+            var p = new WindowsPrincipal(id);
+            if (p.IsInRole(WindowsBuiltInRole.Administrator))
+            {
+                var startInfo = new ProcessStartInfo();
+                startInfo.UseShellExecute = true;
+                startInfo.CreateNoWindow = true;
+                startInfo.WorkingDirectory = Environment.CurrentDirectory;
+                startInfo.FileName = System.Windows.Forms.Application.ExecutablePath;
+                startInfo.Verb = "runas";
+                try
+                {
+                    Process.Start(startInfo);
+                }
+                catch
+                {
+
+                }
+
+                System.Windows.Forms.Application.Exit();
+            }
+            else
+            {
+                var processStartInfo = new ProcessStartInfo("cmd.exe");
+                processStartInfo.RedirectStandardInput = true;
+                processStartInfo.RedirectStandardOutput = true;
+                processStartInfo.CreateNoWindow = true;
+                processStartInfo.UseShellExecute = false;
+                var process = Process.Start(processStartInfo);
+                process.StandardInput.WriteLine("netsh wlan set hostednetwork mode=allow ssid=" + Dns.GetHostName());
+                process.StandardInput.WriteLine("netsh wlan start hosted network");
+                process.StandardInput.Close();
+            }
+        }
+
+        private bool CheckHotSpot() =>
+            NetworkInterface.GetAllNetworkInterfaces()
+                .Any(a => a.NetworkInterfaceType == NetworkInterfaceType.Wireless80211
+                          && a.OperationalStatus == OperationalStatus.Up
+                          && a.Name.ToUpper().Contains("Local Area Connection".ToUpper()));
+
+        private bool CheckEthernet() =>
+            NetworkInterface.GetAllNetworkInterfaces()
+                .Any(a => a.NetworkInterfaceType == NetworkInterfaceType.Ethernet
+                          && a.OperationalStatus == OperationalStatus.Up
+                          && a.Name.ToUpper() == "Ethernet".ToUpper());
 
         public void StartBrodcast()
         {

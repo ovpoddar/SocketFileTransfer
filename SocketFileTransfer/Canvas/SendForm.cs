@@ -1,9 +1,12 @@
-﻿using SocketFileTransfer.ExtendClass;
+﻿using NativeWifi;
+using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
@@ -15,52 +18,60 @@ namespace SocketFileTransfer.Canvas
     public partial class SendForm : Form
     {
         public EventHandler<ConnectionDetails> OnTransmissionIpFound;
-        private Thread WorkerThread { get; set; }
-        private Thread LoopingThread { get; set; }
-        private ArrayList IpAddressList { get; set; } = new ArrayList();
         private readonly List<NetworkStream> _streams = new List<NetworkStream>();
         private bool _canScan = true;
         public SendForm()
         {
             InitializeComponent();
-            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                // TODO: later date work on lan
-                if (ni.NetworkInterfaceType != NetworkInterfaceType.Wireless80211 ||
-                    ni.OperationalStatus != OperationalStatus.Up) continue;
-
-                foreach (var ip in ni.GetIPProperties().UnicastAddresses)
-                    if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
-                        IpAddressList.Add(ip.Address.ToString());
-            }
         }
 
         private void SendForm_Load(object sender, EventArgs e)
         {
-            StartScan();
+            var c = GetWifiIp();
+            StartScan(TransfarMedia.Ethernet);
         }
 
-        private void StartScan()
+        private void StartScan(TransfarMedia transfarMedia)
         {
-            WorkerThread = new Thread(() =>
+            var WorkerThread = transfarMedia switch
             {
-                foreach (string ipadress in IpAddressList)
+                TransfarMedia.WIFI => new Thread(() =>
                 {
-                    var ipRange = ipadress.Split('.');
-                    for (var i = 0; i < 255; i++)
+                    var client = new WlanClient();
+                    foreach (var wlaninterfaces in client.Interfaces)
                     {
-                        var testIP = ipRange[0] + '.' + ipRange[1] + '.' + ipRange[2] + '.' + i.ToString();
-                        var ping = new Ping();
-                        ping.PingCompleted += Ping_PingCompleted;
-                        ping.SendAsync(testIP, 100, testIP);
-                        ping.Dispose();
+                        foreach (var networks in wlaninterfaces.GetAvailableNetworkList(Wlan.WlanGetAvailableNetworkFlags.IncludeAllManualHiddenProfiles))
+                        {
+                            if (networks.profileName == string.Empty)
+                                continue;
+                            Invoke(new MethodInvoker(() =>
+                            {
+                                listBox1.Items.Add($"{Encoding.ASCII.GetString(networks.dot11Ssid.SSID, 0, (int)networks.dot11Ssid.SSIDLength)} {TransfarMedia.WIFI}");
+                            }));
+                        }
                     }
-
-                }
-            });
+                }),
+                TransfarMedia.Ethernet => new Thread(() =>
+                {
+                    var obtainIps = GetRouterIp();
+                    foreach (var ipadress in obtainIps)
+                    {
+                        var ipRange = ipadress.Split('.');
+                        for (var i = 0; i < 255; i++)
+                        {
+                            var testIP = ipRange[0] + '.' + ipRange[1] + '.' + ipRange[2] + '.' + i.ToString();
+                            var ping = new Ping();
+                            ping.PingCompleted += Ping_PingCompleted;
+                            ping.SendAsync(testIP, 100, testIP);
+                            ping.Dispose();
+                        }
+                    }
+                }),
+                _ => throw new ArgumentOutOfRangeException(nameof(transfarMedia), transfarMedia, null),
+            };
             WorkerThread.Start();
 
-            LoopingThread = new Thread(() =>
+            var LoopingThread = new Thread(() =>
             {
                 while (_canScan && !WorkerThread.IsAlive)
                 {
@@ -71,12 +82,33 @@ namespace SocketFileTransfer.Canvas
             LoopingThread.Start();
         }
 
+        // && ni.Name == "Ethernet"
+        // this line will excluse VMS if you want to sacn for vms too then uncomment this line
+        // Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
+        // the where check will exclude all the ipv6 adressed
+        private List<string> GetRouterIp() =>
+            NetworkInterface.GetAllNetworkInterfaces()
+            .Where(e =>
+                e.NetworkInterfaceType == NetworkInterfaceType.Ethernet &&
+                e.Name == "Ethernet" &&
+                e.OperationalStatus == OperationalStatus.Up)
+            .SelectMany(e =>
+                e.GetIPProperties().UnicastAddresses
+                .Where(i =>
+                    i.Address.AddressFamily == AddressFamily.InterNetwork)
+                .Select(x => x.Address.ToString())).ToList();
+
         private void Ping_PingCompleted(object sender, PingCompletedEventArgs e)
         {
             var ip = (string)e.UserState;
 
             if (e.Reply == null || e.Reply.Status != IPStatus.Success) return;
 
+            CheckIP(ip);
+        }
+
+        private void CheckIP(string ip)
+        {
             var client = new TcpClient();
             try
             {
@@ -110,7 +142,7 @@ namespace SocketFileTransfer.Canvas
             Invoke(new MethodInvoker(() =>
             {
                 var random = new Random();
-                listBox1.Items.Add($"{model.Ip} {name}");
+                listBox1.Items.Add($"{model.Ip} {name} {TransfarMedia.Ethernet}");
             }));
         }
 
@@ -119,34 +151,86 @@ namespace SocketFileTransfer.Canvas
             _canScan = false;
 
             var ip = listBox1.SelectedItem.ToString().Split(' ')[0];
-            var message = Encoding.ASCII.GetBytes("@@Connected");
 
-            _streams[listBox1.SelectedIndex].Write(message, 0, message.Length);
-            _streams[listBox1.SelectedIndex].Flush();
+            var type = listBox1.SelectedItem.ToString().Split(' ')[^1];
 
-            OnTransmissionIpFound.Raise(this, new ConnectionDetails
+            if (type == "Ethernet")
             {
-                EndPoint = IPEndPoint.Parse(ip + ":1400"),
-                TypeOfConnect = TypeOfConnect.Send
-            });
+                var message = Encoding.ASCII.GetBytes("@@Connected");
 
-            foreach (var t in _streams)
-            {
-                t.Close();
-                t.Dispose();
+                _streams[listBox1.SelectedIndex].Write(message, 0, message.Length);
+                _streams[listBox1.SelectedIndex].Flush();
+
+                OnTransmissionIpFound.Raise(this, new ConnectionDetails
+                {
+                    EndPoint = IPEndPoint.Parse(ip + ":1400"),
+                    TypeOfConnect = TypeOfConnect.Send
+                });
+
+                foreach (var t in _streams)
+                {
+                    t.Close();
+                    t.Dispose();
+                }
+
+
+                Dispose();
             }
+            else if (type == "WIFI")
+            {
+                var client = new WlanClient();
+                foreach (var wlanInterface in client.Interfaces)
+                {
+                    wlanInterface.ConnectSynchronously(Wlan.WlanConnectionMode.Profile, Wlan.Dot11BssType.Any, ip, 5000);
+                }
+
+                var wifiIp = GetWifiIp();
+
+                foreach (var ipaddr in wifiIp)
+                {
+                    CheckIP(ipaddr);
+                }
+
+                if (_streams == null)
+                    MessageBox.Show($"{ip} network is not accessable. please restart.");
+                else
+                {
+                    var message = Encoding.ASCII.GetBytes("@@Connected");
+
+                    _streams.FirstOrDefault().Write(message, 0, message.Length);
+                    _streams.FirstOrDefault().Flush();
+
+                    OnTransmissionIpFound.Raise(this, new ConnectionDetails
+                    {
+                        EndPoint = IPEndPoint.Parse(wifiIp.First() + ":1400"),
+                        TypeOfConnect = TypeOfConnect.Send
+                    });
+
+                    foreach (var t in _streams)
+                    {
+                        t.Close();
+                        t.Dispose();
+                    }
 
 
-            Dispose();
+                    Dispose();
+                }
+            }
         }
 
-        private class TransfarModel
-        {
-            public byte[] Buffer { get; set; }
-            public string Ip { get; set; }
-            public int Id { get; set; }
-            public TcpClient Client { get; set; }
-        }
+        private List<string> GetWifiIp() =>
+            NetworkInterface.GetAllNetworkInterfaces()
+                .Where(e =>
+                    e.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 &&
+                    e.Name == "Wi-Fi" &&
+                    e.OperationalStatus == OperationalStatus.Up)
+                .SelectMany(e =>
+                    e.GetIPProperties().UnicastAddresses
+                        .Where(i =>
+                            i.Address.AddressFamily == AddressFamily.InterNetwork)
+                        .Select(x =>
+                        x.Address.ToString()))
+            .ToList();
     }
 
 }

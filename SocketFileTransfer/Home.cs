@@ -29,9 +29,9 @@ namespace SocketFileTransfer
 
             var netWorkInterfaces = NetworkInterface.GetAllNetworkInterfaces().ToList();
 
-            return netWorkInterfaces.Any(i =>
-                i.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 &&
-                i.OperationalStatus == OperationalStatus.Up);
+            return netWorkInterfaces.Any(e =>
+            e.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
+            e.NetworkInterfaceType == NetworkInterfaceType.Wireless80211);
         }
 
         private void SelectConnectMethod(object sender, TypeOfConnect e)
@@ -56,7 +56,7 @@ namespace SocketFileTransfer
         private void GotTransmissionIp(object sender, ConnectionDetails e) =>
             OpenChildForm(new TransmissionPage(e));
 
-        private void BtnExit_Click(object sender, EventArgs e) => 
+        private void BtnExit_Click(object sender, EventArgs e) =>
             Application.Exit();
 
         private void OpenChildForm(Form childForm)
@@ -86,10 +86,10 @@ namespace SocketFileTransfer
         private void PanelHeader_MouseDown(object sender, MouseEventArgs e)
         {
             ReleaseCapture();
-            SendMessage(this.Handle, 0x112, 0xf012, 0);
+            SendMessage(Handle, 0x112, 0xf012, 0);
         }
 
-        private void btnMinimize_Click(object sender, EventArgs e) => 
+        private void BtnMinimize_Click(object sender, EventArgs e) =>
             WindowState = FormWindowState.Minimized;
     }
 }

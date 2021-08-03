@@ -29,13 +29,23 @@ namespace SocketFileTransfer.Canvas
         /// </summary>
         private void InitializeComponent()
         {
+            this.LblMsg = new System.Windows.Forms.Label();
             this.SuspendLayout();
+            // 
+            // LblMsg
+            // 
+            this.LblMsg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.LblMsg.Location = new System.Drawing.Point(12, 222);
+            this.LblMsg.Name = "LblMsg";
+            this.LblMsg.Size = new System.Drawing.Size(360, 32);
+            this.LblMsg.TabIndex = 0;
             // 
             // ReceivedForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(384, 573);
+            this.Controls.Add(this.LblMsg);
             this.Name = "ReceivedForm";
             this.Text = "ReceivedForm";
             this.ResumeLayout(false);
@@ -43,5 +53,7 @@ namespace SocketFileTransfer.Canvas
         }
 
         #endregion
+
+        private System.Windows.Forms.Label LblMsg;
     }
 }

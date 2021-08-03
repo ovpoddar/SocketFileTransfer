@@ -62,7 +62,7 @@ namespace SocketFileTransfer
             this.btnMinimize.TabIndex = 0;
             this.btnMinimize.Text = "_";
             this.btnMinimize.UseVisualStyleBackColor = true;
-            this.btnMinimize.Click += new System.EventHandler(this.btnMinimize_Click);
+            this.btnMinimize.Click += new System.EventHandler(this.BtnMinimize_Click);
             // 
             // BtnExit
             // 

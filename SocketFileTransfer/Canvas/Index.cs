@@ -10,6 +10,15 @@ namespace SocketFileTransfer.Canvas
     public partial class Index : Form
     {
         public EventHandler<TypeOfConnect> SelectItem;
+        public event NotifyUser ProcessDone;
+
+        public delegate void NotifyUser();
+
+        public virtual void OnProcessDone()
+        {
+            ProcessDone.Invoke();
+        }
+
         public Index()
         {
             InitializeComponent();
