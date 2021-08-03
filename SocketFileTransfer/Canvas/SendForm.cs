@@ -2,11 +2,9 @@
 using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Model;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
@@ -27,17 +25,17 @@ namespace SocketFileTransfer.Canvas
 
         private void SendForm_Load(object sender, EventArgs e)
         {
-            var c = GetWifiIp();
             StartScan(TransfarMedia.Ethernet);
         }
 
         private void StartScan(TransfarMedia transfarMedia)
         {
-            var WorkerThread = transfarMedia switch
+            var thread = new Thread(() =>
             {
-                TransfarMedia.WIFI => new Thread(() =>
+                while (_canScan)
                 {
                     var client = new WlanClient();
+
                     foreach (var wlaninterfaces in client.Interfaces)
                     {
                         foreach (var networks in wlaninterfaces.GetAvailableNetworkList(Wlan.WlanGetAvailableNetworkFlags.IncludeAllManualHiddenProfiles))
@@ -46,14 +44,17 @@ namespace SocketFileTransfer.Canvas
                                 continue;
                             Invoke(new MethodInvoker(() =>
                             {
-                                listBox1.Items.Add($"{Encoding.ASCII.GetString(networks.dot11Ssid.SSID, 0, (int)networks.dot11Ssid.SSIDLength)} {TransfarMedia.WIFI}");
+                                var user = $"{Encoding.ASCII.GetString(networks.dot11Ssid.SSID, 0, (int)networks.dot11Ssid.SSIDLength)} {TransfarMedia.WIFI}";
+                                if (!listBox1.Items.Contains(user))
+                                    listBox1.Items.Add(user);
                             }));
                         }
                     }
-                }),
-                TransfarMedia.Ethernet => new Thread(() =>
-                {
+
+                    Thread.Sleep(500);
+
                     var obtainIps = GetRouterIp();
+
                     foreach (var ipadress in obtainIps)
                     {
                         var ipRange = ipadress.Split('.');
@@ -66,20 +67,11 @@ namespace SocketFileTransfer.Canvas
                             ping.Dispose();
                         }
                     }
-                }),
-                _ => throw new ArgumentOutOfRangeException(nameof(transfarMedia), transfarMedia, null),
-            };
-            WorkerThread.Start();
 
-            var LoopingThread = new Thread(() =>
-            {
-                while (_canScan && !WorkerThread.IsAlive)
-                {
-                    WorkerThread.Join();
-                    WorkerThread.Start();
+                    Thread.Sleep(1000);
                 }
             });
-            LoopingThread.Start();
+            thread.Start();
         }
 
         // && ni.Name == "Ethernet"
@@ -97,6 +89,24 @@ namespace SocketFileTransfer.Canvas
                 .Where(i =>
                     i.Address.AddressFamily == AddressFamily.InterNetwork)
                 .Select(x => x.Address.ToString())).ToList();
+
+        // && ni.Name == "Wi-Fi"
+        // this line will excluse Hotspots if you want to sacn for Hotspots too then uncomment this line
+        // Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
+        // the where check will exclude all the ipv6 adressed
+        private List<string> GetWifiIp() =>
+            NetworkInterface.GetAllNetworkInterfaces()
+                .Where(e =>
+                    e.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 &&
+                    e.Name == "Wi-Fi" &&
+                    e.OperationalStatus == OperationalStatus.Up)
+                .SelectMany(e =>
+                    e.GetIPProperties().UnicastAddresses
+                        .Where(i =>
+                            i.Address.AddressFamily == AddressFamily.InterNetwork)
+                        .Select(x =>
+                        x.Address.ToString()))
+            .ToList();
 
         private void Ping_PingCompleted(object sender, PingCompletedEventArgs e)
         {
@@ -141,14 +151,18 @@ namespace SocketFileTransfer.Canvas
             var name = Encoding.ASCII.GetString(model.Buffer, 0, receved);
             Invoke(new MethodInvoker(() =>
             {
-                var random = new Random();
-                listBox1.Items.Add($"{model.Ip} {name} {TransfarMedia.Ethernet}");
+                var user = $"{model.Ip} {name} {TransfarMedia.Ethernet}";
+                if (!listBox1.Items.Contains(user))
+                    listBox1.Items.Add(user);
             }));
         }
 
         private void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             _canScan = false;
+
+            if (string.IsNullOrWhiteSpace(listBox1.SelectedItem.ToString()))
+                return;
 
             var ip = listBox1.SelectedItem.ToString().Split(' ')[0];
 
@@ -191,8 +205,8 @@ namespace SocketFileTransfer.Canvas
                     CheckIP(ipaddr);
                 }
 
-                if (_streams == null)
-                    MessageBox.Show($"{ip} network is not accessable. please restart.");
+                if (_streams.Count == 0)
+                    MessageBox.Show($"{ip} network is not accessable. please start the application on {ip} in received mode.");
                 else
                 {
                     var message = Encoding.ASCII.GetBytes("@@Connected");
@@ -217,20 +231,6 @@ namespace SocketFileTransfer.Canvas
                 }
             }
         }
-
-        private List<string> GetWifiIp() =>
-            NetworkInterface.GetAllNetworkInterfaces()
-                .Where(e =>
-                    e.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 &&
-                    e.Name == "Wi-Fi" &&
-                    e.OperationalStatus == OperationalStatus.Up)
-                .SelectMany(e =>
-                    e.GetIPProperties().UnicastAddresses
-                        .Where(i =>
-                            i.Address.AddressFamily == AddressFamily.InterNetwork)
-                        .Select(x =>
-                        x.Address.ToString()))
-            .ToList();
     }
 
 }

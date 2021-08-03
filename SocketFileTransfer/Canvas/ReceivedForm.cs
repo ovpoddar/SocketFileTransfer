@@ -3,13 +3,13 @@ using SocketFileTransfer.Model;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Security.Principal;
 using System.Text;
 using System.Windows.Forms;
-using System.Linq;
-using System.Security.Principal;
 
 namespace SocketFileTransfer.Canvas
 {
@@ -43,14 +43,7 @@ namespace SocketFileTransfer.Canvas
                 startInfo.WorkingDirectory = Environment.CurrentDirectory;
                 startInfo.FileName = System.Windows.Forms.Application.ExecutablePath;
                 startInfo.Verb = "runas";
-                try
-                {
-                    Process.Start(startInfo);
-                }
-                catch
-                {
-
-                }
+                Process.Start(startInfo);
 
                 System.Windows.Forms.Application.Exit();
             }
@@ -118,27 +111,41 @@ namespace SocketFileTransfer.Canvas
         {
             var currentAdded = (int)ar.AsyncState;
             var receved = _clientStreams[currentAdded].EndRead(ar);
-            if (receved == 0)
-            {
-                return;
-            }
-            var message = Encoding.ASCII.GetString(_clientsData[currentAdded], 0, receved);
-            if (message == "@@Connected")
-            {
-                OnTransmissionIpFound.Raise(this, new ConnectionDetails
-                {
-                    EndPoint = (IPEndPoint)_clients[currentAdded].Client.RemoteEndPoint,
-                    TypeOfConnect = TypeOfConnect.Received
-                });
 
-                for (var i = 0; i < _currentAdded; i++)
+            try
+            {
+                if (receved == 0)
                 {
-                    _clients[i].Close();
-                    _clients[i].Dispose();
-                    _clientStreams[i].Close();
-                    _clientStreams[i].Dispose();
+                    return;
                 }
-                Dispose();
+                var message = Encoding.ASCII.GetString(_clientsData[currentAdded], 0, receved);
+                if (message == "@@Connected")
+                {
+                    OnTransmissionIpFound.Raise(this, new ConnectionDetails
+                    {
+                        EndPoint = (IPEndPoint)_clients[currentAdded].Client.RemoteEndPoint,
+                        TypeOfConnect = TypeOfConnect.Received
+                    });
+
+                    for (var i = 0; i < _currentAdded; i++)
+                    {
+                        _clients[i].Close();
+                        _clients[i].Dispose();
+                        _clientStreams[i].Close();
+                        _clientStreams[i].Dispose();
+                    }
+                    Dispose();
+                }
+            }
+            catch
+            {
+                _clients[currentAdded].Close();
+                _clients[currentAdded].Dispose();
+                _clientStreams[currentAdded].Close();
+                _clientStreams[currentAdded].Dispose();
+                _clientsData.RemoveAt(currentAdded);
+                _clientStreams.RemoveAt(currentAdded);
+                _clients.RemoveAt(currentAdded);
             }
         }
     }
