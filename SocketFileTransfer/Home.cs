@@ -1,4 +1,5 @@
-﻿using SocketFileTransfer.Canvas;
+﻿using NativeWifi;
+using SocketFileTransfer.Canvas;
 using SocketFileTransfer.Model;
 using System;
 using System.Linq;
@@ -20,7 +21,6 @@ namespace SocketFileTransfer
             var indexpage = new Canvas.Index();
             indexpage.SelectItem += SelectConnectMethod;
             OpenChildForm(indexpage);
-
         }
 
         private bool TestForWIFIOrLanConnection()

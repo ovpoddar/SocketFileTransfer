@@ -32,10 +32,13 @@ namespace SocketFileTransfer.Canvas
         {
             var thread = new Thread(() =>
             {
+                var client = new WlanClient();
                 while (_canScan)
                 {
-                    var client = new WlanClient();
-
+                    Invoke(new MethodInvoker(() =>
+                    {
+                        listBox1.Items.Clear();
+                    }));
                     foreach (var wlaninterfaces in client.Interfaces)
                     {
                         foreach (var networks in wlaninterfaces.GetAvailableNetworkList(Wlan.WlanGetAvailableNetworkFlags.IncludeAllManualHiddenProfiles))
@@ -44,9 +47,7 @@ namespace SocketFileTransfer.Canvas
                                 continue;
                             Invoke(new MethodInvoker(() =>
                             {
-                                var user = $"{Encoding.ASCII.GetString(networks.dot11Ssid.SSID, 0, (int)networks.dot11Ssid.SSIDLength)} {TransfarMedia.WIFI}";
-                                if (!listBox1.Items.Contains(user))
-                                    listBox1.Items.Add(user);
+                                listBox1.Items.Add($"{Encoding.ASCII.GetString(networks.dot11Ssid.SSID, 0, (int)networks.dot11Ssid.SSIDLength)} {TransfarMedia.WIFI}");
                             }));
                         }
                     }
@@ -151,9 +152,7 @@ namespace SocketFileTransfer.Canvas
             var name = Encoding.ASCII.GetString(model.Buffer, 0, receved);
             Invoke(new MethodInvoker(() =>
             {
-                var user = $"{model.Ip} {name} {TransfarMedia.Ethernet}";
-                if (!listBox1.Items.Contains(user))
-                    listBox1.Items.Add(user);
+                listBox1.Items.Add($"{model.Ip} {name} {TransfarMedia.Ethernet}");
             }));
         }
 
@@ -204,6 +203,7 @@ namespace SocketFileTransfer.Canvas
                 {
                     CheckIP(ipaddr);
                 }
+
 
                 if (_streams.Count == 0)
                     MessageBox.Show($"{ip} network is not accessable. please start the application on {ip} in received mode.");

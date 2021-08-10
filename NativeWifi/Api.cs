@@ -391,6 +391,12 @@ namespace NativeWifi
                     Wlan.WlanConnect(client.clientHandle, info.interfaceGuid, ref connectionParams, IntPtr.Zero));
             }
 
+            public void Disconnect()
+            {
+                Wlan.ThrowIfError(
+                    Wlan.WlanDisconnect(client.clientHandle, info.interfaceGuid, IntPtr.Zero));
+            }
+
             /// <summary>
             /// Requests a connection (association) to the specified wireless network.
             /// </summary>

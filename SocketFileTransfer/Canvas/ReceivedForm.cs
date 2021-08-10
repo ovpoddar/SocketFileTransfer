@@ -45,15 +45,17 @@ namespace SocketFileTransfer.Canvas
                 startInfo.Verb = "runas";
                 Process.Start(startInfo);
 
-                System.Windows.Forms.Application.Exit();
+                Application.Exit();
             }
             else
             {
-                var processStartInfo = new ProcessStartInfo("cmd.exe");
-                processStartInfo.RedirectStandardInput = true;
-                processStartInfo.RedirectStandardOutput = true;
-                processStartInfo.CreateNoWindow = true;
-                processStartInfo.UseShellExecute = false;
+                var processStartInfo = new ProcessStartInfo("cmd.exe")
+                {
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true,
+                    UseShellExecute = false
+                };
                 var process = Process.Start(processStartInfo);
                 process.StandardInput.WriteLine("netsh wlan set hostednetwork mode=allow ssid=" + Dns.GetHostName());
                 process.StandardInput.WriteLine("netsh wlan start hosted network");
