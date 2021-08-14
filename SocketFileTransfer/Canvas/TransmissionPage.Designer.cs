@@ -31,13 +31,14 @@ namespace SocketFileTransfer.Canvas
         {
             this.PanelContainer = new System.Windows.Forms.FlowLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.TxtMessage = new System.Windows.Forms.TextBox();
             this.BtnOprate = new System.Windows.Forms.Button();
+            this.TxtMessage = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // PanelContainer
             // 
+            this.PanelContainer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(59)))), ((int)(((byte)(72)))), ((int)(((byte)(81)))));
             this.PanelContainer.Dock = System.Windows.Forms.DockStyle.Top;
             this.PanelContainer.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.PanelContainer.Location = new System.Drawing.Point(0, 0);
@@ -55,16 +56,6 @@ namespace SocketFileTransfer.Canvas
             this.panel1.Size = new System.Drawing.Size(384, 31);
             this.panel1.TabIndex = 1;
             // 
-            // TxtMessage
-            // 
-            this.TxtMessage.Dock = System.Windows.Forms.DockStyle.Left;
-            this.TxtMessage.Location = new System.Drawing.Point(0, 0);
-            this.TxtMessage.Multiline = true;
-            this.TxtMessage.Name = "TxtMessage";
-            this.TxtMessage.Size = new System.Drawing.Size(332, 31);
-            this.TxtMessage.TabIndex = 0;
-            this.TxtMessage.TextChanged += new System.EventHandler(this.TextBox1_TextChanged);
-            // 
             // BtnOprate
             // 
             this.BtnOprate.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -78,6 +69,16 @@ namespace SocketFileTransfer.Canvas
             this.BtnOprate.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.BtnOprate.UseVisualStyleBackColor = true;
             this.BtnOprate.Click += new System.EventHandler(this.Button1_Click);
+            // 
+            // TxtMessage
+            // 
+            this.TxtMessage.Dock = System.Windows.Forms.DockStyle.Left;
+            this.TxtMessage.Location = new System.Drawing.Point(0, 0);
+            this.TxtMessage.Multiline = true;
+            this.TxtMessage.Name = "TxtMessage";
+            this.TxtMessage.Size = new System.Drawing.Size(332, 31);
+            this.TxtMessage.TabIndex = 0;
+            this.TxtMessage.TextChanged += new System.EventHandler(this.TextBox1_TextChanged);
             // 
             // TransmissionPage
             // 

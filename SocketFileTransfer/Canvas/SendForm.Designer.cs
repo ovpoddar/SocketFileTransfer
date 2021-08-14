@@ -29,28 +29,47 @@ namespace SocketFileTransfer.Canvas
         /// </summary>
         private void InitializeComponent()
         {
+            this.BtnBack = new System.Windows.Forms.Button();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
+            // 
+            // BtnBack
+            // 
+            this.BtnBack.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(57)))), ((int)(((byte)(66)))));
+            this.BtnBack.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.BtnBack.Dock = System.Windows.Forms.DockStyle.Top;
+            this.BtnBack.FlatAppearance.BorderSize = 0;
+            this.BtnBack.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.BtnBack.ForeColor = System.Drawing.SystemColors.Control;
+            this.BtnBack.Location = new System.Drawing.Point(0, 0);
+            this.BtnBack.Name = "BtnBack";
+            this.BtnBack.Size = new System.Drawing.Size(386, 37);
+            this.BtnBack.TabIndex = 0;
+            this.BtnBack.Text = "Back";
+            this.BtnBack.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.BtnBack.UseVisualStyleBackColor = false;
+            this.BtnBack.Click += new System.EventHandler(this.BtnBack_Click);
             // 
             // listBox1
             // 
             this.listBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(57)))), ((int)(((byte)(66)))));
+            this.listBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.listBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listBox1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(236)))), ((int)(((byte)(236)))));
             this.listBox1.FormattingEnabled = true;
             this.listBox1.ItemHeight = 15;
-            this.listBox1.Location = new System.Drawing.Point(0, 0);
+            this.listBox1.Location = new System.Drawing.Point(0, 37);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(384, 573);
-            this.listBox1.TabIndex = 0;
-            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.ListBox1_SelectedIndexChanged);
+            this.listBox1.Size = new System.Drawing.Size(386, 544);
+            this.listBox1.TabIndex = 1;
             // 
             // SendForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 573);
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(57)))), ((int)(((byte)(66)))));
+            this.ClientSize = new System.Drawing.Size(386, 581);
             this.Controls.Add(this.listBox1);
+            this.Controls.Add(this.BtnBack);
             this.Name = "SendForm";
             this.Text = "SendForm";
             this.Load += new System.EventHandler(this.SendForm_Load);
@@ -60,6 +79,7 @@ namespace SocketFileTransfer.Canvas
 
         #endregion
 
+        private System.Windows.Forms.Button BtnBack;
         private System.Windows.Forms.ListBox listBox1;
     }
 }

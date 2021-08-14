@@ -39,9 +39,9 @@ namespace SocketFileTransfer.Canvas
                     {
                         listBox1.Items.Clear();
                     }));
-                    foreach (var wlaninterfaces in client.Interfaces)
+                    try
                     {
-                        foreach (var networks in wlaninterfaces.GetAvailableNetworkList(Wlan.WlanGetAvailableNetworkFlags.IncludeAllManualHiddenProfiles))
+                        foreach (var networks in client.Interfaces.SelectMany(wlaninterfaces => wlaninterfaces.GetAvailableNetworkList(Wlan.WlanGetAvailableNetworkFlags.IncludeAllManualHiddenProfiles)))
                         {
                             if (networks.profileName == string.Empty)
                                 continue;
@@ -51,7 +51,10 @@ namespace SocketFileTransfer.Canvas
                             }));
                         }
                     }
+                    catch
+                    {
 
+                    }
                     Thread.Sleep(500);
 
                     var obtainIps = GetRouterIp();
@@ -230,6 +233,16 @@ namespace SocketFileTransfer.Canvas
                     Dispose();
                 }
             }
+        }
+
+        private void BtnBack_Click(object sender, EventArgs e)
+        {
+            _canScan = false;
+            OnTransmissionIpFound.Raise(this, new ConnectionDetails()
+            {
+                EndPoint = null,
+                TypeOfConnect = TypeOfConnect.None
+            });
         }
     }
 

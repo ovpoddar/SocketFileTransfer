@@ -26,7 +26,10 @@ namespace SocketFileTransfer.Canvas
             InitializeComponent();
             StartHotspot();
             if (CheckHotSpot() || CheckEthernet())
+            {
                 StartBrodcast();
+                LblMsg.Text = "waiting for user to connect";
+            }
             else
                 LblMsg.Text = "Faild To start Your hotspot. Please do it maually or connect your self with a network cable which is connected with router.";
         }
@@ -149,6 +152,23 @@ namespace SocketFileTransfer.Canvas
                 _clientStreams.RemoveAt(currentAdded);
                 _clients.RemoveAt(currentAdded);
             }
+        }
+
+        private void BtnBack_Click(object sender, EventArgs e)
+        {
+            OnTransmissionIpFound.Raise(this, new ConnectionDetails
+            {
+                TypeOfConnect = TypeOfConnect.None,
+                EndPoint = null
+            });
+            for (var i = 0; i < _currentAdded; i++)
+            {
+                _clients[i].Close();
+                _clients[i].Dispose();
+                _clientStreams[i].Close();
+                _clientStreams[i].Dispose();
+            }
+            Dispose();
         }
     }
 }

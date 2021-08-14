@@ -1,5 +1,4 @@
-﻿using NativeWifi;
-using SocketFileTransfer.Canvas;
+﻿using SocketFileTransfer.Canvas;
 using SocketFileTransfer.Model;
 using System;
 using System.Linq;
@@ -30,8 +29,9 @@ namespace SocketFileTransfer
             var netWorkInterfaces = NetworkInterface.GetAllNetworkInterfaces().ToList();
 
             return netWorkInterfaces.Any(e =>
-            e.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
-            e.NetworkInterfaceType == NetworkInterfaceType.Wireless80211);
+            (e.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
+            e.NetworkInterfaceType == NetworkInterfaceType.Wireless80211) &&
+            e.OperationalStatus == OperationalStatus.Up);
         }
 
         private void SelectConnectMethod(object sender, TypeOfConnect e)
@@ -53,8 +53,25 @@ namespace SocketFileTransfer
             }
         }
 
-        private void GotTransmissionIp(object sender, ConnectionDetails e) =>
-            OpenChildForm(new TransmissionPage(e));
+        private void GotTransmissionIp(object sender, ConnectionDetails e)
+        {
+            switch (e.TypeOfConnect)
+            {
+                case TypeOfConnect.Send:
+                case TypeOfConnect.Received:
+                    OpenChildForm(new TransmissionPage(e));
+                    break;
+                case TypeOfConnect.None:
+                    var indexpage = new Canvas.Index();
+                    indexpage.SelectItem += SelectConnectMethod;
+                    OpenChildForm(indexpage);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(e), e, null);
+
+
+            }
+        }
 
         private void BtnExit_Click(object sender, EventArgs e) =>
             Application.Exit();

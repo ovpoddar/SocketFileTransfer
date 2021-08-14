@@ -3,6 +3,7 @@
     public enum TypeOfConnect
     {
         Send,
-        Received
+        Received,
+        None
     }
 }
