@@ -35,12 +35,12 @@ namespace SocketFileTransfer.Canvas
                 var client = new WlanClient();
                 while (_canScan)
                 {
-                    Invoke(new MethodInvoker(() =>
-                    {
-                        listBox1.Items.Clear();
-                    }));
                     try
                     {
+                        Invoke(new MethodInvoker(() =>
+                                    {
+                                        listBox1.Items.Clear();
+                                    }));
                         foreach (var networks in client.Interfaces.SelectMany(wlaninterfaces => wlaninterfaces.GetAvailableNetworkList(Wlan.WlanGetAvailableNetworkFlags.IncludeAllManualHiddenProfiles)))
                         {
                             if (networks.profileName == string.Empty)
@@ -53,25 +53,28 @@ namespace SocketFileTransfer.Canvas
                     }
                     catch
                     {
-
                     }
                     Thread.Sleep(500);
 
-                    var obtainIps = GetRouterIp();
-
-                    foreach (var ipadress in obtainIps)
+                    try
                     {
-                        var ipRange = ipadress.Split('.');
-                        for (var i = 0; i < 255; i++)
-                        {
-                            var testIP = ipRange[0] + '.' + ipRange[1] + '.' + ipRange[2] + '.' + i.ToString();
-                            var ping = new Ping();
-                            ping.PingCompleted += Ping_PingCompleted;
-                            ping.SendAsync(testIP, 100, testIP);
-                            ping.Dispose();
-                        }
-                    }
+                        var obtainIps = GetRouterIp();
 
+                        foreach (var ipadress in obtainIps)
+                        {
+                            var ipRange = ipadress.Split('.');
+                            for (var i = 0; i < 255; i++)
+                            {
+                                var testIP = ipRange[0] + '.' + ipRange[1] + '.' + ipRange[2] + '.' + i.ToString();
+                                var ping = new Ping();
+                                ping.PingCompleted += Ping_PingCompleted;
+                                ping.SendAsync(testIP, 100, testIP);
+                                ping.Dispose();
+                            }
+                        }
+
+                    }
+                    catch { }
                     Thread.Sleep(1000);
                 }
             });

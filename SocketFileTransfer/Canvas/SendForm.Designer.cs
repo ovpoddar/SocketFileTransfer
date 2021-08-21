@@ -18,6 +18,7 @@ namespace SocketFileTransfer.Canvas
             {
                 components.Dispose();
             }
+            _canScan = false;
             base.Dispose(disposing);
         }
 
@@ -61,6 +62,7 @@ namespace SocketFileTransfer.Canvas
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(386, 544);
             this.listBox1.TabIndex = 1;
+            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.ListBox1_SelectedIndexChanged);
             // 
             // SendForm
             // 
