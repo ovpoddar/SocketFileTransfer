@@ -162,7 +162,7 @@ namespace SocketFileTransfer.Canvas
 
         public void Logging(FileTypes fileTypes, string message, TypeOfConnect typeOfConnect)
         {
-            switch (fileTypes)
+			switch (fileTypes)
             {
                 case FileTypes.File:
                     var component = message.Split(":");

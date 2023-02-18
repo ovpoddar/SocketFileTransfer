@@ -74,7 +74,7 @@ namespace SocketFileTransfer.Canvas
             this.Controls.Add(this.BtnBack);
             this.Name = "SendForm";
             this.Text = "SendForm";
-            this.Load += new System.EventHandler(this.SendForm_Load);
+            this.Load += new System.EventHandler(this.StartScanForm_Load);
             this.ResumeLayout(false);
 
         }

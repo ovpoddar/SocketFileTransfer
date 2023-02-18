@@ -16,6 +16,7 @@ namespace SocketFileTransfer.Canvas
     public partial class ReceivedForm : Form
     {
         public EventHandler<ConnectionDetails> OnTransmissionIpFound;
+
         private readonly List<byte[]> _clientsData = new List<byte[]>();
         private readonly List<NetworkStream> _clientStreams = new List<NetworkStream>();
         private readonly List<TcpClient> _clients = new List<TcpClient>();
