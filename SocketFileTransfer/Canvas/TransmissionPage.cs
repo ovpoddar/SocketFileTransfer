@@ -14,7 +14,6 @@ namespace SocketFileTransfer.Canvas
 	{
 		private Socket _clientSocket;
 		private Socket _serverSocket;
-		private IPEndPoint _iPEndPoint;
 		public TransmissionPage(ConnectionDetails connectionDetails)
 		{
 			InitializeComponent();
@@ -38,11 +37,10 @@ namespace SocketFileTransfer.Canvas
 
 		private void OpenPortToConnect(IPEndPoint endPoint)
 		{
-			_iPEndPoint = endPoint;
 			try
 			{
 				_serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-				_serverSocket.Bind(new IPEndPoint(IPAddress.Any, endPoint.Port));
+				_serverSocket.Bind(endPoint);
 				_serverSocket.Listen(10);
 				_serverSocket.BeginAccept(AcceptClient, null);
 			}
@@ -159,20 +157,23 @@ namespace SocketFileTransfer.Canvas
 
 		public void Logging(FileTypes fileTypes, string message, TypeOfConnect typeOfConnect)
 		{
-			switch (fileTypes)
+			Invoke(() =>
 			{
-				case FileTypes.File:
-					var component = message.Split(":");
-					PanelContainer.Controls.Add(new CPFile(component[0], component[1], component[2], typeOfConnect));
-					break;
-				case FileTypes.Text:
-					PanelContainer.Controls.Add(new CPFile(message, typeOfConnect));
-					break;
-				case FileTypes.Commend:
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(fileTypes), fileTypes, null);
-			}
+				switch (fileTypes)
+				{
+					case FileTypes.File:
+						var component = message.Split(":");
+						PanelContainer.Controls.Add(new CPFile(component[0], component[1], component[2], typeOfConnect));
+						break;
+					case FileTypes.Text:
+						PanelContainer.Controls.Add(new CPFile(message, typeOfConnect));
+						break;
+					case FileTypes.Commend:
+						break;
+					default:
+						throw new ArgumentOutOfRangeException(nameof(fileTypes), fileTypes, null);
+				}
+			});
 
 		}
 	}
