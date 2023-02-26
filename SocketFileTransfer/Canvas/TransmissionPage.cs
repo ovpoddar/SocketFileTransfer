@@ -10,173 +10,170 @@ using System.Windows.Forms;
 
 namespace SocketFileTransfer.Canvas
 {
-    public partial class TransmissionPage : Form
-    {
-        private Socket _socket;
-        private IPEndPoint _iPEndPoint;
-        public TransmissionPage(ConnectionDetails connectionDetails)
-        {
-            InitializeComponent();
-            var worker = new Thread(() =>
-            {
-                switch (connectionDetails.TypeOfConnect)
-                {
-                    case TypeOfConnect.Send:
-                        ConnectPort(connectionDetails.EndPoint);
-                        break;
+	public partial class TransmissionPage : Form
+	{
+		private Socket _clientSocket;
+		private Socket _serverSocket;
+		private IPEndPoint _iPEndPoint;
+		public TransmissionPage(ConnectionDetails connectionDetails)
+		{
+			InitializeComponent();
+			var worker = new Thread(() =>
+			{
+				switch (connectionDetails.TypeOfConnect)
+				{
+					case TypeOfConnect.Send:
+						ConnectPort(connectionDetails.EndPoint);
+						break;
 
-                    case TypeOfConnect.Received:
-                        OpenPortToConnect(connectionDetails.EndPoint);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(connectionDetails), connectionDetails, null);
-                }
-            });
-            worker.Start();
-        }
+					case TypeOfConnect.Received:
+						OpenPortToConnect(connectionDetails.EndPoint);
+						break;
+					default:
+						throw new ArgumentOutOfRangeException(nameof(connectionDetails), connectionDetails, null);
+				}
+			});
+			worker.Start();
+		}
 
-        private void OpenPortToConnect(IPEndPoint endPoint)
-        {
-            _iPEndPoint = endPoint;
-            try
-            {
-                var sarverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                sarverSocket.Bind(new IPEndPoint(IPAddress.Any, endPoint.Port));
-                sarverSocket.Listen(10);
-                sarverSocket.BeginAccept(AcceptClient, sarverSocket);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
+		private void OpenPortToConnect(IPEndPoint endPoint)
+		{
+			_iPEndPoint = endPoint;
+			try
+			{
+				_serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+				_serverSocket.Bind(new IPEndPoint(IPAddress.Any, endPoint.Port));
+				_serverSocket.Listen(10);
+				_serverSocket.BeginAccept(AcceptClient, null);
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.Message);
+			}
+		}
 
-        private void AcceptClient(IAsyncResult ar)
-        {
-            var sarverSocket = (Socket)ar.AsyncState;
-            _socket = sarverSocket.EndAccept(ar);
+		private void AcceptClient(IAsyncResult ar)
+		{
+			_clientSocket = _serverSocket.EndAccept(ar);
+			var buffer = new byte[_clientSocket.ReceiveBufferSize];
+			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
+		}
 
-            if (_socket.RemoteEndPoint == _iPEndPoint)
-            {
-                var buffer = new byte[_socket.ReceiveBufferSize];
-                _socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
-            }
-            else
-            {
-                _socket.Shutdown(SocketShutdown.Both);
-                _socket.Close();
-            }
-        }
+		private void ConnectPort(IPEndPoint endPoint)
+		{
+			_clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			_clientSocket.BeginConnect(endPoint, OnConnect, null);
+		}
 
-        private void ConnectPort(IPEndPoint endPoint)
-        {
-            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _socket.BeginConnect(endPoint, OnConnect, null);
-        }
+		private void OnConnect(IAsyncResult ar)
+		{
+			_clientSocket.EndConnect(ar);
 
-        private void OnConnect(IAsyncResult ar)
-        {
-            _socket.EndConnect(ar);
+			var buffer = new byte[_clientSocket.ReceiveBufferSize];
 
-            var buffer = new byte[_socket.ReceiveBufferSize];
+			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
+		}
 
-            _socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
-        }
+		private void OnReceivedEnd(IAsyncResult ar)
+		{
+			try
+			{
+				var buffer = (byte[])ar.AsyncState;
+				var received = _clientSocket.EndReceive(ar);
+				if (received == 0)
+				{
+					return;
+				}
+				var message = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
 
-        private void OnReceivedEnd(IAsyncResult ar)
-        {
-            var buffer = (byte[])ar.AsyncState;
-            var received = _socket.EndReceive(ar);
-            if (received == 0)
-            {
-                return;
-            }
-            var message = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
+				if (message.Contains(':'))
+				{
+					// prepare for file;
+					Logging(FileTypes.File, message, TypeOfConnect.Received);
+				}
+				else if (message.Contains("@@"))
+				{
+					// It's a commend
+				}
+				else
+				{
+					// Simple Sting
+					Logging(FileTypes.Text, message, TypeOfConnect.Received);
+				}
+				_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
+			}
+			catch
+			{
+				Logging(FileTypes.Text, "User is Disconnected", TypeOfConnect.None);
+			}
+		}
 
-            if (message.Contains(':'))
-            {
-                // prepare for file;
-                Logging(FileTypes.File, message, TypeOfConnect.Received);
-            }
-            else if (message.Contains("@@"))
-            {
-                // It's a commend
-            }
-            else
-            {
-                // Simple Sting
-                Logging(FileTypes.Text, message, TypeOfConnect.Received);
-            }
-            _socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
-        }
+		private void SendData(string file, FileTypes fileTypes, Socket socket)
+		{
+			if (fileTypes == FileTypes.File && File.Exists(file))
+			{
+				var fileinfo = new FileInfo(file);
+				var message = Encoding.ASCII.GetBytes($"{fileinfo.Name}:{fileinfo.Length}:{fileinfo.Extension}");
+				socket.Send(message, 0, message.Length, SocketFlags.None);
+				socket.SendFile(file);
 
-        private void SendData(string file, FileTypes fileTypes, Socket socket)
-        {
-            if (fileTypes == FileTypes.File && File.Exists(file))
-            {
-                var fileinfo = new FileInfo(file);
-                var message = Encoding.ASCII.GetBytes($"{fileinfo.Name}:{fileinfo.Length}:{fileinfo.Extension}");
-                socket.Send(message, 0, message.Length, SocketFlags.None);
-                socket.SendFile(file);
+				Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
+				return;
+			}
+			else if (fileTypes == FileTypes.File && !File.Exists(file) || fileTypes == FileTypes.Text)
+			{
+				var message = Encoding.ASCII.GetBytes(file);
+				socket.Send(message, 0, message.Length, SocketFlags.None);
+				Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
+			}
+			else
+			{
+				var message = Encoding.ASCII.GetBytes($"@@ {file.ToUpper()}");
+				socket.Send(message, 0, message.Length, SocketFlags.None);
+			}
+		}
 
-                Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
-                return;
-            }
-            else if (fileTypes == FileTypes.File && !File.Exists(file) || fileTypes == FileTypes.Text)
-            {
-                var message = Encoding.ASCII.GetBytes(file);
-                socket.Send(message, 0, message.Length, SocketFlags.None);
-                Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
-            }
-            else
-            {
-                var message = Encoding.ASCII.GetBytes($"@@ {file.ToUpper()}");
-                socket.Send(message, 0, message.Length, SocketFlags.None);
-            }
-        }
+		private void TextBox1_TextChanged(object sender, EventArgs e)
+		{
+			BtnOprate.Text = TxtMessage.Text.Length <= 0 ? "->" : "+";
+		}
 
-        private void TextBox1_TextChanged(object sender, EventArgs e)
-        {
-            BtnOprate.Text = TxtMessage.Text.Length <= 0 ? "->" : "+";
-        }
+		private void Button1_Click(object sender, EventArgs e)
+		{
+			if (TxtMessage.Text.Length <= 0)
+			{
+				var ofd = new OpenFileDialog
+				{
+					Multiselect = false
+				};
 
-        private void Button1_Click(object sender, EventArgs e)
-        {
-            if (TxtMessage.Text.Length <= 0)
-            {
-                var ofd = new OpenFileDialog
-                {
-                    Multiselect = false
-                };
+				if (ofd.ShowDialog() == DialogResult.OK)
+					SendData(ofd.FileName, FileTypes.File, _clientSocket);
+			}
+			else
+			{
+				SendData(TxtMessage.Text, FileTypes.Text, _clientSocket);
+				TxtMessage.Text = "";
+			}
+		}
 
-                if (ofd.ShowDialog() == DialogResult.OK)
-                    SendData(ofd.FileName, FileTypes.File, _socket);
-            }
-            else
-            {
-                SendData(TxtMessage.Text, FileTypes.Text, _socket);
-                TxtMessage.Text = "";
-            }
-        }
-
-        public void Logging(FileTypes fileTypes, string message, TypeOfConnect typeOfConnect)
-        {
+		public void Logging(FileTypes fileTypes, string message, TypeOfConnect typeOfConnect)
+		{
 			switch (fileTypes)
-            {
-                case FileTypes.File:
-                    var component = message.Split(":");
-                    PanelContainer.Controls.Add(new CPFile(component[0], component[1], component[2], typeOfConnect));
-                    break;
-                case FileTypes.Text:
-                    PanelContainer.Controls.Add(new CPFile(message, typeOfConnect));
-                    break;
-                case FileTypes.Commend:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(fileTypes), fileTypes, null);
-            }
+			{
+				case FileTypes.File:
+					var component = message.Split(":");
+					PanelContainer.Controls.Add(new CPFile(component[0], component[1], component[2], typeOfConnect));
+					break;
+				case FileTypes.Text:
+					PanelContainer.Controls.Add(new CPFile(message, typeOfConnect));
+					break;
+				case FileTypes.Commend:
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(fileTypes), fileTypes, null);
+			}
 
-        }
-    }
+		}
+	}
 }
