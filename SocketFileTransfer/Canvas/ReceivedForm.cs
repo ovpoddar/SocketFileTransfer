@@ -25,8 +25,6 @@ namespace SocketFileTransfer.Canvas
 		public ReceivedForm()
 		{
 			InitializeComponent();
-			HasIp();
-
 			StartHotspot();
 			if (CheckHotSpot() || CheckEthernet() || HasIp())
 			{
