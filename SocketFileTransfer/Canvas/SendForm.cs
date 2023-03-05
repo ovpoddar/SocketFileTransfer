@@ -36,6 +36,7 @@ namespace SocketFileTransfer.Canvas
 						Invoke(new MethodInvoker(() =>
 									{
 										listBox1.Items.Clear();
+										_streams.Clear();
 									}));
 						foreach (var networks in client.Interfaces.SelectMany(wlaninterfaces => wlaninterfaces.GetAvailableNetworkList(Wlan.WlanGetAvailableNetworkFlags.IncludeAllManualHiddenProfiles)))
 						{
