@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NativeWifi\NativeWifi.csproj" />
+    <ProjectReference Include="..\UtilitiTools\UtilitiTools.csproj" />
   </ItemGroup>
 
   <ItemGroup>
