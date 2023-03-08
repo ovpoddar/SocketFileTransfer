@@ -3,7 +3,7 @@ using UtilitiTools.Models;
 using WindowsFirewallHelper;
 
 namespace UtilitiTools;
-public class FireWall
+public sealed class FireWall
 {
 	private List<FirewallRuleModel> _rules;
 	private IFirewall _firewall;
@@ -11,7 +11,28 @@ public class FireWall
 	private const string ICMPv4In = "File and Printer Sharing (Echo Request - ICMPv4-In)";
 	private const string ICMPv4Out = "File and Printer Sharing (Echo Request - ICMPv4-Out)";
 
-    public FireWall()
+	private static readonly object lockObj = new object ();  
+    private static FireWall instance = null;
+	public static FireWall Instance
+	{
+		get
+		{
+			if (instance == null)
+			{
+				lock (lockObj)
+					{
+						if (instance == null)
+						{
+							instance = new FireWall();
+						}
+					}
+			}
+			return instance;
+		}
+	}
+
+
+	FireWall()
     {
 		var isDefender = FirewallManager.TryGetInstance(out _firewall);
 		if (!isDefender)
@@ -57,7 +78,7 @@ public class FireWall
 			|| a.Name == ICMPv4Out);
 		foreach (var rule in rulses)
 		{
-			_rules.Append(new FirewallRuleModel(rule));
+			_rules.Add(new FirewallRuleModel(rule));
 		}
 	}
 }
