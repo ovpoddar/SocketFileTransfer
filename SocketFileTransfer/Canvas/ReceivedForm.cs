@@ -32,10 +32,10 @@ namespace SocketFileTransfer.Canvas
 			try
 			{
 				StartHotspot();
-				_fireWall = new FireWall();
+				_fireWall = FireWall.Instance;
 				_fireWall.Begin();
 			}
-			catch(Exception ex) 
+			catch (Exception ex)
 			{
 				MessageBox.Show("Please disable your firewall.");
 			}
@@ -43,34 +43,17 @@ namespace SocketFileTransfer.Canvas
 
 		private void StartHotspot()
 		{
-			var id = WindowsIdentity.GetCurrent();
-			var p = new WindowsPrincipal(id);
-			if (p.IsInRole(WindowsBuiltInRole.Administrator))
+			var processStartInfo = new ProcessStartInfo("cmd.exe")
 			{
-				var startInfo = new ProcessStartInfo();
-				startInfo.UseShellExecute = true;
-				startInfo.CreateNoWindow = true;
-				startInfo.WorkingDirectory = Environment.CurrentDirectory;
-				startInfo.FileName = System.Windows.Forms.Application.ExecutablePath;
-				startInfo.Verb = "runas";
-				Process.Start(startInfo);
-
-				Application.Exit();
-			}
-			else
-			{
-				var processStartInfo = new ProcessStartInfo("cmd.exe")
-				{
-					RedirectStandardInput = true,
-					RedirectStandardOutput = true,
-					CreateNoWindow = true,
-					UseShellExecute = false
-				};
-				var process = Process.Start(processStartInfo);
-				process.StandardInput.WriteLine("netsh wlan set hostednetwork mode=allow ssid=" + Dns.GetHostName());
-				process.StandardInput.WriteLine("netsh wlan start hosted network");
-				process.StandardInput.Close();
-			}
+				RedirectStandardInput = true,
+				RedirectStandardOutput = true,
+				CreateNoWindow = true,
+				UseShellExecute = false
+			};
+			var process = Process.Start(processStartInfo);
+			process.StandardInput.WriteLine("netsh wlan set hostednetwork mode=allow ssid=" + Dns.GetHostName());
+			process.StandardInput.WriteLine("netsh wlan start hosted network");
+			process.StandardInput.Close();
 		}
 
 		private void ReceivedForm_Load(object sender, EventArgs e)
