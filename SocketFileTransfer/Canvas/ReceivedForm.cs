@@ -10,8 +10,10 @@ using System.Net.Sockets;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using UtilitiTools;
+using Windows.Networking.NetworkOperators;
 using WindowsFirewallHelper;
 
 namespace SocketFileTransfer.Canvas
@@ -31,7 +33,7 @@ namespace SocketFileTransfer.Canvas
 		{
 			try
 			{
-				StartHotspot();
+				StartHotspotAsync();
 				_fireWall = FireWall.Instance;
 				_fireWall.Begin();
 			}
@@ -41,19 +43,42 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private void StartHotspot()
+		private async Task StartHotspotAsync()
 		{
-			var processStartInfo = new ProcessStartInfo("cmd.exe")
+			var installLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
+
+			// Access the provisioning file
+			var provisioningFile = await installLocation.GetFileAsync("ProvisioningData.xml");
+
+			// Load with XML parser
+			var xmlDocument = await XmlDocument.LoadFromFileAsync(provisioningFile);
+
+			// Get raw XML
+			var provisioningXml = xmlDocument.GetXml();
+
+			// Create ProvisiongAgent Object
+			var provisioningAgent = new ProvisioningAgent();
+
+			try
 			{
-				RedirectStandardInput = true,
-				RedirectStandardOutput = true,
-				CreateNoWindow = true,
-				UseShellExecute = false
-			};
-			var process = Process.Start(processStartInfo);
-			process.StandardInput.WriteLine("netsh wlan set hostednetwork mode=allow ssid=" + Dns.GetHostName());
-			process.StandardInput.WriteLine("netsh wlan start hosted network");
-			process.StandardInput.Close();
+				// Create ProvisionFromXmlDocumentResults Object
+				var result = await provisioningAgent.ProvisionFromXmlDocumentAsync(provisioningXml);
+
+				if (result.AllElementsProvisioned)
+				{
+					rootPage.NotifyUser("Provisioning was successful", NotifyType.StatusMessage);
+				}
+				else
+				{
+					rootPage.NotifyUser("Provisioning result: " + result.ProvisionResultsXml, NotifyType.ErrorMessage);
+				}
+			}
+			catch (System.Exception ex)
+			{
+				// See https://learn.microsoft.com/en-us/uwp/api/windows.networking.networkoperators.provisioningagent.provisionfromxmldocumentasync
+				// for list of possible exceptions.
+				rootPage.NotifyUser($"Unable to provision: {ex}", NotifyType.ErrorMessage);
+			}
 		}
 
 		private void ReceivedForm_Load(object sender, EventArgs e)
