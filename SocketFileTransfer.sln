@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilitiTools1", "UtilitiTools1\UtilitiTools1.csproj", "{B6876763-AAEF-44F2-AA7C-9FE96CF380C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilitiTools", "UtilitiTools1\UtilitiTools.csproj", "{B6876763-AAEF-44F2-AA7C-9FE96CF380C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
