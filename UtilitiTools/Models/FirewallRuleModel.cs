@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WindowsFirewallHelper;
+﻿using WindowsFirewallHelper;
 
 namespace UtilitiTools.Models;
+
 internal class FirewallRuleModel
 {
     public FirewallRuleModel(IFirewallRule rule)
