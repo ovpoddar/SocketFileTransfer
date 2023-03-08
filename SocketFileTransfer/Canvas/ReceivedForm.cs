@@ -9,36 +9,30 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Security.Principal;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
-using UtilitiTools;
-using WindowsFirewallHelper;
 
 namespace SocketFileTransfer.Canvas
 {
 	public partial class ReceivedForm : Form
 	{
-		private FireWall _fireWall;
 		public EventHandler<ConnectionDetails> OnTransmissionIpFound;
+
+		private readonly List<byte[]> _clientsData = new List<byte[]>();
+		private readonly List<NetworkStream> _clientStreams = new List<NetworkStream>();
+		private readonly List<TcpClient> _clients = new List<TcpClient>();
+		private int _currentAdded;
 
 		public ReceivedForm()
 		{
 			InitializeComponent();
-			EstublishFireWall();
-		}
-
-		void EstublishFireWall()
-		{
-			try
+			StartHotspot();
+			if (CheckHotSpot() || CheckEthernet() || HasIp())
 			{
-				StartHotspot();
-				_fireWall = FireWall.Instance;
-				_fireWall.Begin();
+				StartBrodcast();
+				LblMsg.Text = "waiting for user to connect";
 			}
-			catch (Exception ex)
-			{
-				MessageBox.Show("Please disable your firewall.");
-			}
+			else
+				LblMsg.Text = "Faild To start Your hotspot. Please do it maually or connect your self with a network cable which is connected with router.";
 		}
 
 		private void StartHotspot()
@@ -56,29 +50,115 @@ namespace SocketFileTransfer.Canvas
 			process.StandardInput.Close();
 		}
 
-		private void ReceivedForm_Load(object sender, EventArgs e)
+		private bool CheckHotSpot() =>
+			NetworkInterface.GetAllNetworkInterfaces()
+				.Any(a => a.NetworkInterfaceType == NetworkInterfaceType.Wireless80211
+						  && a.OperationalStatus == OperationalStatus.Up
+						  && a.Name.ToUpper().Contains("Local Area Connection".ToUpper()));
+
+		private bool CheckEthernet() =>
+			NetworkInterface.GetAllNetworkInterfaces()
+				.Any(a => a.NetworkInterfaceType == NetworkInterfaceType.Ethernet
+						  && a.OperationalStatus == OperationalStatus.Up
+						  && a.Name.ToUpper() == "Ethernet".ToUpper());
+
+		private bool HasIp() => NetworkInterface.GetAllNetworkInterfaces()
+			.FirstOrDefault(a => a.OperationalStatus == OperationalStatus.Up
+				&& a.Name.ToUpper() == "Wi-Fi".ToUpper())
+			.GetIPProperties().UnicastAddresses
+			.Any(a => a.Address.AddressFamily == AddressFamily.InterNetwork);
+
+		public void StartBrodcast()
 		{
-			var thread = new Thread(() =>
+			var tcpListner = new TcpListener(IPAddress.Any, 1400);
+			tcpListner.Start();
+			tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
+		}
+
+		private void BrodcastSignal(IAsyncResult ar)
+		{
+			var tcpListner = (TcpListener)ar.AsyncState;
+			var client = tcpListner.EndAcceptTcpClient(ar);
+			var buffer = new byte[client.ReceiveBufferSize];
+			var stream = client.GetStream();
+
+			_clients.Add(client);
+			_clientsData.Add(buffer);
+			_clientStreams.Add(stream);
+			_currentAdded = _clientStreams.Count - 1;
+
+			SendSelfInformation(stream);
+			var bytes = new byte[client.ReceiveBufferSize];
+			stream.BeginRead(bytes, 0, bytes.Length, DataReceived, _currentAdded);
+
+			tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
+
+		}
+
+		private void SendSelfInformation(NetworkStream stream)
+		{
+			var message = Encoding.ASCII.GetBytes(Dns.GetHostName());
+			stream.Write(message);
+			stream.Flush();
+		}
+
+		private void DataReceived(IAsyncResult ar)
+		{
+			var currentAdded = (int)ar.AsyncState;
+			var receved = _clientStreams[currentAdded].EndRead(ar);
+
+			try
 			{
-				var _addresses = NetworkInterface.GetAllNetworkInterfaces()
-					.Where(a => a.OperationalStatus == OperationalStatus.Up)
-					.SelectMany(a => a.GetIPProperties().UnicastAddresses)
-					.Where(a => a.Address.AddressFamily == AddressFamily.InterNetwork)
-					.Select(a => a.Address.ToString())
-					.ToList();
+				if (receved == 0)
+				{
+					return;
+				}
+				var message = Encoding.ASCII.GetString(_clientsData[currentAdded], 0, receved);
+				if (message == "@@Connected")
+				{
+					OnTransmissionIpFound.Raise(this, new ConnectionDetails
+					{
+						EndPoint = (IPEndPoint)_clients[currentAdded].Client.RemoteEndPoint,
+						TypeOfConnect = TypeOfConnect.Received
+					});
 
-
-			});
+					for (var i = 0; i < _currentAdded; i++)
+					{
+						_clients[i].Close();
+						_clients[i].Dispose();
+						_clientStreams[i].Close();
+						_clientStreams[i].Dispose();
+					}
+					Dispose();
+				}
+			}
+			catch
+			{
+				_clients[currentAdded].Close();
+				_clients[currentAdded].Dispose();
+				_clientStreams[currentAdded].Close();
+				_clientStreams[currentAdded].Dispose();
+				_clientsData.RemoveAt(currentAdded);
+				_clientStreams.RemoveAt(currentAdded);
+				_clients.RemoveAt(currentAdded);
+			}
 		}
 
 		private void BtnBack_Click(object sender, EventArgs e)
 		{
-			_fireWall.Close();
-			OnTransmissionIpFound.Raise(this, new ConnectionDetails()
+			OnTransmissionIpFound.Raise(this, new ConnectionDetails
 			{
-				TypeOfConnect = TypeOfConnect.None
+				TypeOfConnect = TypeOfConnect.None,
+				EndPoint = null
 			});
+			for (var i = 0; i < _currentAdded; i++)
+			{
+				_clients[i].Close();
+				_clients[i].Dispose();
+				_clientStreams[i].Close();
+				_clientStreams[i].Dispose();
+			}
+			Dispose();
 		}
-
 	}
 }
