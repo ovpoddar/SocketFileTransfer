@@ -5,54 +5,54 @@ using WindowsFirewallHelper;
 namespace UtilitiTools;
 public sealed class FireWall
 {
-	private List<FirewallRuleModel> _rules;
-	private IFirewall _firewall;
+	private readonly List<FirewallRuleModel> _rules;
+	private readonly IFirewall _firewall;
 
-	private const string ICMPv4In = "File and Printer Sharing (Echo Request - ICMPv4-In)";
-	private const string ICMPv4Out = "File and Printer Sharing (Echo Request - ICMPv4-Out)";
+	private const string _iCMPv4In = "File and Printer Sharing (Echo Request - ICMPv4-In)";
+	private const string _iCMPv4Out = "File and Printer Sharing (Echo Request - ICMPv4-Out)";
 
-	private static readonly object lockObj = new object ();  
-    private static FireWall instance = null;
+	private static readonly object _lockObj = new object();
+	private static FireWall _instance = null;
 	public static FireWall Instance
 	{
 		get
 		{
-			if (instance == null)
+			if (_instance == null)
 			{
-				lock (lockObj)
+				lock (_lockObj)
+				{
+					if (_instance == null)
 					{
-						if (instance == null)
-						{
-							instance = new FireWall();
-						}
+						_instance = new FireWall();
 					}
+				}
 			}
-			return instance;
+			return _instance;
 		}
 	}
 
 
 	FireWall()
-    {
+	{
 		var isDefender = FirewallManager.TryGetInstance(out _firewall);
 		if (!isDefender)
 			throw new Exception("Firewall initialized fail.");
 		_rules = new List<FirewallRuleModel>();
 	}
 
-    public void Begin()
+	public void Begin()
 	{
 		Backup();
 
 		var rulses = _firewall
 			.Rules
-			.Where(a => a.Name == ICMPv4In
-			|| a.Name == ICMPv4Out);
-		
+			.Where(a => a.Name == _iCMPv4In
+			|| a.Name == _iCMPv4Out);
+
 		foreach (var rule in rulses)
 		{
 			rule.IsEnable = true;
-		}		
+		}
 	}
 
 	public void Close()
@@ -74,8 +74,8 @@ public sealed class FireWall
 	{
 		var rulses = _firewall
 			.Rules
-			.Where(a => a.Name == ICMPv4In
-			|| a.Name == ICMPv4Out);
+			.Where(a => a.Name == _iCMPv4In
+			|| a.Name == _iCMPv4Out);
 		foreach (var rule in rulses)
 		{
 			_rules.Add(new FirewallRuleModel(rule));
