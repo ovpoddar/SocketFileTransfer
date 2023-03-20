@@ -1,24 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWindowsForms>true</UseWindowsForms>
+    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Models\HotspotConfiguration.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Models\HotspotConfiguration.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="ManagedNativeWifi" Version="2.5.0" />
+    <PackageReference Include="Uno.UI" Version="4.7.44" />
     <PackageReference Include="WindowsFirewallHelper" Version="2.2.0.86" />
   </ItemGroup>
 

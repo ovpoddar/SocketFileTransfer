@@ -1,49 +1,47 @@
-﻿using System.Diagnostics;
-using System.Net;
-using System.Net.NetworkInformation;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
+using Windows.Networking.NetworkOperators;
 
 namespace UtilitiTools;
-public sealed class Hotspot
+public class Hotspot
 {
-	// todo: need instance
-	private bool _isRunning;
-
-	public bool IsRunning
+	public async Task StartAsync()
 	{
-		get { return _isRunning; }
-		private set {
-			_isRunning = NetworkInterface.GetAllNetworkInterfaces()
-				.Any(a => a.NetworkInterfaceType == NetworkInterfaceType.Wireless80211
-						  && a.OperationalStatus == OperationalStatus.Up
-						  && a.Name.ToUpper().Contains("Local Area Connection".ToUpper()));
-		}
-	}
+		var xmlDoc = new XmlDocument();
+		// Load with XML parser
+		xmlDoc.Load("Models/HotspotConfiguration.xml");
 
-	public static void Start()
-	{
-		var process = CreateCmdProcess();
-		process.StandardInput.WriteLine("netsh wlan set hostednetwork mode=allow ssid=" + Dns.GetHostName());
-		process.StandardInput.WriteLine("netsh wlan start hosted network");
-		process.StandardInput.Close();
-	}
+		// Get raw XML
+		var provisioningXml = xmlDoc.GetXml();
 
-	public static void Stop()
-	{
-		var process = CreateCmdProcess();
-		process.StandardInput.WriteLine("netsh wlan stop hostednetwork");
-		process.StandardInput.Close();
-	}
+		// Create ProvisiongAgent Object
+		var provisioningAgent = new ProvisioningAgent();
 
-
-	static Process CreateCmdProcess()
-	{
-		var processStartInfo = new ProcessStartInfo("cmd.exe")
+		try
 		{
-			RedirectStandardInput = true,
-			RedirectStandardOutput = true,
-			CreateNoWindow = true,
-			UseShellExecute = false
-		};
-		return Process.Start(processStartInfo);
+			// Create ProvisionFromXmlDocumentResults Object
+			var result = await provisioningAgent.ProvisionFromXmlDocumentAsync(provisioningXml);
+
+			if (result.AllElementsProvisioned)
+			{
+				rootPage.NotifyUser("Provisioning was successful", NotifyType.StatusMessage);
+			}
+			else
+			{
+				rootPage.NotifyUser("Provisioning result: " + result.ProvisionResultsXml, NotifyType.ErrorMessage);
+			}
+		}
+		catch (System.Exception ex)
+		{
+			// See https://learn.microsoft.com/en-us/uwp/api/windows.networking.networkoperators.provisioningagent.provisionfromxmldocumentasync
+			// for list of possible exceptions.
+			rootPage.NotifyUser($"Unable to provision: {ex}", NotifyType.ErrorMessage);
+		}
+
+
 	}
 }
