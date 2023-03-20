@@ -6,6 +6,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
+using UtilitiTools;
 
 namespace SocketFileTransfer.Canvas
 {
