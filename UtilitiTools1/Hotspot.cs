@@ -5,6 +5,7 @@ using System.Net.NetworkInformation;
 namespace UtilitiTools;
 public sealed class Hotspot
 {
+	// todo: need instance
 	private bool _isRunning;
 
 	public bool IsRunning
@@ -25,6 +26,7 @@ public sealed class Hotspot
 		process.StandardInput.WriteLine("netsh wlan start hosted network");
 		process.StandardInput.Close();
 	}
+
 	public static void Stop()
 	{
 		var process = CreateCmdProcess();

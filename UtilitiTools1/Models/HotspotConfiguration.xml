@@ -1,4 +1,5 @@
-﻿<?xml version="1.0"?><WLANProfile xmlns="http://www.microsoft.com/networking/WLAN/profile/v1">
+﻿<?xml version="1.0"?>
+<WLANProfile xmlns="http://www.microsoft.com/networking/WLAN/profile/v1">
 	<name>{0}</name>
 	<SSIDConfig>
 		<SSID>
@@ -10,14 +11,14 @@
 	<MSM>
 		<security>
 			<authEncryption>
-				<authentication>open</authentication>
-				<encryption>WEP</encryption>
+				<authentication>WPA2PSK</authentication>
+				<encryption>AES</encryption>
 				<useOneX>false</useOneX>
 			</authEncryption>
 			<sharedKey>
 				<keyType>networkKey</keyType>
 				<protected>false</protected>
-				<keyMaterial>{2}</keyMaterial>
+				<networkKey>{2}</networkKey>
 			</sharedKey>
 			<keyIndex>0</keyIndex>
 		</security>

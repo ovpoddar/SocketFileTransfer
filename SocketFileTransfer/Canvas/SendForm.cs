@@ -1,5 +1,4 @@
-﻿using NativeWifi;
-using SocketFileTransfer.ExtendClass;
+﻿using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Model;
 using System;
 using System.Collections.Generic;
@@ -26,7 +25,7 @@ namespace SocketFileTransfer.Canvas
 
 		private void StartScanForm_Load(object sender, EventArgs e)
 		{
-			var client = new WlanClient();
+			//var client = new WlanClient();
 			var thread = new Thread(() =>
 			{
 				while (_canScan)
@@ -38,15 +37,15 @@ namespace SocketFileTransfer.Canvas
 										listBox1.Items.Clear();
 										_streams.Clear();
 									}));
-						foreach (var networks in client.Interfaces.SelectMany(wlaninterfaces => wlaninterfaces.GetAvailableNetworkList(Wlan.WlanGetAvailableNetworkFlags.IncludeAllManualHiddenProfiles)))
-						{
-							if (networks.profileName == string.Empty)
-								continue;
-							Invoke(new MethodInvoker(() =>
-							{
-								listBox1.Items.Add($"{Encoding.ASCII.GetString(networks.dot11Ssid.SSID, 0, (int)networks.dot11Ssid.SSIDLength)} {TransfarMedia.WIFI}");
-							}));
-						}
+						//foreach (var networks in client.Interfaces.SelectMany(wlaninterfaces => wlaninterfaces.GetAvailableNetworkList(Wlan.WlanGetAvailableNetworkFlags.IncludeAllManualHiddenProfiles)))
+						//{
+						//	if (networks.profileName == string.Empty)
+						//		continue;
+						//	Invoke(new MethodInvoker(() =>
+						//	{
+						//		listBox1.Items.Add($"{Encoding.ASCII.GetString(networks.dot11Ssid.SSID, 0, (int)networks.dot11Ssid.SSIDLength)} {TransfarMedia.WIFI}");
+						//	}));
+						//}
 					}
 					catch
 					{
@@ -194,11 +193,11 @@ namespace SocketFileTransfer.Canvas
 			}
 			else if (type == "WIFI")
 			{
-				var client = new WlanClient();
-				foreach (var wlanInterface in client.Interfaces)
-				{
-					wlanInterface.ConnectSynchronously(Wlan.WlanConnectionMode.Profile, Wlan.Dot11BssType.Any, ip, 5000);
-				}
+				//var client = new WlanClient();
+				//foreach (var wlanInterface in client.Interfaces)
+				//{
+				//	wlanInterface.ConnectSynchronously(Wlan.WlanConnectionMode.Profile, Wlan.Dot11BssType.Any, ip, 5000);
+				//}
 
 				var wifiIp = GetWifiIp();
 
