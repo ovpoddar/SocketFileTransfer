@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UtilitiTools1\UtilitiTools.csproj" />
+    <ProjectReference Include="..\UtilitiTools\UtilitiTools.csproj" />
   </ItemGroup>
 
   <ItemGroup>
