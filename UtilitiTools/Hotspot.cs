@@ -20,31 +20,16 @@ public sealed class Hotspot
 		}
 	}
 
-	public static void Start()
-	{
-		var process = CreateCmdProcess();
-		process.StandardInput.WriteLine("netsh wlan set hostednetwork mode=allow ssid=" + Dns.GetHostName());
-		process.StandardInput.WriteLine("netsh wlan start hosted network");
-		process.StandardInput.Close();
-	}
-
-	public static void Stop()
-	{
-		var process = CreateCmdProcess();
-		process.StandardInput.WriteLine("netsh wlan stop hostednetwork");
-		process.StandardInput.Close();
-	}
-
-
-	static Process CreateCmdProcess()
-	{
-		var processStartInfo = new ProcessStartInfo("cmd.exe")
+	public static void Start() =>
+		CommendPrompt.ExecuteCommand(new string[]
 		{
-			RedirectStandardInput = true,
-			RedirectStandardOutput = true,
-			CreateNoWindow = true,
-			UseShellExecute = false
-		};
-		return Process.Start(processStartInfo);
-	}
+			"netsh wlan set hostednetwork mode=allow ssid=" + Dns.GetHostName(),
+			"netsh wlan start hosted network"
+		});
+
+	public static void Stop() =>
+		CommendPrompt.ExecuteCommand(new string[]
+		{
+			"netsh wlan stop hostednetwork" 
+		});
 }

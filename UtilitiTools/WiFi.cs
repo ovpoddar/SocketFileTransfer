@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using UtilitiTools.Helpers;
 
 namespace UtilitiTools;
 public sealed class WiFi
@@ -68,15 +70,17 @@ public sealed class WiFi
 			.Select(a => a.First())
 			.ToList();
 
-	public async Task<bool> Connect(AvailableNetworkPack? networkPack)
+	public async Task<bool> Connect(AvailableNetworkPack networkPack, string password = null)
 	{
-		//NativeWifi.SetProfile(Wlan.WlanProfileFlags.AllUser, profileXml, true);
-
-		//NativeWifi.SetProfile(_interface.Id, ProfileType.AllUser,)
+		NativeWifiCustome.SetProfile(_interface.Id,
+			ProfileType.AllUser,
+			CreateProfile(networkPack.Ssid.ToString(), password),
+			"WPA2PSK AES",
+			true);
 
 		return await NativeWifi.ConnectNetworkAsync(
 			_interface.Id,
-			networkPack.ProfileName,
+			networkPack.Ssid.ToString(),
 			BssType.None,
 			TimeSpan.FromSeconds(10));
 	}
@@ -84,6 +88,18 @@ public sealed class WiFi
 	string CreateProfile(string profileName, string password)
 	{
 		var template = File.ReadAllText(_hotspotTemplate);
-		return string.Format(template,profileName);
+		var profileNameInByte = Encoding.Default.GetBytes(profileName);
+		var profileNameInHEX = BitConverter.ToString(profileNameInByte).Replace("-", "");
+
+		password ??= GeneratePassword();
+
+		return string.Format(template, profileName, profileNameInHEX, password);
+	}
+
+	string GeneratePassword()
+	{
+		Random access = new Random(DateTime.UtcNow.Day);
+		var c = access.Next(00000000, 99999999);
+		return c.ToString();
 	}
 }

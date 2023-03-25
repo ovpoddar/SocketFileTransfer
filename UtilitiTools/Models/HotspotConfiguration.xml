@@ -16,11 +16,10 @@
 				<useOneX>false</useOneX>
 			</authEncryption>
 			<sharedKey>
-				<keyType>networkKey</keyType>
+				<keyType>passPhrase</keyType>
 				<protected>false</protected>
-				<networkKey>{2}</networkKey>
+				<keyMaterial>{2}</keyMaterial>
 			</sharedKey>
-			<keyIndex>0</keyIndex>
 		</security>
 	</MSM>
 </WLANProfile>

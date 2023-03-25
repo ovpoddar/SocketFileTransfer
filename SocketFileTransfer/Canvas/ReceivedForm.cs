@@ -54,6 +54,11 @@ namespace SocketFileTransfer.Canvas
 				//	;
 
 				var c = WiFi.Instance.Scan();
+				c = WiFi.Instance.Scan();
+				var res = await WiFi.Instance.Connect(c
+					.Where(a => a.SignalQuality > 80)
+					.First(),
+					"amarmitaayan");
 			});
 			thread.Start();
 		}
