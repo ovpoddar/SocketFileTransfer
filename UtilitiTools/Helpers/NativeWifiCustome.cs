@@ -33,8 +33,13 @@ internal class NativeWifiCustome
 
 		if (checkIfExist)
 			NativeWifi.DeleteProfile(interfaceId, profileName);
-		
-		SetProfile(GetInterfaceName(interfaceId), ConvertToUser(profileType), GetProfile(profileXml));
+
+		var profilePath = GetProfile(profileXml);
+		SetProfile(GetInterfaceName(interfaceId), ConvertToUser(profileType), profilePath);
+
+		if(File.Exists(profilePath))
+			File.Delete(profilePath);
+
 		return true;
 	}
 

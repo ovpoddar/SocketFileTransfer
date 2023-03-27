@@ -77,7 +77,7 @@ public sealed class WiFi
 			CreateProfile(networkPack.Ssid.ToString(), password),
 			"WPA2PSK AES",
 			true);
-
+		
 		return await NativeWifi.ConnectNetworkAsync(
 			_interface.Id,
 			networkPack.Ssid.ToString(),
@@ -98,8 +98,8 @@ public sealed class WiFi
 
 	string GeneratePassword()
 	{
-		Random access = new Random(DateTime.UtcNow.Day);
-		var c = access.Next(00000000, 99999999);
-		return c.ToString();
+		Random random = new Random(DateTime.UtcNow.Day);
+		var password = random.Next(00000000, 99999999);
+		return password.ToString();
 	}
 }

@@ -13,7 +13,8 @@ internal class CommendPrompt
 		var processess = CreateCmdProcess();
 		foreach (var arg in args)
 		{
-			processess.StandardInput.Write(arg);
+			processess.StandardInput.WriteLine(arg);
+			processess.StandardInput.Flush();
 		}
 		processess.StandardInput.Close();
 	}
@@ -22,8 +23,10 @@ internal class CommendPrompt
 	{
 		var processess = CreateCmdProcess();
 		foreach (var arg in args)
-			await processess.StandardInput.WriteAsync(arg);
-
+		{
+			await processess.StandardInput.WriteLineAsync(arg);
+			await processess.StandardInput.FlushAsync();
+		}
 		processess.StandardInput.Close();
 	}
 
@@ -33,9 +36,8 @@ internal class CommendPrompt
 		{
 			RedirectStandardInput = true,
 			RedirectStandardOutput = true,
-			//CreateNoWindow = true,
-			//UseShellExecute = false
-			CreateNoWindow = false,
+			CreateNoWindow = true,
+			UseShellExecute = false
 		};
 		return Process.Start(processStartInfo);
 	}

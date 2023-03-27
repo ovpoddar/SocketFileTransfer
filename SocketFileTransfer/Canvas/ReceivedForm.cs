@@ -40,6 +40,7 @@ namespace SocketFileTransfer.Canvas
 			//var wifiAddress = new WlanClient();
 			var thread = new Thread(async () =>
 			{
+				// all ipv4 of this pc
 				var _addresses = NetworkInterface.GetAllNetworkInterfaces()
 					.Where(a => a.OperationalStatus == OperationalStatus.Up)
 					.SelectMany(a => a.GetIPProperties().UnicastAddresses)
@@ -53,12 +54,6 @@ namespace SocketFileTransfer.Canvas
 				//		.Where(a => a.dot11DefaultAuthAlgorithm == Wlan.Dot11AuthAlgorithm.RSNA))
 				//	;
 
-				var c = WiFi.Instance.Scan();
-				c = WiFi.Instance.Scan();
-				var res = await WiFi.Instance.Connect(c
-					.Where(a => a.SignalQuality > 80)
-					.First(),
-					"amarmitaayan");
 			});
 			thread.Start();
 		}
