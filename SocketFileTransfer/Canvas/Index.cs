@@ -36,12 +36,12 @@ namespace SocketFileTransfer.Canvas
             this.Dispose();
         }
 
-        private void OnMouseEnterButton1(object sender, EventArgs e)
+        private void OnMouseEnterButton(object sender, EventArgs e)
         {
             var senderButton = sender as CButton;
             senderButton.BackColor = Color.FromArgb(63, 64, 64);
         }
-        private void OnMouseLeaveButton1(object sender, EventArgs e)
+        private void OnMouseLeaveButton(object sender, EventArgs e)
         {
             var senderButton = sender as CButton;
             senderButton.BackColor = Color.FromArgb(96, 97, 97);

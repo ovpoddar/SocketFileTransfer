@@ -1,6 +1,8 @@
 ﻿using SocketFileTransfer.ExtendClass;
+using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -8,235 +10,125 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using UtilitiTools;
 
 namespace SocketFileTransfer.Canvas
 {
 	public partial class SendForm : Form
 	{
+		// remove the firewall.
+		private FireWall _fireWall;
+		private IEnumerable<(NetworkInterfaceType, UnicastIPAddressInformation)> _addresses;
+		private Dictionary<string, NetworkStream> _streams = new();
+
 		public EventHandler<ConnectionDetails> OnTransmissionIpFound;
 
-		private readonly List<NetworkStream> _streams = new List<NetworkStream>();
-		private bool _canScan = true;
 		public SendForm()
 		{
 			InitializeComponent();
+			EstublishFireWall();
+		}
+
+		void EstublishFireWall()
+		{
+			try
+			{
+				Hotspot.Start();
+				_fireWall = FireWall.Instance;
+				_fireWall.Begin();
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show("Please disable your firewall.");
+			}
 		}
 
 		private void StartScanForm_Load(object sender, EventArgs e)
 		{
-			//var client = new WlanClient();
-			var thread = new Thread(() =>
+			_addresses = (from address in NetworkInterface.GetAllNetworkInterfaces()
+					.Where(a => a.OperationalStatus == OperationalStatus.Up
+						&& a.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+						  let networkInterfaceType = address.NetworkInterfaceType
+						  let b = address.GetIPProperties().UnicastAddresses
+						  from ip in b.Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
+						  select (networkInterfaceType, ip));
+			if (!_addresses.Any())
+				listBox1.Items.Add("No Device found");
+			else
 			{
-				while (_canScan)
+				foreach (var address in _addresses)
 				{
-					try
-					{
-						Invoke(new MethodInvoker(() =>
-									{
-										listBox1.Items.Clear();
-										_streams.Clear();
-									}));
-						//foreach (var networks in client.Interfaces.SelectMany(wlaninterfaces => wlaninterfaces.GetAvailableNetworkList(Wlan.WlanGetAvailableNetworkFlags.IncludeAllManualHiddenProfiles)))
-						//{
-						//	if (networks.profileName == string.Empty)
-						//		continue;
-						//	Invoke(new MethodInvoker(() =>
-						//	{
-						//		listBox1.Items.Add($"{Encoding.ASCII.GetString(networks.dot11Ssid.SSID, 0, (int)networks.dot11Ssid.SSIDLength)} {TransfarMedia.WIFI}");
-						//	}));
-						//}
-					}
-					catch
-					{
-					}
-					Thread.Sleep(500);
-
-					try
-					{
-						var obtainIps = GetRouterIp();
-
-						foreach (var ipadress in obtainIps)
-						{
-							var ipRange = ipadress.Split('.');
-							for (var i = 0; i < 255; i++)
-							{
-								var testIP = ipRange[0] + '.' + ipRange[1] + '.' + ipRange[2] + '.' + i.ToString();
-								var ping = new Ping();
-								ping.PingCompleted += Ping_PingCompleted;
-								ping.SendAsync(testIP, 100, testIP);
-								ping.Dispose();
-							}
-						}
-
-					}
-					catch { }
-					Thread.Sleep(1000);
+					FindDevices(address);
 				}
-			});
-			thread.Start();
+			}
 		}
 
-		// && ni.Name == "Ethernet"
-		// this line will excluse VMS if you want to sacn for vms too then uncomment this line
-		// Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
-		// the where check will exclude all the ipv6 adressed
-		private List<string> GetRouterIp() =>
-			NetworkInterface.GetAllNetworkInterfaces()
-			.Where(e =>
-				e.NetworkInterfaceType == NetworkInterfaceType.Ethernet &&
-				e.Name == "Ethernet" &&
-				e.OperationalStatus == OperationalStatus.Up)
-			.SelectMany(e =>
-				e.GetIPProperties().UnicastAddresses
-				.Where(i =>
-					i.Address.AddressFamily == AddressFamily.InterNetwork)
-				.Select(x => x.Address.ToString())).ToList();
-
-		// && ni.Name == "Wi-Fi"
-		// this line will excluse Hotspots if you want to sacn for Hotspots too then uncomment this line
-		// Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
-		// the where check will exclude all the ipv6 adressed
-		private List<string> GetWifiIp() =>
-			NetworkInterface.GetAllNetworkInterfaces()
-				.Where(e =>
-					e.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 &&
-					e.Name == "Wi-Fi" &&
-					e.OperationalStatus == OperationalStatus.Up)
-				.SelectMany(e =>
-					e.GetIPProperties().UnicastAddresses
-						.Where(i =>
-							i.Address.AddressFamily == AddressFamily.InterNetwork)
-						.Select(x =>
-						x.Address.ToString()))
-			.ToList();
-
-		private void Ping_PingCompleted(object sender, PingCompletedEventArgs e)
+		private void FindDevices((NetworkInterfaceType, UnicastIPAddressInformation) address)
 		{
-			var ip = (string)e.UserState;
+			var arp = new ArpRequestHandler(address.Item2.Address, address.Item1);
+			arp.OnDeviceFound += DeviceFound;
+			var devices = arp.GetNetWorkDevices();
 
-			if (e.Reply == null || e.Reply.Status != IPStatus.Success) return;
-
-			CheckIP(ip);
 		}
 
-		private void CheckIP(string ip)
+		private async void DeviceFound(object sender, DeviceDetails e)
 		{
-			var client = new TcpClient();
+			var tcpClient = new TcpClient();
 			try
 			{
-				client.Connect(ip, 1400);
-				_streams.Add(client.GetStream());
-				var current = _streams.Count - 1;
-				var model = new TransfarModel
+				tcpClient.Connect(e.IP, 1400);
+				var stream = tcpClient.GetStream();
+				var device = await ExchangeInformation(stream);
+				// device is not unique here.
+				if (device != null)
 				{
-					Buffer = new byte[client.ReceiveBufferSize],
-					Ip = ip,
-					Id = current,
-					Client = client,
-				};
-				_streams[current].BeginRead(model.Buffer, 0, model.Buffer.Length, DataReceved, model);
+					_streams.Add(device,stream);
+					if (listBox1.InvokeRequired)
+					{
+						listBox1.Invoke(() =>
+						{
+							listBox1.Items.Add($"{device} {e.InterfaceType}");
+						});
+					}
+					else
+					{
+						listBox1.Items.Add($"{device} {e.InterfaceType}");
+					}
+				}
+				else
+				{
+					stream.Close();
+					tcpClient.Dispose();
+				}
 			}
 			catch
 			{
-				client.Dispose();
+				tcpClient.Dispose();
 			}
 		}
 
-		private void DataReceved(IAsyncResult ar)
+		private async Task<string> ExchangeInformation(NetworkStream stream)
 		{
-			var model = (TransfarModel)ar.AsyncState;
-			var receved = _streams[model.Id].EndRead(ar);
-
-			if (model.Client.ReceiveBufferSize < 0)
-				return;
-
-			var name = Encoding.ASCII.GetString(model.Buffer, 0, receved);
-			Invoke(new MethodInvoker(() =>
-			{
-				listBox1.Items.Add($"{model.Ip} {name} {TransfarMedia.Ethernet}");
-			}));
+			var connectedDeviceName = new byte[1024 * 4];
+			var responce = await stream.ReadAsync(connectedDeviceName);
+			if (responce == 0)
+				return null;
+			var currentDeviceName = Encoding.ASCII.GetBytes(IPAddress.Parse(_addresses.First().Item2.ToString()) + ":-" + Dns.GetHostName());
+			stream.Write(currentDeviceName);
+			stream.Flush();
+			return Encoding.ASCII.GetString(connectedDeviceName);
 		}
 
 		private void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			_canScan = false;
 
-			if (string.IsNullOrWhiteSpace(listBox1.SelectedItem.ToString()))
-				return;
-
-			var ip = listBox1.SelectedItem.ToString().Split(' ')[0];
-
-			var type = listBox1.SelectedItem.ToString().Split(' ')[^1];
-
-			if (type == "Ethernet")
-			{
-				var message = Encoding.ASCII.GetBytes("@@Connected");
-
-				_streams[listBox1.SelectedIndex].Write(message, 0, message.Length);
-				_streams[listBox1.SelectedIndex].Flush();
-
-				OnTransmissionIpFound.Raise(this, new ConnectionDetails
-				{
-					EndPoint = IPEndPoint.Parse(ip + ":1400"),
-					TypeOfConnect = TypeOfConnect.Send
-				});
-
-				foreach (var t in _streams)
-				{
-					t.Close();
-					t.Dispose();
-				}
-
-
-				Dispose();
-			}
-			else if (type == "WIFI")
-			{
-				//var client = new WlanClient();
-				//foreach (var wlanInterface in client.Interfaces)
-				//{
-				//	wlanInterface.ConnectSynchronously(Wlan.WlanConnectionMode.Profile, Wlan.Dot11BssType.Any, ip, 5000);
-				//}
-
-				var wifiIp = GetWifiIp();
-
-				foreach (var ipaddr in wifiIp)
-				{
-					CheckIP(ipaddr);
-				}
-
-
-				if (_streams.Count == 0)
-					MessageBox.Show($"{ip} network is not accessable. please start the application on {ip} in received mode.");
-				else
-				{
-					var message = Encoding.ASCII.GetBytes("@@Connected");
-
-					_streams.FirstOrDefault().Write(message, 0, message.Length);
-					_streams.FirstOrDefault().Flush();
-
-					OnTransmissionIpFound.Raise(this, new ConnectionDetails
-					{
-						EndPoint = IPEndPoint.Parse(wifiIp.First() + ":1400"),
-						TypeOfConnect = TypeOfConnect.Send
-					});
-
-					foreach (var t in _streams)
-					{
-						t.Close();
-						t.Dispose();
-					}
-
-
-					Dispose();
-				}
-			}
 		}
 
 		private void BtnBack_Click(object sender, EventArgs e)
 		{
-			_canScan = false;
+
 			OnTransmissionIpFound.Raise(this, new ConnectionDetails()
 			{
 				EndPoint = null,

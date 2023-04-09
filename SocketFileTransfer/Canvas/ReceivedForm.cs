@@ -73,13 +73,12 @@ namespace SocketFileTransfer.Canvas
 			tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
 		}
 
-		private void BrodcastSignal(IAsyncResult ar)
+		private async void BrodcastSignal(IAsyncResult ar)
 		{
 			var tcpListner = (TcpListener)ar.AsyncState;
 			var client = tcpListner.EndAcceptTcpClient(ar);
 			var stream = client.GetStream();
-			var newDevice = string.Empty;
-			Task.Run(async () => newDevice = await ExchangeInformation(stream));
+			var newDevice = await ExchangeInformation(stream);
 			var managedClient = new TcpClientModel(newDevice, client);
 
 			if (newDevice != null 
@@ -152,15 +151,14 @@ namespace SocketFileTransfer.Canvas
 				TypeOfConnect = TypeOfConnect.None,
 				EndPoint = null
 			});
-			for (var i = 0; i < _currentAdded; i++)
-			{
-				_clients[i].Dispose();
-			}
 			Dispose();
 		}
 
 		~ReceivedForm()
 		{
+			for (var i = 0; i < _currentAdded; i++)
+				_clients[i].Dispose();
+
 			_fireWall.Close();
 		}
 	}

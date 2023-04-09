@@ -44,8 +44,8 @@ namespace SocketFileTransfer.Canvas
             this.Send.Text = "Send";
             this.Send.UseVisualStyleBackColor = false;
             this.Send.Click += new System.EventHandler(this.Send_Click);
-            this.Send.MouseEnter += new System.EventHandler(this.OnMouseEnterButton1);
-            this.Send.MouseLeave += new System.EventHandler(this.OnMouseLeaveButton1);
+            this.Send.MouseEnter += new System.EventHandler(this.OnMouseEnterButton);
+            this.Send.MouseLeave += new System.EventHandler(this.OnMouseLeaveButton);
             // 
             // BtnReceived
             // 
@@ -58,8 +58,8 @@ namespace SocketFileTransfer.Canvas
             this.BtnReceived.Text = "Received";
             this.BtnReceived.UseVisualStyleBackColor = false;
             this.BtnReceived.Click += new System.EventHandler(this.BtnReceived_Click);
-            this.BtnReceived.MouseEnter += new System.EventHandler(this.OnMouseEnterButton1);
-            this.BtnReceived.MouseLeave += new System.EventHandler(this.OnMouseLeaveButton1);
+            this.BtnReceived.MouseEnter += new System.EventHandler(this.OnMouseEnterButton);
+            this.BtnReceived.MouseLeave += new System.EventHandler(this.OnMouseLeaveButton);
             // 
             // Index
             // 
