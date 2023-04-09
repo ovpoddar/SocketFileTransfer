@@ -19,7 +19,6 @@ namespace SocketFileTransfer.Canvas
 	public partial class ReceivedForm : Form
 	{
 		private int _currentAdded;
-		private FireWall _fireWall;
 		private IEnumerable<(NetworkInterfaceType, UnicastIPAddressInformation)> _addresses;
 		private readonly Dictionary<int, TcpClientModel> _clients = new Dictionary<int, TcpClientModel>();
 
@@ -28,21 +27,6 @@ namespace SocketFileTransfer.Canvas
 		public ReceivedForm()
 		{
 			InitializeComponent();
-			EstublishFireWall();
-		}
-
-		void EstublishFireWall()
-		{
-			try
-			{
-				Hotspot.Start();
-				_fireWall = FireWall.Instance;
-				_fireWall.Begin();
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show("Please disable your firewall.");
-			}
 		}
 
 		private void ReceivedForm_Load(object sender, EventArgs e)
@@ -162,8 +146,6 @@ namespace SocketFileTransfer.Canvas
 		{
 			for (var i = 0; i < _currentAdded; i++)
 				_clients[i].Dispose();
-
-			_fireWall.Close();
 		}
 	}
 }

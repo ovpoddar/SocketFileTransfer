@@ -20,8 +20,6 @@ namespace SocketFileTransfer.Canvas
 {
 	public partial class SendForm : Form
 	{
-		// remove the firewall.
-		private FireWall _fireWall;
 		private IEnumerable<(NetworkInterfaceType, UnicastIPAddressInformation)> _addresses;
 		private Dictionary<string, NetworkStream> _streams = new();
 
@@ -30,21 +28,6 @@ namespace SocketFileTransfer.Canvas
 		public SendForm()
 		{
 			InitializeComponent();
-			EstublishFireWall();
-		}
-
-		void EstublishFireWall()
-		{
-			try
-			{
-				Hotspot.Start();
-				_fireWall = FireWall.Instance;
-				_fireWall.Begin();
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show("Please disable your firewall.");
-			}
 		}
 
 		private void StartScanForm_Load(object sender, EventArgs e)
@@ -113,6 +96,7 @@ namespace SocketFileTransfer.Canvas
 					{
 						listBox1.Items.Add($"{device} {connectedDeviceDetails.DeviceDetails.InterfaceType.ToString()}");
 					}
+					// start reading because when reading has issue thats means user disconnected.
 				}
 				else
 				{
