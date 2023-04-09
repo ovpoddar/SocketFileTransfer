@@ -33,7 +33,7 @@ public abstract class ArpBase
 		for (var i = 0; i < 255; i++)
 		{
 			tempRoleIp = IncrementIp(tempRoleIp);
-			if (tempRoleIp == _address)
+			if (tempRoleIp.ToString().AsSpan().SequenceEqual(_address.ToString().AsSpan()))
 				continue;
 			yield return tempRoleIp;
 		}
