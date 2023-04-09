@@ -22,6 +22,7 @@ namespace SocketFileTransfer.Canvas
 	{
 		private IEnumerable<(NetworkInterfaceType, UnicastIPAddressInformation)> _addresses;
 		private Dictionary<string, NetworkStream> _streams = new();
+		private Dictionary<string, DeviceDetails> _address = new();
 
 		public EventHandler<ConnectionDetails> OnTransmissionIpFound;
 
@@ -85,6 +86,7 @@ namespace SocketFileTransfer.Canvas
 				if (device != null)
 				{
 					_streams.Add(device, stream);
+					_address.Add(device, connectedDeviceDetails.DeviceDetails);
 					if (listBox1.InvokeRequired)
 					{
 						listBox1.Invoke(() =>
@@ -124,7 +126,26 @@ namespace SocketFileTransfer.Canvas
 
 		private void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
 		{
+			var item = listBox1.SelectedItem.ToString();
+			if (!_streams.ContainsKey(item))
+				listBox1.Items.Remove(item);
 
+			var connectingPort = GeneratePort();
+			var message = Encoding.ASCII.GetBytes($"@@Connected::{connectingPort}").AsSpan();
+			_streams[item].Write(message);
+			_streams[item].Flush();
+			OnTransmissionIpFound.Raise(this, new ConnectionDetails()
+			{
+				EndPoint = IPEndPoint.Parse(_address[item].IP.ToString() + ":" + connectingPort),
+				TypeOfConnect = TypeOfConnect.Send
+			});
+		}
+
+		string GeneratePort()
+		{
+			Random random = new Random(DateTime.UtcNow.Month);
+			var port = random.Next(1000, 1200);
+			return port.ToString();
 		}
 
 		private void BtnBack_Click(object sender, EventArgs e)

@@ -67,7 +67,7 @@ namespace SocketFileTransfer.Canvas
 			var newDevice = await ExchangeInformation(stream);
 			var managedClient = new TcpClientModel(newDevice, client);
 
-			if (newDevice != null 
+			if (newDevice != null
 				&& managedClient.IsCreationSucced
 				&& !_clients.Any(a => a.Value.Name == managedClient.Name))
 			{
@@ -80,7 +80,7 @@ namespace SocketFileTransfer.Canvas
 			}
 			else
 			{
-				if(managedClient.IsCreationSucced)
+				if (managedClient.IsCreationSucced)
 					managedClient.Dispose();
 			}
 			tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
@@ -111,11 +111,12 @@ namespace SocketFileTransfer.Canvas
 					return;
 				}
 				var message = Encoding.ASCII.GetString(_clients[currentAdded].Data, 0, receved);
-				if (message == "@@Connected")
+				if (message.StartsWith("@@Connected"))
 				{
+					var port = message.Split("::");
 					OnTransmissionIpFound.Raise(this, new ConnectionDetails
 					{
-						EndPoint = _clients[currentAdded].RemoteEndPoient,
+						EndPoint = IPEndPoint.Parse(_clients[currentAdded].RemoteEndPoient.Address.ToString() + ":" + port),
 						TypeOfConnect = TypeOfConnect.Received
 					});
 
