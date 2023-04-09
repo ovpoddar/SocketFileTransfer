@@ -34,13 +34,9 @@ internal struct TcpClientModel : IDisposable
 
 	public void Dispose()
 	{
-		if (Streams != null && Streams.CanWrite)
-		{
-			Streams.Close();
-			Streams.Dispose();
-		}
+		Streams.Close();
+		Streams.Dispose();
 		Clients.Close();
 		Clients.Dispose();
-		GC.SuppressFinalize(this);
 	}
 }

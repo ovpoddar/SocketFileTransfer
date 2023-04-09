@@ -93,7 +93,8 @@ namespace SocketFileTransfer.Canvas
 			}
 			else
 			{
-				managedClient.Dispose();
+				if(managedClient.IsCreationSucced)
+					managedClient.Dispose();
 			}
 			tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
 
