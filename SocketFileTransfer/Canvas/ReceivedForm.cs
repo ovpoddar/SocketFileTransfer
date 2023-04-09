@@ -60,15 +60,17 @@ namespace SocketFileTransfer.Canvas
 				LblMsg.Text = "Faild To start Your hotspot. Please do it maually or connect your self with a network cable which is connected with router.";
 			else
 			{
-				BrodCastSignal();
+				foreach (var address in _addresses)
+					BrodCastSignal(_addresses.First().Item2.Address);
+
 				LblMsg.Text = "waiting for user to connect";
 			}
 		}
 
-		private void BrodCastSignal()
+		private void BrodCastSignal(IPAddress address)
 		{
 			// test the parsing.
-			var tcpListner = new TcpListener(IPAddress.Parse(_addresses.First().Item2.Address.ToString()), 1400);
+			var tcpListner = new TcpListener(address, 1400);
 			tcpListner.Start();
 			tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
 		}
