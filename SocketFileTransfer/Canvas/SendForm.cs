@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
@@ -13,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using UtilitiTools;
+using UtilitiTools.Models;
 
 namespace SocketFileTransfer.Canvas
 {
@@ -70,39 +72,49 @@ namespace SocketFileTransfer.Canvas
 			_ = arp.GetNetWorkDevices();
 		}
 
-		private async void DeviceFound(object sender, DeviceDetails e)
+		private void DeviceFound(object sender, DeviceDetails e)
 		{
 			var tcpClient = new TcpClient();
 			try
 			{
-				tcpClient.Connect(e.IP, 1400);
-				var stream = tcpClient.GetStream();
-				var device = await ExchangeInformation(stream);
-				// device is not unique here.
-				if (device != null)
+				var deviceDetails = new ConnectDevice()
 				{
-					_streams.Add(device,stream);
-					if (listBox1.InvokeRequired)
-					{
-						listBox1.Invoke(() =>
-						{
-							listBox1.Items.Add($"{device} {e.InterfaceType}");
-						});
-					}
-					else
-					{
-						listBox1.Items.Add($"{device} {e.InterfaceType}");
-					}
-				}
-				else
-				{
-					stream.Close();
-					tcpClient.Dispose();
-				}
+					DeviceDetails = e,
+					TcpClient = tcpClient
+				};
+				tcpClient.BeginConnect(e.IP, 1400, ConnectToEndPoient, deviceDetails);
 			}
 			catch
 			{
 				tcpClient.Dispose();
+			}
+		}
+
+		private async void ConnectToEndPoient(IAsyncResult ar)
+		{
+			var tcpClient = ar.AsyncState as ConnectDevice;
+			var stream = tcpClient.TcpClient.GetStream();
+			var device = await ExchangeInformation(stream);
+			// device is not unique here.
+			if (device != null)
+			{
+				_streams.Add(device, stream);
+				if (listBox1.InvokeRequired)
+				{
+					listBox1.Invoke(() =>
+					{
+						listBox1.Items.Add($"{device} {tcpClient.DeviceDetails.InterfaceType}");
+					});
+				}
+				else
+				{
+					listBox1.Items.Add($"{device} {tcpClient.DeviceDetails.InterfaceType}");
+				}
+			}
+			else
+			{
+				stream.Close();
+				tcpClient.TcpClient.Dispose();
 			}
 		}
 
@@ -133,5 +145,9 @@ namespace SocketFileTransfer.Canvas
 			});
 		}
 	}
-
+	file class ConnectDevice
+	{
+        public TcpClient TcpClient { get; set; }
+        public DeviceDetails DeviceDetails { get; set; }
+    }
 }
