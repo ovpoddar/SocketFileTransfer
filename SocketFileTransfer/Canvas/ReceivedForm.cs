@@ -115,7 +115,7 @@ namespace SocketFileTransfer.Canvas
 					var port = message.Split("::");
 					OnTransmissionIpFound.Raise(this, new ConnectionDetails
 					{
-						EndPoint = IPEndPoint.Parse(_clients[currentAdded].RemoteEndPoient.Address.ToString() + ":" + port[1]),
+						EndPoint = IPEndPoint.Parse(_clients[currentAdded].Clients.Client.LocalEndPoint.ToString().Split(":")[0] + ":" + port[1]),
 						TypeOfConnect = TypeOfConnect.Received
 					});
 
