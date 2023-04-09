@@ -15,13 +15,12 @@ internal struct TcpClientModel : IDisposable
 	{
 		try
 		{
-			var identitySplit = identity.Split(":-");
-			if (identitySplit.Length != 2 || string.IsNullOrEmpty(identitySplit[0]) || string.IsNullOrEmpty(identitySplit[0]))
+			if (identity == null || string.IsNullOrWhiteSpace(identity))
 				throw new Exception();
 
-			Name = identitySplit[0];
+			Name = identity;
 			// test this parsing too
-			RemoteEndPoient = IPEndPoint.Parse(identitySplit[1]);
+			RemoteEndPoient = IPEndPoint.Parse(tcp.Client.RemoteEndPoint.ToString());
 			Clients = tcp;
 			Streams = tcp.GetStream();
 			Data = new byte[tcp.ReceiveBufferSize];

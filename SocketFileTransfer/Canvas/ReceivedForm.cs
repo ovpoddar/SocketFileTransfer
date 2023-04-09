@@ -102,7 +102,7 @@ namespace SocketFileTransfer.Canvas
 
 		private async Task<string> ExchangeInformation(NetworkStream stream)
 		{
-			var currentDeviceName = Encoding.ASCII.GetBytes(IPAddress.Parse(_addresses.First().Item2.Address.ToString()) + ":-" + Dns.GetHostName());
+			var currentDeviceName = Encoding.ASCII.GetBytes(Dns.GetHostName());
 			stream.Write(currentDeviceName);
 			stream.Flush();
 			var connectedDeviceName = new byte[1024 * 4];

@@ -132,7 +132,7 @@ namespace SocketFileTransfer.Canvas
 			var responce = await stream.ReadAsync(connectedDeviceName);
 			if (responce == 0)
 				return null;
-			var currentDeviceName = Encoding.ASCII.GetBytes(IPAddress.Parse(_addresses.First().Item2.Address.ToString()) + ":-" + Dns.GetHostName());
+			var currentDeviceName = Encoding.ASCII.GetBytes(Dns.GetHostName());
 			stream.Write(currentDeviceName);
 			stream.Flush();
 			return Encoding.ASCII.GetString(connectedDeviceName);
