@@ -106,12 +106,12 @@ namespace SocketFileTransfer.Canvas
 					{
 						listBox1.Invoke(() =>
 						{
-							listBox1.Items.Add($"{device} {connectedDeviceDetails.DeviceDetails.InterfaceType}");
+							listBox1.Items.Add($"{device} {connectedDeviceDetails.DeviceDetails.InterfaceType.ToString()}");
 						});
 					}
 					else
 					{
-						listBox1.Items.Add($"{device} {connectedDeviceDetails.DeviceDetails.InterfaceType}");
+						listBox1.Items.Add($"{device} {connectedDeviceDetails.DeviceDetails.InterfaceType.ToString()}");
 					}
 				}
 				else
