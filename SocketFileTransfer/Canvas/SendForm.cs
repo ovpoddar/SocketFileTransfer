@@ -91,12 +91,12 @@ namespace SocketFileTransfer.Canvas
 					{
 						listBox1.Invoke(() =>
 						{
-							listBox1.Items.Add($"{device} {connectedDeviceDetails.DeviceDetails.InterfaceType.ToString()}");
+							listBox1.Items.Add($"{device}");
 						});
 					}
 					else
 					{
-						listBox1.Items.Add($"{device} {connectedDeviceDetails.DeviceDetails.InterfaceType.ToString()}");
+						listBox1.Items.Add($"{device}");
 					}
 					// start reading because when reading has issue thats means user disconnected.
 				}

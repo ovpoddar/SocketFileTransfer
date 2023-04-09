@@ -53,7 +53,6 @@ namespace SocketFileTransfer.Canvas
 
 		private void BrodCastSignal(IPAddress address)
 		{
-			// test the parsing.
 			var tcpListner = new TcpListener(address, 1400);
 			tcpListner.Start();
 			tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
@@ -116,7 +115,7 @@ namespace SocketFileTransfer.Canvas
 					var port = message.Split("::");
 					OnTransmissionIpFound.Raise(this, new ConnectionDetails
 					{
-						EndPoint = IPEndPoint.Parse(_clients[currentAdded].RemoteEndPoient.Address.ToString() + ":" + port),
+						EndPoint = IPEndPoint.Parse(_clients[currentAdded].RemoteEndPoient.Address.ToString() + ":" + port[1]),
 						TypeOfConnect = TypeOfConnect.Received
 					});
 
