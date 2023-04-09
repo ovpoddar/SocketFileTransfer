@@ -55,13 +55,11 @@ namespace SocketFileTransfer.Canvas
 						  from ip in b.Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
 						  select (networkInterfaceType, ip));
 			if (!_addresses.Any())
-				listBox1.Items.Add("No Device found");
+				MessageBox.Show("No Device found");
 			else
 			{
 				foreach (var address in _addresses)
-				{
 					FindDevices(address);
-				}
 			}
 		}
 
@@ -69,8 +67,7 @@ namespace SocketFileTransfer.Canvas
 		{
 			var arp = new ArpRequestHandler(address.Item2.Address, address.Item1);
 			arp.OnDeviceFound += DeviceFound;
-			var devices = arp.GetNetWorkDevices();
-
+			_ = arp.GetNetWorkDevices();
 		}
 
 		private async void DeviceFound(object sender, DeviceDetails e)
@@ -115,7 +112,7 @@ namespace SocketFileTransfer.Canvas
 			var responce = await stream.ReadAsync(connectedDeviceName);
 			if (responce == 0)
 				return null;
-			var currentDeviceName = Encoding.ASCII.GetBytes(IPAddress.Parse(_addresses.First().Item2.ToString()) + ":-" + Dns.GetHostName());
+			var currentDeviceName = Encoding.ASCII.GetBytes(IPAddress.Parse(_addresses.First().Item2.Address.ToString()) + ":-" + Dns.GetHostName());
 			stream.Write(currentDeviceName);
 			stream.Flush();
 			return Encoding.ASCII.GetString(connectedDeviceName);

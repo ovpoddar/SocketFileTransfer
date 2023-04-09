@@ -27,7 +27,7 @@ namespace SocketFileTransfer.Canvas
         private void Send_Click(object sender, EventArgs e)
         {
             SelectItem.Raise(this, TypeOfConnect.Send);
-            Dispose();
+			this.Dispose();
         }
 
         private void BtnReceived_Click(object sender, EventArgs e)

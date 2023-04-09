@@ -26,7 +26,7 @@ internal class ArpRequestHandler : ArpBase
 		{
 			var responce = await base.CheckIpAdressWithARP(ipAddress);
 			if (responce)
-				OnDeviceFound.Raise(ipAddress, _interfaceType);
+				OnDeviceFound.Raise(this, new DeviceDetails( ipAddress, _interfaceType));
 		});
 	}
 }
