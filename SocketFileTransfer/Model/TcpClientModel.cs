@@ -5,7 +5,7 @@ using System.Net.Sockets;
 namespace SocketFileTransfer.Model;
 internal struct TcpClientModel : IDisposable
 {
-	public readonly byte[] Data { get; init; }
+	public byte[] Data { get; set; }
 	public readonly NetworkStream Streams { get; init; }
 	public readonly TcpClient Clients { get; init; }
 	public string Name { get; }
@@ -23,7 +23,6 @@ internal struct TcpClientModel : IDisposable
 			RemoteEndPoient = IPEndPoint.Parse(tcp.Client.RemoteEndPoint.ToString());
 			Clients = tcp;
 			Streams = tcp.GetStream();
-			Data = new byte[tcp.ReceiveBufferSize];
 		}
 		catch
 		{

@@ -86,10 +86,11 @@ namespace SocketFileTransfer.Canvas
 				&& _clients.Any(a => a.Value.Name == managedClient.Name))
 			{
 				_currentAdded = _clients.Count;
-				_clients.Add(_currentAdded, managedClient);
 
 				var bytes = new byte[client.ReceiveBufferSize];
 				stream.BeginRead(bytes, 0, bytes.Length, DataReceived, _currentAdded);
+				managedClient.Data = bytes;
+				_clients.Add(_currentAdded, managedClient);
 			}
 			else
 			{
