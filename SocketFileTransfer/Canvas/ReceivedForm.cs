@@ -68,7 +68,7 @@ namespace SocketFileTransfer.Canvas
 		private void BrodCastSignal()
 		{
 			// test the parsing.
-			var tcpListner = new TcpListener(IPAddress.Parse(_addresses.First().Item2.ToString()), 1400);
+			var tcpListner = new TcpListener(IPAddress.Parse(_addresses.First().Item2.Address.ToString()), 1400);
 			tcpListner.Start();
 			tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
 		}
