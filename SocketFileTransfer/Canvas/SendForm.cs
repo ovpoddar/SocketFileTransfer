@@ -93,6 +93,8 @@ namespace SocketFileTransfer.Canvas
 		private async void ConnectToEndPoient(IAsyncResult ar)
 		{
 			var tcpClient = ar.AsyncState as ConnectDevice;
+			tcpClient.TcpClient.EndConnect(ar);
+
 			var stream = tcpClient.TcpClient.GetStream();
 			var device = await ExchangeInformation(stream);
 			// device is not unique here.
