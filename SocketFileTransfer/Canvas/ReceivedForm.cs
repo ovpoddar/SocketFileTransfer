@@ -83,7 +83,7 @@ namespace SocketFileTransfer.Canvas
 
 			if (newDevice != null 
 				&& managedClient.IsCreationSucced
-				&& _clients.Any(a => a.Value.Name == managedClient.Name))
+				&& !_clients.Any(a => a.Value.Name == managedClient.Name))
 			{
 				_currentAdded = _clients.Count;
 
