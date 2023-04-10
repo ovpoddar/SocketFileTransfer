@@ -45,7 +45,7 @@ namespace SocketFileTransfer.Canvas
 			else
 			{
 				foreach (var address in _addresses)
-					BrodCastSignal(_addresses.First().Item2.Address);
+					BrodCastSignal(address.Item2.Address);
 
 				LblMsg.Text = "waiting for user to connect";
 			}
