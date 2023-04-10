@@ -15,6 +15,7 @@ internal class ArpRequestHandler : ArpBase
 	private readonly NetworkInterfaceType _interfaceType;
     
 	public EventHandler<DeviceDetails> OnDeviceFound;
+	public EventHandler<bool> OnScanComplete;
 
 	public ArpRequestHandler(IPAddress address, NetworkInterfaceType interfaceType) : base(address) =>
 		_interfaceType = interfaceType;
@@ -28,5 +29,6 @@ internal class ArpRequestHandler : ArpBase
 			if (responce)
 				OnDeviceFound.Raise(this, new DeviceDetails( ipAddress, _interfaceType));
 		});
+		OnScanComplete.Raise(this,EventArgs.Empty);
 	}
 }

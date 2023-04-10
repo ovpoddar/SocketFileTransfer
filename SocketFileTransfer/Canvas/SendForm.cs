@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,9 +21,7 @@ namespace SocketFileTransfer.Canvas
 {
 	public partial class SendForm : Form
 	{
-		private IEnumerable<(NetworkInterfaceType, UnicastIPAddressInformation)> _addresses;
-		private Dictionary<string, NetworkStream> _streams = new();
-		private Dictionary<string, DeviceDetails> _address = new();
+		private readonly Dictionary<string, (NetworkStream, DeviceDetails)> _streams = new();
 
 		public EventHandler<ConnectionDetails> OnTransmissionIpFound;
 
@@ -33,18 +32,19 @@ namespace SocketFileTransfer.Canvas
 
 		private void StartScanForm_Load(object sender, EventArgs e)
 		{
-			_addresses = (from address in NetworkInterface.GetAllNetworkInterfaces()
+			// exclude the virtual machines
+			var addresses = (from address in NetworkInterface.GetAllNetworkInterfaces()
 					.Where(a => a.OperationalStatus == OperationalStatus.Up
 						&& a.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-						  let networkInterfaceType = address.NetworkInterfaceType
-						  let b = address.GetIPProperties().UnicastAddresses
-						  from ip in b.Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
-						  select (networkInterfaceType, ip));
-			if (!_addresses.Any())
+							 let networkInterfaceType = address.NetworkInterfaceType
+							 let b = address.GetIPProperties().UnicastAddresses
+							 from ip in b.Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
+							 select (networkInterfaceType, ip));
+			if (!addresses.Any())
 				MessageBox.Show("No Device found");
 			else
 			{
-				foreach (var address in _addresses)
+				foreach (var address in addresses)
 					FindDevices(address);
 			}
 		}
@@ -61,12 +61,7 @@ namespace SocketFileTransfer.Canvas
 			var tcpClient = new TcpClient();
 			try
 			{
-				var deviceDetails = new ConnectDevice()
-				{
-					DeviceDetails = e,
-					TcpClient = tcpClient
-				};
-				tcpClient.BeginConnect(e.IP, 1400, ConnectToEndPoient, deviceDetails);
+				tcpClient.BeginConnect(e.IP, 1400, ConnectToEndPoient, (e, tcpClient));
 			}
 			catch
 			{
@@ -76,17 +71,19 @@ namespace SocketFileTransfer.Canvas
 
 		private async void ConnectToEndPoient(IAsyncResult ar)
 		{
-			var connectedDeviceDetails = ar.AsyncState as ConnectDevice;
+			var connectedDeviceDetails = ar.AsyncState as (DeviceDetails DeviceDetails, TcpClient TcpClient)?;
+			if (!connectedDeviceDetails.HasValue)
+				return;
+
 			try
 			{
-				connectedDeviceDetails.TcpClient.EndConnect(ar);
-				var stream = connectedDeviceDetails.TcpClient.GetStream();
+				connectedDeviceDetails.Value.TcpClient.EndConnect(ar);
+				var stream = connectedDeviceDetails.Value.TcpClient.GetStream();
 				var device = await ExchangeInformation(stream);
 				// device is not unique here.
 				if (device != null)
 				{
-					_streams.Add(device, stream);
-					_address.Add(device, connectedDeviceDetails.DeviceDetails);
+					_streams.Add(device, (stream, connectedDeviceDetails.Value.DeviceDetails));
 					if (listBox1.InvokeRequired)
 					{
 						listBox1.Invoke(() =>
@@ -103,12 +100,12 @@ namespace SocketFileTransfer.Canvas
 				else
 				{
 					stream.Close();
-					connectedDeviceDetails.TcpClient.Dispose();
+					connectedDeviceDetails.Value.TcpClient.Dispose();
 				}
 			}
 			catch (Exception)
 			{
-				connectedDeviceDetails.TcpClient.Dispose();
+				connectedDeviceDetails.Value.TcpClient.Dispose();
 			}
 		}
 
@@ -132,11 +129,12 @@ namespace SocketFileTransfer.Canvas
 
 			var connectingPort = GeneratePort();
 			var message = Encoding.ASCII.GetBytes($"@@Connected::{connectingPort}").AsSpan();
-			_streams[item].Write(message);
-			_streams[item].Flush();
+			_streams[item].Item1.Write(message);
+			_streams[item].Item1.Flush();
+
 			OnTransmissionIpFound.Raise(this, new ConnectionDetails()
 			{
-				EndPoint = IPEndPoint.Parse(_address[item].IP.ToString() + ":" + connectingPort),
+				EndPoint = IPEndPoint.Parse(_streams[item].Item2.IP.ToString() + ":" + connectingPort),
 				TypeOfConnect = TypeOfConnect.Send
 			});
 		}
@@ -150,17 +148,17 @@ namespace SocketFileTransfer.Canvas
 
 		private void BtnBack_Click(object sender, EventArgs e)
 		{
-
 			OnTransmissionIpFound.Raise(this, new ConnectionDetails()
 			{
 				EndPoint = null,
 				TypeOfConnect = TypeOfConnect.None
 			});
 		}
-	}
-	file class ConnectDevice
-	{
-		public TcpClient TcpClient { get; set; }
-		public DeviceDetails DeviceDetails { get; set; }
+
+		~SendForm()
+		{
+			foreach (var stream in _streams)
+				stream.Value.Item1.Dispose();
+		}
 	}
 }

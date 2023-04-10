@@ -19,7 +19,6 @@ namespace SocketFileTransfer.Canvas
 	public partial class ReceivedForm : Form
 	{
 		private int _currentAdded;
-		private IEnumerable<(NetworkInterfaceType, UnicastIPAddressInformation)> _addresses;
 		private readonly Dictionary<int, TcpClientModel> _clients = new Dictionary<int, TcpClientModel>();
 
 		public EventHandler<ConnectionDetails> OnTransmissionIpFound;
@@ -31,8 +30,7 @@ namespace SocketFileTransfer.Canvas
 
 		private void ReceivedForm_Load(object sender, EventArgs e)
 		{
-			// all ipv4 of this pc
-			_addresses = (from address in NetworkInterface.GetAllNetworkInterfaces()
+			var addresses = (from address in NetworkInterface.GetAllNetworkInterfaces()
 					.Where(a => a.OperationalStatus == OperationalStatus.Up
 						&& a.NetworkInterfaceType != NetworkInterfaceType.Loopback)
 						  let networkInterfaceType = address.NetworkInterfaceType
@@ -40,11 +38,11 @@ namespace SocketFileTransfer.Canvas
 						  from ip in b.Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
 						  select (networkInterfaceType, ip));
 
-			if (!_addresses.Any())
+			if (!addresses.Any())
 				LblMsg.Text = "Faild To start Your hotspot. Please do it maually or connect your self with a network cable which is connected with router.";
 			else
 			{
-				foreach (var address in _addresses)
+				foreach (var address in addresses)
 					BrodCastSignal(address.Item2.Address);
 
 				LblMsg.Text = "waiting for user to connect";
@@ -118,12 +116,6 @@ namespace SocketFileTransfer.Canvas
 						EndPoint = IPEndPoint.Parse(_clients[currentAdded].Clients.Client.LocalEndPoint.ToString().Split(":")[0] + ":" + port[1]),
 						TypeOfConnect = TypeOfConnect.Received
 					});
-
-					for (var i = 0; i < _currentAdded; i++)
-					{
-						_clients[i].Dispose();
-					}
-					Dispose();
 				}
 			}
 			catch
@@ -139,7 +131,6 @@ namespace SocketFileTransfer.Canvas
 				TypeOfConnect = TypeOfConnect.None,
 				EndPoint = null
 			});
-			Dispose();
 		}
 
 		~ReceivedForm()
