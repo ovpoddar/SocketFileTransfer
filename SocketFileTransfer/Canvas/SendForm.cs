@@ -104,12 +104,13 @@ namespace SocketFileTransfer.Canvas
 				listBox1.Items.Remove(item);
 
 			var port = ProjectStandaredUtilitiesHelper.SendConnectSignalWithPort(_clients[item].Item1);
-
-			OnTransmissionIpFound.Raise(this, new ConnectionDetails()
-			{
-				EndPoint = IPEndPoint.Parse(_clients[item].Item2.IP.ToString() + ":" + port),
-				TypeOfConnect = TypeOfConnect.Send
-			});
+			if (port != null)
+				OnTransmissionIpFound.Raise(this, new ConnectionDetails()
+				{
+					EndPoint = IPEndPoint.Parse(_clients[item].Item2.IP.ToString() + ":" + port),
+					TypeOfConnect = TypeOfConnect.Send
+				});
+			MessageBox.Show("Failed to negotiate.");
 		}
 
 		private void BtnBack_Click(object sender, EventArgs e)

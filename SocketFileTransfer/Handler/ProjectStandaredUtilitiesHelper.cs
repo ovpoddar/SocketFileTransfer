@@ -42,15 +42,18 @@ internal static class ProjectStandaredUtilitiesHelper
 		return responce;
 	}
 
-	public static string SendConnectSignalWithPort(TcpClient client)
+	public static async Task<string> SendConnectSignalWithPort(TcpClient client)
 	{
 		var connectingPort = GeneratePort();
 		var message = $"@@Connected::{connectingPort}";
 		SendDetails(client, message.AsSpan());
-		return connectingPort;
+		var receivedConfirmation = await ReadDetails(client);
+		if (receivedConfirmation == "@Connected@")
+			return connectingPort;
+		return null;
 	}
 
-	public static string ReceivedTheConnectionPort(byte[] messageAsBytes, int messageLength)
+	public static string ReceivedTheConnectionPort(TcpClient client, byte[] messageAsBytes, int messageLength)
 	{
 		if (messageLength == 0)
 			return null;
@@ -60,9 +63,13 @@ internal static class ProjectStandaredUtilitiesHelper
 			return null;
 
 		var slice = receivedMessage.Split("::");
-		return slice.Length == 2 
-			? slice[1] 
-			: null;
+		if (slice.Length == 2)
+		{
+			SendDetails(client, "@Connected@");
+			return slice[1];
+		}
+		else
+			return null;
 	}
 
 	static string GeneratePort()

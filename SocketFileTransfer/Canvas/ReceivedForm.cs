@@ -85,7 +85,7 @@ namespace SocketFileTransfer.Canvas
 			try
 			{
 				var receved = _clients[currentAdded].Streams.EndRead(ar);
-				var port = ProjectStandaredUtilitiesHelper.ReceivedTheConnectionPort(_clients[currentAdded].Data, receved);
+				var port = ProjectStandaredUtilitiesHelper.ReceivedTheConnectionPort(_clients[currentAdded].Clients, _clients[currentAdded].Data, receved);
 				if (!string.IsNullOrWhiteSpace(port))
 					OnTransmissionIpFound.Raise(this, new ConnectionDetails
 					{
