@@ -80,9 +80,9 @@ namespace SocketFileTransfer.Canvas
 				{
 					// need to look at connectedDeviceDetails.Value.DeviceDetails.NetworkInterfaceType
 					_clients.Add(device, (connectedDeviceDetails.Value.TcpClient, connectedDeviceDetails.Value.DeviceDetails));
-					listBox1.InvokeFunctionInThradeSafeWay(listbox =>
+					listBox1.InvokeFunctionInThradeSafeWay(() =>
 					{
-						(listbox as ListBox).Items.Add($"{device}");
+						listBox1.Items.Add($"{device}");
 					});
 					// start reading because when reading has issue thats means user disconnected.
 				}
