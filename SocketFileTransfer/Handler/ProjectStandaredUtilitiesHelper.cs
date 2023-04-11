@@ -42,7 +42,31 @@ internal static class ProjectStandaredUtilitiesHelper
 		return responce;
 	}
 
+	public static string SendConnectSignalWithPort(TcpClient client)
+	{
+		var connectingPort = GeneratePort();
+		var message = $"@@Connected::{connectingPort}";
+		SendDetails(client, message.AsSpan());
+		return connectingPort;
+	}
 
+	public static async Task<string> ReceivedTheConnectionPort(TcpClient client)
+	{
+		var receivedMessage = await ReadDetails(client);
+		if (receivedMessage.StartsWith("@@Connected::"))
+		{
+			var slice = receivedMessage.Split("::");
+			return slice.Length == 2 ? slice[1] : null;
+		}
+		return null;
+	}
+
+	static string GeneratePort()
+	{
+		Random random = new Random(DateTime.UtcNow.Month);
+		var port = random.Next(1000, 1200);
+		return port.ToString();
+	}
 
 	static void SendDetails(TcpClient client, ReadOnlySpan<char> message)
 	{

@@ -21,7 +21,7 @@ namespace SocketFileTransfer.Canvas
 {
 	public partial class SendForm : Form
 	{
-		private readonly Dictionary<string, (NetworkStream, DeviceDetails)> _streams = new();
+		private readonly Dictionary<string, (TcpClient, DeviceDetails)> _clients = new();
 
 		public EventHandler<ConnectionDetails> OnTransmissionIpFound;
 
@@ -73,28 +73,21 @@ namespace SocketFileTransfer.Canvas
 			try
 			{
 				connectedDeviceDetails.Value.TcpClient.EndConnect(ar);
-				var stream = connectedDeviceDetails.Value.TcpClient.GetStream();
 				var device = await ProjectStandaredUtilitiesHelper.ExchangeInformation(connectedDeviceDetails.Value.TcpClient, TypeOfConnect.Send);
+
 				// device is not unique here.
 				if (device != null)
 				{
-					_streams.Add(device, (stream, connectedDeviceDetails.Value.DeviceDetails));
-					if (listBox1.InvokeRequired)
+					// need to look at connectedDeviceDetails.Value.DeviceDetails.NetworkInterfaceType
+					_clients.Add(device, (connectedDeviceDetails.Value.TcpClient, connectedDeviceDetails.Value.DeviceDetails));
+					listBox1.InvokeFunctionInThradeSafeWay(listbox =>
 					{
-						listBox1.Invoke(() =>
-						{
-							listBox1.Items.Add($"{device}");
-						});
-					}
-					else
-					{
-						listBox1.Items.Add($"{device}");
-					}
+						(listbox as ListBox).Items.Add($"{device}");
+					});
 					// start reading because when reading has issue thats means user disconnected.
 				}
 				else
 				{
-					stream.Close();
 					connectedDeviceDetails.Value.TcpClient.Dispose();
 				}
 			}
@@ -107,26 +100,16 @@ namespace SocketFileTransfer.Canvas
 		private void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			var item = listBox1.SelectedItem.ToString();
-			if (!_streams.ContainsKey(item))
+			if (!_clients.ContainsKey(item))
 				listBox1.Items.Remove(item);
 
-			var connectingPort = GeneratePort();
-			var message = Encoding.ASCII.GetBytes($"@@Connected::{connectingPort}").AsSpan();
-			_streams[item].Item1.Write(message);
-			_streams[item].Item1.Flush();
+			var port = ProjectStandaredUtilitiesHelper.SendConnectSignalWithPort(_clients[item].Item1);
 
 			OnTransmissionIpFound.Raise(this, new ConnectionDetails()
 			{
-				EndPoint = IPEndPoint.Parse(_streams[item].Item2.IP.ToString() + ":" + connectingPort),
+				EndPoint = IPEndPoint.Parse(_clients[item].Item2.IP.ToString() + ":" + port),
 				TypeOfConnect = TypeOfConnect.Send
 			});
-		}
-
-		string GeneratePort()
-		{
-			Random random = new Random(DateTime.UtcNow.Month);
-			var port = random.Next(1000, 1200);
-			return port.ToString();
 		}
 
 		private void BtnBack_Click(object sender, EventArgs e)
@@ -140,7 +123,7 @@ namespace SocketFileTransfer.Canvas
 
 		~SendForm()
 		{
-			foreach (var stream in _streams)
+			foreach (var stream in _clients)
 				stream.Value.Item1.Dispose();
 		}
 	}
