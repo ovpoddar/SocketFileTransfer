@@ -92,23 +92,8 @@ namespace SocketFileTransfer.Canvas
 						EndPoint = IPEndPoint.Parse(_clients[currentAdded].Clients.Client.LocalEndPoint.ToString().Split(":")[0] + ":" + port[1]),
 						TypeOfConnect = TypeOfConnect.Received
 					});
-				// test and remove it
-				/*if (receved == 0)
-				** {
-				** 	return;
-				** }
-				** var message = Encoding.ASCII.GetString(_clients[currentAdded].Data, 0, receved);
-				** if (message.StartsWith("@@Connected"))
-				** {
-				** 	var port = message.Split("::");
-				** 	OnTransmissionIpFound.Raise(this, new ConnectionDetails
-				** 	{
-				** 		EndPoint = IPEndPoint.Parse(_clients[currentAdded].Clients.Client.LocalEndPoint.ToString().Split(":")[0] + ":" + port[1]),
-				** 		TypeOfConnect = TypeOfConnect.Received
-				** 	});
-				}*/
 			}
-			catch
+			finally
 			{
 				_clients[currentAdded].Dispose();
 			}

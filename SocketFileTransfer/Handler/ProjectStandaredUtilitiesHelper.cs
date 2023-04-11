@@ -52,7 +52,7 @@ internal static class ProjectStandaredUtilitiesHelper
 
 	public static string ReceivedTheConnectionPort(byte[] messageAsBytes, int messageLength)
 	{
-		if (messageLength == 0 || messageLength != messageAsBytes.Length)
+		if (messageLength == 0)
 			return null;
 
 		var receivedMessage = Encoding.ASCII.GetString(messageAsBytes, 0, messageLength);
