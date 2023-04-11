@@ -50,15 +50,19 @@ internal static class ProjectStandaredUtilitiesHelper
 		return connectingPort;
 	}
 
-	public static async Task<string> ReceivedTheConnectionPort(TcpClient client)
+	public static string ReceivedTheConnectionPort(byte[] messageAsBytes, int messageLength)
 	{
-		var receivedMessage = await ReadDetails(client);
-		if (receivedMessage.StartsWith("@@Connected::"))
-		{
-			var slice = receivedMessage.Split("::");
-			return slice.Length == 2 ? slice[1] : null;
-		}
-		return null;
+		if (messageLength == 0 || messageLength != messageAsBytes.Length)
+			return null;
+
+		var receivedMessage = Encoding.ASCII.GetString(messageAsBytes, 0, messageLength);
+		if (!receivedMessage.StartsWith("@@Connected::"))
+			return null;
+
+		var slice = receivedMessage.Split("::");
+		return slice.Length == 2 
+			? slice[1] 
+			: null;
 	}
 
 	static string GeneratePort()
