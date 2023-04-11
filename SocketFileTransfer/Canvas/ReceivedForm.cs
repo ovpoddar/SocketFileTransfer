@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualBasic.Devices;
 using SocketFileTransfer.ExtendClass;
+using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
 using System.Collections.Generic;
@@ -30,13 +31,7 @@ namespace SocketFileTransfer.Canvas
 
 		private void ReceivedForm_Load(object sender, EventArgs e)
 		{
-			var addresses = (from address in NetworkInterface.GetAllNetworkInterfaces()
-					.Where(a => a.OperationalStatus == OperationalStatus.Up
-						&& a.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-						  let networkInterfaceType = address.NetworkInterfaceType
-						  let b = address.GetIPProperties().UnicastAddresses
-						  from ip in b.Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
-						  select (networkInterfaceType, ip));
+			var addresses = ProjectStandaredUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
 
 			if (!addresses.Any())
 				LblMsg.Text = "Faild To start Your hotspot. Please do it maually or connect your self with a network cable which is connected with router.";
@@ -83,7 +78,7 @@ namespace SocketFileTransfer.Canvas
 			tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
 
 		}
-
+		// can change;
 		private async Task<string> ExchangeInformation(NetworkStream stream)
 		{
 			var currentDeviceName = Encoding.ASCII.GetBytes(Dns.GetHostName());

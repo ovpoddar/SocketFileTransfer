@@ -32,18 +32,13 @@ namespace SocketFileTransfer.Canvas
 
 		private void StartScanForm_Load(object sender, EventArgs e)
 		{
-			// exclude the virtual machines
-			var addresses = (from address in NetworkInterface.GetAllNetworkInterfaces()
-					.Where(a => a.OperationalStatus == OperationalStatus.Up
-						&& a.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-							 let networkInterfaceType = address.NetworkInterfaceType
-							 let b = address.GetIPProperties().UnicastAddresses
-							 from ip in b.Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
-							 select (networkInterfaceType, ip));
+			var addresses = ProjectStandaredUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
+
 			if (!addresses.Any())
 				MessageBox.Show("No Device found");
 			else
 			{
+				// combine into task then wait for completion
 				foreach (var address in addresses)
 					FindDevices(address);
 			}
@@ -109,6 +104,7 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
+		// can change;
 		private async Task<string> ExchangeInformation(NetworkStream stream)
 		{
 			var connectedDeviceName = new byte[1024 * 4];
