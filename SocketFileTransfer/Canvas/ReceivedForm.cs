@@ -86,47 +86,47 @@ namespace SocketFileTransfer.Canvas
 			{
 				var receved = _clients[currentAdded].Streams.EndRead(ar);
 				var port = ProjectStandaredUtilitiesHelper.ReceivedTheConnectionPort(_clients[currentAdded].Data, receved);
-				if(!string.IsNullOrWhiteSpace(port))
+				if (!string.IsNullOrWhiteSpace(port))
 					OnTransmissionIpFound.Raise(this, new ConnectionDetails
 					{
 						EndPoint = IPEndPoint.Parse(_clients[currentAdded].Clients.Client.LocalEndPoint.ToString().Split(":")[0] + ":" + port[1]),
 						TypeOfConnect = TypeOfConnect.Received
 					});
 				// test and remove it
-/*if (receved == 0)
-** {
-** 	return;
-** }
-** var message = Encoding.ASCII.GetString(_clients[currentAdded].Data, 0, receved);
-** if (message.StartsWith("@@Connected"))
-** {
-** 	var port = message.Split("::");
-** 	OnTransmissionIpFound.Raise(this, new ConnectionDetails
-** 	{
-** 		EndPoint = IPEndPoint.Parse(_clients[currentAdded].Clients.Client.LocalEndPoint.ToString().Split(":")[0] + ":" + port[1]),
-** 		TypeOfConnect = TypeOfConnect.Received
-** 	});
-}*/
-}
-catch
-{
-_clients[currentAdded].Dispose();
-}
-}
+				/*if (receved == 0)
+				** {
+				** 	return;
+				** }
+				** var message = Encoding.ASCII.GetString(_clients[currentAdded].Data, 0, receved);
+				** if (message.StartsWith("@@Connected"))
+				** {
+				** 	var port = message.Split("::");
+				** 	OnTransmissionIpFound.Raise(this, new ConnectionDetails
+				** 	{
+				** 		EndPoint = IPEndPoint.Parse(_clients[currentAdded].Clients.Client.LocalEndPoint.ToString().Split(":")[0] + ":" + port[1]),
+				** 		TypeOfConnect = TypeOfConnect.Received
+				** 	});
+				}*/
+			}
+			catch
+			{
+				_clients[currentAdded].Dispose();
+			}
+		}
 
-private void BtnBack_Click(object sender, EventArgs e)
-{
-OnTransmissionIpFound.Raise(this, new ConnectionDetails
-{
-TypeOfConnect = TypeOfConnect.None,
-EndPoint = null
-});
-}
+		private void BtnBack_Click(object sender, EventArgs e)
+		{
+			OnTransmissionIpFound.Raise(this, new ConnectionDetails
+			{
+				TypeOfConnect = TypeOfConnect.None,
+				EndPoint = null
+			});
+		}
 
-~ReceivedForm()
-{
-for (var i = 0; i < _currentAdded; i++)
-_clients[i].Dispose();
-}
-}
+		~ReceivedForm()
+		{
+			for (var i = 0; i < _currentAdded; i++)
+				_clients[i].Dispose();
+		}
+	}
 }
