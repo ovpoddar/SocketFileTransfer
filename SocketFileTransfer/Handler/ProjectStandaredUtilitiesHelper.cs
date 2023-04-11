@@ -42,6 +42,8 @@ internal static class ProjectStandaredUtilitiesHelper
 		return responce;
 	}
 
+
+
 	static void SendDetails(TcpClient client, ReadOnlySpan<char> message)
 	{
 		var deviceNameAsByte = Encoding.ASCII.GetBytes(message.ToString());

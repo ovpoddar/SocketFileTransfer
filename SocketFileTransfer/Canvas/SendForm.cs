@@ -74,7 +74,7 @@ namespace SocketFileTransfer.Canvas
 			{
 				connectedDeviceDetails.Value.TcpClient.EndConnect(ar);
 				var stream = connectedDeviceDetails.Value.TcpClient.GetStream();
-				var device = await ExchangeInformation(stream);
+				var device = await ProjectStandaredUtilitiesHelper.ExchangeInformation(connectedDeviceDetails.Value.TcpClient, TypeOfConnect.Send);
 				// device is not unique here.
 				if (device != null)
 				{
@@ -102,19 +102,6 @@ namespace SocketFileTransfer.Canvas
 			{
 				connectedDeviceDetails.Value.TcpClient.Dispose();
 			}
-		}
-
-		// can change;
-		private async Task<string> ExchangeInformation(NetworkStream stream)
-		{
-			var connectedDeviceName = new byte[1024 * 4];
-			var responce = await stream.ReadAsync(connectedDeviceName);
-			if (responce == 0)
-				return null;
-			var currentDeviceName = Encoding.ASCII.GetBytes(Dns.GetHostName());
-			stream.Write(currentDeviceName);
-			stream.Flush();
-			return Encoding.ASCII.GetString(connectedDeviceName);
 		}
 
 		private void ListBox1_SelectedIndexChanged(object sender, EventArgs e)

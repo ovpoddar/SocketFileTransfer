@@ -55,8 +55,7 @@ namespace SocketFileTransfer.Canvas
 		{
 			var tcpListner = (TcpListener)ar.AsyncState;
 			var client = tcpListner.EndAcceptTcpClient(ar);
-			var stream = client.GetStream();
-			var newDevice = await ExchangeInformation(stream);
+			var newDevice = await ProjectStandaredUtilitiesHelper.ExchangeInformation(client, TypeOfConnect.Received);
 			var managedClient = new TcpClientModel(newDevice, client);
 
 			if (newDevice != null
@@ -66,7 +65,7 @@ namespace SocketFileTransfer.Canvas
 				_currentAdded = _clients.Count;
 
 				var bytes = new byte[client.ReceiveBufferSize];
-				stream.BeginRead(bytes, 0, bytes.Length, DataReceived, _currentAdded);
+				client.GetStream().BeginRead(bytes, 0, bytes.Length, DataReceived, _currentAdded);
 				managedClient.Data = bytes;
 				_clients.Add(_currentAdded, managedClient);
 			}
@@ -77,18 +76,6 @@ namespace SocketFileTransfer.Canvas
 			}
 			tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
 
-		}
-		// can change;
-		private async Task<string> ExchangeInformation(NetworkStream stream)
-		{
-			var currentDeviceName = Encoding.ASCII.GetBytes(Dns.GetHostName());
-			stream.Write(currentDeviceName);
-			stream.Flush();
-			var connectedDeviceName = new byte[1024 * 4];
-			var responce = await stream.ReadAsync(connectedDeviceName);
-			if (responce == 0)
-				return null;
-			return Encoding.ASCII.GetString(connectedDeviceName);
 		}
 
 		private void DataReceived(IAsyncResult ar)
