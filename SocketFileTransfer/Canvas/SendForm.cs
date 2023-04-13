@@ -89,13 +89,13 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
+		private async void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			var item = listBox1.SelectedItem.ToString();
 			if (!_clients.ContainsKey(item))
 				listBox1.Items.Remove(item);
 
-			var port = ProjectStandaredUtilitiesHelper.SendConnectSignalWithPort(_clients[item].Item1);
+			var port = await ProjectStandaredUtilitiesHelper.SendConnectSignalWithPort(_clients[item].Item1);
 			if (port != null)
 				OnTransmissionIpFound.Raise(this, new ConnectionDetails()
 				{
