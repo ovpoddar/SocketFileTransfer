@@ -92,7 +92,10 @@ internal static class ProjectStandaredUtilitiesHelper
 		var responce = await client.GetStream().ReadAsync(deviceNameAllocateByte);
 		if (responce == 0)
 			return null;
-		return Encoding.ASCII.GetString(deviceNameAllocateByte);
+		return Encoding.ASCII.GetString(deviceNameAllocateByte, 0 ,responce)
+			.AsSpan()
+			.TrimEnd('\0')
+			.ToString();
 	}
 
 
