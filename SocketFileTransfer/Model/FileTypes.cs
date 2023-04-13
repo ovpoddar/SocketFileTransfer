@@ -1,9 +1,9 @@
 ﻿namespace SocketFileTransfer.Model
 {
-    public enum FileTypes
-    {
-        File,
-        Text,
-        Commend
-    }
+	public enum FileTypes
+	{
+		File,
+		Text,
+		Commend
+	}
 }

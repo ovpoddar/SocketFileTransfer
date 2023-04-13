@@ -90,7 +90,7 @@ internal static class ProjectStandaredUtilitiesHelper
 	{
 		var deviceNameAllocateByte = new byte[client.ReceiveBufferSize];
 		var responce = await client.GetStream().ReadAsync(deviceNameAllocateByte);
-		if (responce  == 0)
+		if (responce == 0)
 			return null;
 		return Encoding.ASCII.GetString(deviceNameAllocateByte);
 	}

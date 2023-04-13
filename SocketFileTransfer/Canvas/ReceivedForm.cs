@@ -1,19 +1,12 @@
-﻿using Microsoft.VisualBasic.Devices;
-using SocketFileTransfer.ExtendClass;
+﻿using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using UtilitiTools;
 
 namespace SocketFileTransfer.Canvas
 {

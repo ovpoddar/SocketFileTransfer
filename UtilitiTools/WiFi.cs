@@ -1,11 +1,5 @@
 ﻿using ManagedNativeWifi;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using UtilitiTools.Helpers;
 
 namespace UtilitiTools;
@@ -77,7 +71,7 @@ public sealed class WiFi
 			CreateProfile(networkPack.Ssid.ToString(), password),
 			"WPA2PSK AES",
 			true);
-		
+
 		return await NativeWifi.ConnectNetworkAsync(
 			_interface.Id,
 			networkPack.Ssid.ToString(),

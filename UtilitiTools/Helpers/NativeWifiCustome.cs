@@ -1,10 +1,5 @@
 ﻿using ManagedNativeWifi;
 using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace UtilitiTools.Helpers;
@@ -37,7 +32,7 @@ internal class NativeWifiCustome
 		var profilePath = GetProfile(profileXml);
 		SetProfile(GetInterfaceName(interfaceId), ConvertToUser(profileType), profilePath);
 
-		if(File.Exists(profilePath))
+		if (File.Exists(profilePath))
 			File.Delete(profilePath);
 
 		return true;
@@ -46,7 +41,7 @@ internal class NativeWifiCustome
 	private static string ConvertToUser(ProfileType profileType) =>
 		profileType switch
 		{
-			ProfileType.AllUser  => "all",
+			ProfileType.AllUser => "all",
 			ProfileType.GroupPolicy => "all",
 			ProfileType.PerUser => "current",
 			_ => "all",
@@ -75,9 +70,9 @@ internal class NativeWifiCustome
 
 	static void SetProfile(string interfaceName, string profileType, string profileXmlPath)
 	{
-		CommendPrompt.ExecuteCommand(new string[] 
+		CommendPrompt.ExecuteCommand(new string[]
 		{
-			$"netsh wlan add profile filename=\"{profileXmlPath}\" interface=\"{interfaceName}\" user=\"{profileType}\"" 
+			$"netsh wlan add profile filename=\"{profileXmlPath}\" interface=\"{interfaceName}\" user=\"{profileType}\""
 		});
 	}
 }

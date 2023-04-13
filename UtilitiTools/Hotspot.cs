@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net;
+﻿using System.Net;
 using System.Net.NetworkInformation;
 
 namespace UtilitiTools;
@@ -30,6 +29,6 @@ public sealed class Hotspot
 	public static void Stop() =>
 		CommendPrompt.ExecuteCommand(new string[]
 		{
-			"netsh wlan stop hostednetwork" 
+			"netsh wlan stop hostednetwork"
 		});
 }
