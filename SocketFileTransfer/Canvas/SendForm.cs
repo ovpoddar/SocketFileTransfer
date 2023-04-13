@@ -102,7 +102,8 @@ namespace SocketFileTransfer.Canvas
 					EndPoint = IPEndPoint.Parse(_clients[item].Item2.IP.ToString() + ":" + port),
 					TypeOfConnect = TypeOfConnect.Send
 				});
-			MessageBox.Show("Failed to negotiate.");
+			else
+				MessageBox.Show("Failed to negotiate.");
 		}
 
 		private void BtnBack_Click(object sender, EventArgs e)
