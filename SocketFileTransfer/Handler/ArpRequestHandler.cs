@@ -1,4 +1,6 @@
-﻿using SocketFileTransfer.ExtendClass;
+﻿// Ignore Spelling: Arp
+
+using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Model;
 using System;
 using System.Net;

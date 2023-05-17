@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 namespace SocketFileTransfer.Handler;
 internal static class ProjectStandardUtilitiesHelper
 {
+	public const int ChunkSize = 1024 * 1024 * 10;
 
 	// exclude the virtual machines
 	public static IEnumerable<(NetworkInterfaceType networkInterfaceType, UnicastIPAddressInformation ip)> DeviceNetworkInterfaceDiscovery() =>
@@ -97,6 +98,4 @@ internal static class ProjectStandardUtilitiesHelper
 			.TrimEnd('\0')
 			.ToString();
 	}
-
-
 }

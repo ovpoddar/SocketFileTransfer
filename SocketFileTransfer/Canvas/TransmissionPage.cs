@@ -87,7 +87,7 @@ namespace SocketFileTransfer.Canvas
 				if (message.Contains(':'))
 				{
 					// prepare for file;
-					Logging(FileTypes.File, message, TypeOfConnect.Received);
+					Logging(ContentType.File, message, TypeOfConnect.Received);
 				}
 				else if (message.Contains("@@"))
 				{
@@ -96,19 +96,19 @@ namespace SocketFileTransfer.Canvas
 				else
 				{
 					// Simple Sting
-					Logging(FileTypes.Text, message, TypeOfConnect.Received);
+					Logging(ContentType.Message, message, TypeOfConnect.Received);
 				}
 				_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 			}
 			catch
 			{
-				Logging(FileTypes.Text, "User is Disconnected", TypeOfConnect.None);
+				Logging(ContentType.Message, "User is Disconnected", TypeOfConnect.None);
 			}
 		}
 
-		private void SendData(string file, FileTypes fileTypes, Socket socket)
+		private void SendData(string file, ContentType fileTypes, Socket socket)
 		{
-			if (fileTypes == FileTypes.File && File.Exists(file))
+			if (fileTypes == ContentType.File && File.Exists(file))
 			{
 				var fileInfo = new FileInfo(file);
 				var message = Encoding.ASCII.GetBytes($"{fileInfo.Name}:{fileInfo.Length}:{fileInfo.Extension}");
@@ -118,7 +118,7 @@ namespace SocketFileTransfer.Canvas
 				Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
 				return;
 			}
-			else if (fileTypes == FileTypes.File && !File.Exists(file) || fileTypes == FileTypes.Text)
+			else if (fileTypes == ContentType.File && !File.Exists(file) || fileTypes == ContentType.Message)
 			{
 				var message = Encoding.ASCII.GetBytes(file);
 				socket.Send(message, 0, message.Length, SocketFlags.None);
@@ -146,29 +146,29 @@ namespace SocketFileTransfer.Canvas
 				};
 
 				if (ofd.ShowDialog() == DialogResult.OK)
-					SendData(ofd.FileName, FileTypes.File, _clientSocket);
+					SendData(ofd.FileName, ContentType.File, _clientSocket);
 			}
 			else
 			{
-				SendData(TxtMessage.Text, FileTypes.Text, _clientSocket);
+				SendData(TxtMessage.Text, ContentType.Message, _clientSocket);
 				TxtMessage.Text = "";
 			}
 		}
 
-		public void Logging(FileTypes fileTypes, string message, TypeOfConnect typeOfConnect)
+		public void Logging(ContentType fileTypes, string message, TypeOfConnect typeOfConnect)
 		{
 			Invoke(() =>
 			{
 				switch (fileTypes)
 				{
-					case FileTypes.File:
+					case ContentType.File:
 						var component = message.Split(":");
 						PanelContainer.Controls.Add(new CPFile(component[0], component[1], component[2], typeOfConnect));
 						break;
-					case FileTypes.Text:
+					case ContentType.Message:
 						PanelContainer.Controls.Add(new CPFile(message, typeOfConnect));
 						break;
-					case FileTypes.Commend:
+					case ContentType.Commend:
 						break;
 					default:
 						throw new ArgumentOutOfRangeException(nameof(fileTypes), fileTypes, null);

@@ -1,17 +1,19 @@
-﻿using ManagedNativeWifi;
+﻿// Ignore Spelling: Wifi
+
+using ManagedNativeWifi;
 using System.Text;
 using UtilityTools.Helpers;
 
 namespace UtilityTools;
-public sealed class WiFi
+public sealed class Wifi
 {
-	private static WiFi _instance = null;
+	private static Wifi _instance = null;
 	private readonly InterfaceInfo? _interface;
 
 	private const string _hotspotTemplate = "Models/HotspotConfiguration.xml";
 
 	private static readonly object _lockObj = new object();
-	public static WiFi Instance
+	public static Wifi Instance
 	{
 		get
 		{
@@ -21,7 +23,7 @@ public sealed class WiFi
 				{
 					if (_instance == null)
 					{
-						_instance = new WiFi();
+						_instance = new Wifi();
 					}
 				}
 			}
@@ -29,7 +31,7 @@ public sealed class WiFi
 		}
 	}
 
-	WiFi()
+	Wifi()
 	{
 		_interface = NativeWifi.EnumerateInterfaces()
 			.First(x =>
@@ -64,7 +66,7 @@ public sealed class WiFi
 			.Select(a => a.First())
 			.ToList();
 
-	public async Task<bool> Connect(AvailableNetworkPack networkPack, string password = null)
+	public async Task<bool> Connect(AvailableNetworkPack networkPack, string? password = null)
 	{
 		NativeWifiCustom.SetProfile(_interface.Id,
 			ProfileType.AllUser,
@@ -92,7 +94,7 @@ public sealed class WiFi
 
 	string GeneratePassword()
 	{
-		Random random = new Random(DateTime.UtcNow.Day);
+		var random = new Random(DateTime.UtcNow.Day);
 		var password = random.Next(00000000, 99999999);
 		return password.ToString();
 	}
