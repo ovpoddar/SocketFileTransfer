@@ -1,6 +1,6 @@
 ﻿using WindowsFirewallHelper;
 
-namespace UtilitiTools.Models;
+namespace UtilityTools.Models;
 internal class FirewallRuleModel
 {
 	public FirewallRuleModel(IFirewallRule rule)

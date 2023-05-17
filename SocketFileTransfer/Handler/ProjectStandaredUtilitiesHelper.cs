@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SocketFileTransfer.Handler;
-internal static class ProjectStandaredUtilitiesHelper
+internal static class ProjectStandardUtilitiesHelper
 {
 
 	// exclude the virtual machines
@@ -25,21 +25,21 @@ internal static class ProjectStandaredUtilitiesHelper
 
 	public static async ValueTask<string> ExchangeInformation(TcpClient client, TypeOfConnect type)
 	{
-		string responce;
+		string response;
 		switch (type)
 		{
 			case TypeOfConnect.Send:
-				responce = await ReadDetails(client);
+				response = await ReadDetails(client);
 				SendDetails(client, Dns.GetHostName());
 				break;
 			case TypeOfConnect.Received:
 				SendDetails(client, Dns.GetHostName());
-				responce = await ReadDetails(client);
+				response = await ReadDetails(client);
 				break;
 			default:
 				throw new InvalidOperationException();
 		}
-		return responce;
+		return response;
 	}
 
 	public static async Task<string> SendConnectSignalWithPort(TcpClient client)
@@ -63,13 +63,13 @@ internal static class ProjectStandaredUtilitiesHelper
 			return null;
 
 		var slice = receivedMessage.Split("::");
-		if (slice.Length == 2)
+		if (slice.Length != 2)
+			return null;
+		else
 		{
 			SendDetails(client, "@Connected@");
 			return slice[1];
 		}
-		else
-			return null;
 	}
 
 	static string GeneratePort()
@@ -89,10 +89,10 @@ internal static class ProjectStandaredUtilitiesHelper
 	static async ValueTask<string> ReadDetails(TcpClient client)
 	{
 		var deviceNameAllocateByte = new byte[client.ReceiveBufferSize];
-		var responce = await client.GetStream().ReadAsync(deviceNameAllocateByte);
-		if (responce == 0)
+		var response = await client.GetStream().ReadAsync(deviceNameAllocateByte);
+		if (response == 0)
 			return null;
-		return Encoding.ASCII.GetString(deviceNameAllocateByte, 0 ,responce)
+		return Encoding.ASCII.GetString(deviceNameAllocateByte, 0 ,response)
 			.AsSpan()
 			.TrimEnd('\0')
 			.ToString();

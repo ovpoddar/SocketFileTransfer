@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Runtime.InteropServices;
 
-namespace UtilitiTools;
+namespace UtilityTools;
 
 public abstract class ArpBase
 {
@@ -40,14 +40,14 @@ public abstract class ArpBase
 		return new IPAddress(ipAsByte);
 	}
 
-	public async Task<bool> CheckIpAdressWithARP(IPAddress ipaddress)
+	public async Task<bool> CheckIpAddressWithARP(IPAddress ipAddress)
 	{
 		var macAddress = new byte[6];
 		var len = (uint)macAddress.Length;
 		var result = 0;
 		await Task.Run(() =>
 		{
-			result = SendARP(BitConverter.ToInt32(ipaddress.GetAddressBytes(), 0), 0, macAddress, ref len);
+			result = SendARP(BitConverter.ToInt32(ipAddress.GetAddressBytes(), 0), 0, macAddress, ref len);
 
 		});
 		return result == 0;

@@ -4,7 +4,7 @@ using System;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
-using UtilitiTools;
+using UtilityTools;
 
 namespace SocketFileTransfer.Handler;
 internal class ArpRequestHandler : ArpBase
@@ -19,11 +19,11 @@ internal class ArpRequestHandler : ArpBase
 
 	public async Task GetNetWorkDevices()
 	{
-		var ipAddressess = base.GenerateIpList();
-		await Parallel.ForEachAsync(ipAddressess, async (ipAddress, cts) =>
+		var ipAddresses = base.GenerateIpList();
+		await Parallel.ForEachAsync(ipAddresses, async (ipAddress, cts) =>
 		{
-			var responce = await base.CheckIpAdressWithARP(ipAddress);
-			if (responce)
+			var response = await base.CheckIpAddressWithARP(ipAddress);
+			if (response)
 				OnDeviceFound.Raise(this, new DeviceDetails(ipAddress, _interfaceType));
 		});
 		OnScanComplete.Raise(this, EventArgs.Empty);

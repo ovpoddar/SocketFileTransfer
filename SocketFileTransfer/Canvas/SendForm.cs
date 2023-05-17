@@ -24,7 +24,7 @@ namespace SocketFileTransfer.Canvas
 
 		private void StartScanForm_Load(object sender, EventArgs e)
 		{
-			var addresses = ProjectStandaredUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
+			var addresses = ProjectStandardUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
 
 			if (!addresses.Any())
 				MessageBox.Show("No Device found");
@@ -48,7 +48,7 @@ namespace SocketFileTransfer.Canvas
 			var tcpClient = new TcpClient();
 			try
 			{
-				tcpClient.BeginConnect(e.IP, 1400, ConnectToEndPoient, (e, tcpClient));
+				tcpClient.BeginConnect(e.IP, 1400, ConnectToEndPoint, (e, tcpClient));
 			}
 			catch
 			{
@@ -56,7 +56,7 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private async void ConnectToEndPoient(IAsyncResult ar)
+		private async void ConnectToEndPoint(IAsyncResult ar)
 		{
 			var connectedDeviceDetails = ar.AsyncState as (DeviceDetails DeviceDetails, TcpClient TcpClient)?;
 			if (!connectedDeviceDetails.HasValue)
@@ -65,14 +65,14 @@ namespace SocketFileTransfer.Canvas
 			try
 			{
 				connectedDeviceDetails.Value.TcpClient.EndConnect(ar);
-				var device = await ProjectStandaredUtilitiesHelper.ExchangeInformation(connectedDeviceDetails.Value.TcpClient, TypeOfConnect.Send);
+				var device = await ProjectStandardUtilitiesHelper.ExchangeInformation(connectedDeviceDetails.Value.TcpClient, TypeOfConnect.Send);
 
 				// device is not unique here.
 				if (device != null)
 				{
 					// need to look at connectedDeviceDetails.Value.DeviceDetails.NetworkInterfaceType
 					_clients.Add(device, (connectedDeviceDetails.Value.TcpClient, connectedDeviceDetails.Value.DeviceDetails));
-					listBox1.InvokeFunctionInThradeSafeWay(() =>
+					listBox1.InvokeFunctionInThreadSafeWay(() =>
 					{
 						listBox1.Items.Add($"{device}");
 					});
@@ -95,7 +95,7 @@ namespace SocketFileTransfer.Canvas
 			if (!_clients.ContainsKey(item))
 				listBox1.Items.Remove(item);
 
-			var port = await ProjectStandaredUtilitiesHelper.SendConnectSignalWithPort(_clients[item].Item1);
+			var port = await ProjectStandardUtilitiesHelper.SendConnectSignalWithPort(_clients[item].Item1);
 			if (port != null)
 				OnTransmissionIpFound.Raise(this, new ConnectionDetails()
 				{

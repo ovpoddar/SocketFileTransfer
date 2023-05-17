@@ -1,17 +1,17 @@
 ﻿using System.Diagnostics;
 
-namespace UtilitiTools;
+namespace UtilityTools;
 internal class CommendPrompt
 {
 	internal static void ExecuteCommand(string[] args)
 	{
-		var processess = CreateCmdProcess();
+		var processes = CreateCmdProcess();
 		foreach (var arg in args)
 		{
-			processess.StandardInput.WriteLine(arg);
-			processess.StandardInput.Flush();
+			processes.StandardInput.WriteLine(arg);
+			processes.StandardInput.Flush();
 		}
-		processess.StandardInput.Close();
+		processes.StandardInput.Close();
 	}
 
 	internal static async Task ExecuteCommandAsync(string[] args)

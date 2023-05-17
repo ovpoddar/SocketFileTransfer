@@ -9,8 +9,8 @@ internal struct TcpClientModel : IDisposable
 	public readonly NetworkStream Streams { get; init; }
 	public readonly TcpClient Clients { get; init; }
 	public string Name { get; }
-	public IPEndPoint RemoteEndPoient { get; }
-	public bool IsCreationSucced { get; } = true;
+	public IPEndPoint RemoteEndPoint { get; }
+	public bool IsCreationSucceed { get; } = true;
 	public TcpClientModel(string identity, TcpClient tcp)
 	{
 		try
@@ -20,13 +20,13 @@ internal struct TcpClientModel : IDisposable
 
 			Name = identity;
 			// test this parsing too
-			RemoteEndPoient = IPEndPoint.Parse(tcp.Client.RemoteEndPoint.ToString());
+			RemoteEndPoint = IPEndPoint.Parse(tcp.Client.RemoteEndPoint.ToString());
 			Clients = tcp;
 			Streams = tcp.GetStream();
 		}
 		catch
 		{
-			IsCreationSucced = false;
+			IsCreationSucceed = false;
 		}
 	}
 

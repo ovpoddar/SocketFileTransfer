@@ -17,9 +17,9 @@ namespace SocketFileTransfer
 
 			if (!TestForWIFIOrLanConnection()) return;
 
-			var indexpage = new Canvas.Index();
-			indexpage.SelectItem += SelectConnectMethod;
-			OpenChildForm(indexpage);
+			var indexPage = new Canvas.Index();
+			indexPage.SelectItem += SelectConnectMethod;
+			OpenChildForm(indexPage);
 		}
 
 		private bool TestForWIFIOrLanConnection()
@@ -62,9 +62,9 @@ namespace SocketFileTransfer
 					OpenChildForm(new TransmissionPage(e));
 					break;
 				case TypeOfConnect.None:
-					var indexpage = new Canvas.Index();
-					indexpage.SelectItem += SelectConnectMethod;
-					OpenChildForm(indexpage);
+					var indexPage = new Canvas.Index();
+					indexPage.SelectItem += SelectConnectMethod;
+					OpenChildForm(indexPage);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(e), e, null);

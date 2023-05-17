@@ -68,7 +68,7 @@ namespace SocketFileTransfer.Canvas
 			_clientSocket.EndConnect(ar);
 
 			var buffer = new byte[_clientSocket.ReceiveBufferSize];
-
+			
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 		}
 
@@ -110,8 +110,8 @@ namespace SocketFileTransfer.Canvas
 		{
 			if (fileTypes == FileTypes.File && File.Exists(file))
 			{
-				var fileinfo = new FileInfo(file);
-				var message = Encoding.ASCII.GetBytes($"{fileinfo.Name}:{fileinfo.Length}:{fileinfo.Extension}");
+				var fileInfo = new FileInfo(file);
+				var message = Encoding.ASCII.GetBytes($"{fileInfo.Name}:{fileInfo.Length}:{fileInfo.Extension}");
 				socket.Send(message, 0, message.Length, SocketFlags.None);
 				socket.SendFile(file);
 
@@ -133,7 +133,7 @@ namespace SocketFileTransfer.Canvas
 
 		private void TextBox1_TextChanged(object sender, EventArgs e)
 		{
-			BtnOprate.Text = TxtMessage.Text.Length <= 0 ? "->" : "+";
+			BtnOperate.Text = TxtMessage.Text.Length <= 0 ? "->" : "+";
 		}
 
 		private void Button1_Click(object sender, EventArgs e)

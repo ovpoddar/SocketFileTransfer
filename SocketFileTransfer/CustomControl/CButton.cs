@@ -19,9 +19,9 @@ namespace SocketFileTransfer.CustomControl
 			CResize();
 		}
 
-		protected override void OnPaint(PaintEventArgs pevent)
+		protected override void OnPaint(PaintEventArgs pEvent)
 		{
-			base.OnPaint(pevent);
+			base.OnPaint(pEvent);
 
 			var rect = ClientRectangle;
 			var smallRect = new Rectangle(2, 2, rect.Width - 4, rect.Height - 4);
@@ -45,19 +45,19 @@ namespace SocketFileTransfer.CustomControl
 				smallPath.AddArc(smallRect.X, smallRect.Bottom - Width, Width, Width, 90, 90);
 				smallPath.CloseFigure();
 
-				pevent.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-				pevent.Graphics.FillPath(brash, smallPath);
-				pevent.Graphics.DrawPath(pen, smallPath);
+				pEvent.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+				pEvent.Graphics.FillPath(brash, smallPath);
+				pEvent.Graphics.DrawPath(pen, smallPath);
 			}
-			DrawText(pevent);
+			DrawText(pEvent);
 		}
 
-		private void DrawText(PaintEventArgs pevent)
+		private void DrawText(PaintEventArgs pEvent)
 		{
 			var text = TextRenderer.MeasureText(Text, Font, new Size(ClientRectangle.Width, ClientRectangle.Height), TextFormatFlags.WordBreak);
 
-			var poient = new Point(Width / 2 - (text.Width / 2), Height / 2 - (text.Height / 2));
-			pevent.Graphics.DrawString(Text, Font, new SolidBrush(ForeColor), poient);
+			var point = new Point(Width / 2 - (text.Width / 2), Height / 2 - (text.Height / 2));
+			pEvent.Graphics.DrawString(Text, Font, new SolidBrush(ForeColor), point);
 		}
 
 		private void CResize()

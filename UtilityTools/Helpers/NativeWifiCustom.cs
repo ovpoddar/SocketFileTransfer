@@ -2,8 +2,8 @@
 using Microsoft.Win32;
 using System.Xml;
 
-namespace UtilitiTools.Helpers;
-internal class NativeWifiCustome
+namespace UtilityTools.Helpers;
+internal class NativeWifiCustom
 {
 	const string _interfaceGuid = "{4d36e972-e325-11ce-bfc1-08002be10318}";
 	const string _interfaceNamePath = @"SYSTEM\CurrentControlSet\Control\Network\{0}\{1}\Connection";

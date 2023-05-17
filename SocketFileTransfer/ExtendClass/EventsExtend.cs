@@ -9,16 +9,16 @@ namespace SocketFileTransfer.ExtendClass
 		{
 			if (multicastDelegate == null)
 				return null;
-			object retval = null;
+			object returnValue = null;
 			foreach (var d in multicastDelegate.GetInvocationList())
 			{
 				var ISynchronizeInvoke = d.Target as ISynchronizeInvoke;
 				if (ISynchronizeInvoke != null && ISynchronizeInvoke.InvokeRequired)
-					retval = ISynchronizeInvoke.EndInvoke(ISynchronizeInvoke.BeginInvoke(d, new[] { sender, eventArgs }));
+					returnValue = ISynchronizeInvoke.EndInvoke(ISynchronizeInvoke.BeginInvoke(d, new[] { sender, eventArgs }));
 				else
-					retval = d.DynamicInvoke(new[] { sender, eventArgs });
+					returnValue = d.DynamicInvoke(new[] { sender, eventArgs });
 			}
-			return retval;
+			return returnValue;
 		}
 	}
 }

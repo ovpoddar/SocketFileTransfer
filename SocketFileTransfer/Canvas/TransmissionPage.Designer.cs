@@ -31,7 +31,7 @@ namespace SocketFileTransfer.Canvas
         {
             this.PanelContainer = new System.Windows.Forms.FlowLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.BtnOprate = new System.Windows.Forms.Button();
+            this.BtnOperate = new System.Windows.Forms.Button();
             this.TxtMessage = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -48,7 +48,7 @@ namespace SocketFileTransfer.Canvas
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.BtnOprate);
+            this.panel1.Controls.Add(this.BtnOperate);
             this.panel1.Controls.Add(this.TxtMessage);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 542);
@@ -58,17 +58,17 @@ namespace SocketFileTransfer.Canvas
             // 
             // BtnOprate
             // 
-            this.BtnOprate.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.BtnOprate.Font = new System.Drawing.Font("Yu Gothic", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.BtnOprate.Location = new System.Drawing.Point(332, 0);
-            this.BtnOprate.Margin = new System.Windows.Forms.Padding(0);
-            this.BtnOprate.Name = "BtnOprate";
-            this.BtnOprate.Size = new System.Drawing.Size(52, 31);
-            this.BtnOprate.TabIndex = 1;
-            this.BtnOprate.Text = "+";
-            this.BtnOprate.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.BtnOprate.UseVisualStyleBackColor = true;
-            this.BtnOprate.Click += new System.EventHandler(this.Button1_Click);
+            this.BtnOperate.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.BtnOperate.Font = new System.Drawing.Font("Yu Gothic", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.BtnOperate.Location = new System.Drawing.Point(332, 0);
+            this.BtnOperate.Margin = new System.Windows.Forms.Padding(0);
+            this.BtnOperate.Name = "BtnOprate";
+            this.BtnOperate.Size = new System.Drawing.Size(52, 31);
+            this.BtnOperate.TabIndex = 1;
+            this.BtnOperate.Text = "+";
+            this.BtnOperate.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.BtnOperate.UseVisualStyleBackColor = true;
+            this.BtnOperate.Click += new System.EventHandler(this.Button1_Click);
             // 
             // TxtMessage
             // 
@@ -100,6 +100,6 @@ namespace SocketFileTransfer.Canvas
         private System.Windows.Forms.FlowLayoutPanel PanelContainer;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TextBox TxtMessage;
-        private System.Windows.Forms.Button BtnOprate;
+        private System.Windows.Forms.Button BtnOperate;
     }
 }

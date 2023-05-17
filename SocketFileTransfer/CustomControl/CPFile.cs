@@ -23,10 +23,10 @@ namespace SocketFileTransfer.CustomControl
 
 			LblName.Visible = true;
 
-			Setbackground(typeOfConnect);
+			SetBackground(typeOfConnect);
 		}
 
-		private void Setbackground(TypeOfConnect typeOfConnect)
+		private void SetBackground(TypeOfConnect typeOfConnect)
 		{
 			BackColor = typeOfConnect switch
 			{
@@ -50,7 +50,7 @@ namespace SocketFileTransfer.CustomControl
 
 			LblName.Visible = false;
 
-			Setbackground(typeOfConnect);
+			SetBackground(typeOfConnect);
 		}
 	}
 }

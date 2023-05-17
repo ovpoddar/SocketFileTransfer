@@ -24,10 +24,10 @@ namespace SocketFileTransfer.Canvas
 
 		private void ReceivedForm_Load(object sender, EventArgs e)
 		{
-			var addresses = ProjectStandaredUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
+			var addresses = ProjectStandardUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
 
 			if (!addresses.Any())
-				LblMsg.Text = "Faild To start Your hotspot. Please do it maually or connect your self with a network cable which is connected with router.";
+				LblMsg.Text = "Failed To start Your hotspot. Please do it manually or connect your self with a network cable which is connected with router.";
 			else
 			{
 				foreach (var address in addresses)
@@ -39,20 +39,20 @@ namespace SocketFileTransfer.Canvas
 
 		private void BrodCastSignal(IPAddress address)
 		{
-			var tcpListner = new TcpListener(address, 1400);
-			tcpListner.Start();
-			tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
+			var tcpListener = new TcpListener(address, 1400);
+			tcpListener.Start();
+			tcpListener.BeginAcceptTcpClient(BroadcastSignal, tcpListener);
 		}
 
-		private async void BrodcastSignal(IAsyncResult ar)
+		private async void BroadcastSignal(IAsyncResult ar)
 		{
-			var tcpListner = (TcpListener)ar.AsyncState;
-			var client = tcpListner.EndAcceptTcpClient(ar);
-			var newDevice = await ProjectStandaredUtilitiesHelper.ExchangeInformation(client, TypeOfConnect.Received);
+			var tcpListener = (TcpListener)ar.AsyncState;
+			var client = tcpListener.EndAcceptTcpClient(ar);
+			var newDevice = await ProjectStandardUtilitiesHelper.ExchangeInformation(client, TypeOfConnect.Received);
 			var managedClient = new TcpClientModel(newDevice, client);
 
 			if (newDevice != null
-				&& managedClient.IsCreationSucced
+				&& managedClient.IsCreationSucceed
 				&& !_clients.Any(a => a.Value.Name == managedClient.Name))
 			{
 				_currentAdded = _clients.Count;
@@ -64,10 +64,10 @@ namespace SocketFileTransfer.Canvas
 			}
 			else
 			{
-				if (managedClient.IsCreationSucced)
+				if (managedClient.IsCreationSucceed)
 					managedClient.Dispose();
 			}
-			tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
+			tcpListener.BeginAcceptTcpClient(BroadcastSignal, tcpListener);
 
 		}
 
@@ -77,8 +77,8 @@ namespace SocketFileTransfer.Canvas
 
 			try
 			{
-				var receved = _clients[currentAdded].Streams.EndRead(ar);
-				var port = ProjectStandaredUtilitiesHelper.ReceivedTheConnectionPort(_clients[currentAdded].Clients, _clients[currentAdded].Data, receved);
+				var received = _clients[currentAdded].Streams.EndRead(ar);
+				var port = ProjectStandardUtilitiesHelper.ReceivedTheConnectionPort(_clients[currentAdded].Clients, _clients[currentAdded].Data, received);
 				if (!string.IsNullOrWhiteSpace(port))
 					OnTransmissionIpFound.Raise(this, new ConnectionDetails
 					{

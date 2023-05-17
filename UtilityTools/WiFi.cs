@@ -1,8 +1,8 @@
 ﻿using ManagedNativeWifi;
 using System.Text;
-using UtilitiTools.Helpers;
+using UtilityTools.Helpers;
 
-namespace UtilitiTools;
+namespace UtilityTools;
 public sealed class WiFi
 {
 	private static WiFi _instance = null;
@@ -66,7 +66,7 @@ public sealed class WiFi
 
 	public async Task<bool> Connect(AvailableNetworkPack networkPack, string password = null)
 	{
-		NativeWifiCustome.SetProfile(_interface.Id,
+		NativeWifiCustom.SetProfile(_interface.Id,
 			ProfileType.AllUser,
 			CreateProfile(networkPack.Ssid.ToString(), password),
 			"WPA2PSK AES",
