@@ -48,7 +48,7 @@ internal class ChunkBuilder
 				{
 					PacketType = ContentType.File,
 					Data = chunk,
-					ContentSize = chunk.Length + sizeof(short)
+					ContentSize = chunk.Length
 				};
 			}
 		}
@@ -63,9 +63,9 @@ internal class ChunkBuilder
 				index += chunk.Length;
 				yield return new NetworkPacket
 				{
-					PacketType = ContentType.File,
+					PacketType = ContentType.Message,
 					Data = Encoding.Unicode.GetBytes(chunk, 0, chunk.Length),
-					ContentSize = chunk.Length + sizeof(short)
+					ContentSize = chunk.Length
 				};
 			}
 		}
@@ -76,9 +76,9 @@ internal class ChunkBuilder
 		var fileDetails = await JsonWorker.GetContentDetails(_content, _contentType);
 		return new NetworkPacket
 		{
-			PacketType = ContentType.Message == _contentType ? ContentType.File : ContentType.Message | ContentType.Information,
+			PacketType = _contentType | ContentType.Information,
 			Data = fileDetails,
-			ContentSize = fileDetails.Length + sizeof(short),
+			ContentSize = fileDetails.Length,
 		};
 	}
 }

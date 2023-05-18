@@ -27,9 +27,8 @@ internal struct NetworkPacket
         var result = new NetworkPacket();
         result.ContentSize = Unsafe.ReadUnaligned<long>(ref data[0]);
         result.PacketType = Unsafe.ReadUnaligned<ContentType>(ref data[8]);
-        var contentSize = result.ContentSize - sizeof(short);
-        result.Data = new byte[contentSize];
-        Array.Copy(data, 10, result.Data, 0, contentSize);
+		result.Data = new byte[result.ContentSize];
+        Array.Copy(data, 10, result.Data, 0, result.ContentSize);
         return result;
     }
 }
