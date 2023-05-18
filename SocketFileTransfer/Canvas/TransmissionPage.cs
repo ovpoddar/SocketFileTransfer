@@ -1,4 +1,5 @@
 ﻿using SocketFileTransfer.CustomControl;
+using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
 using System.IO;
@@ -6,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.Canvas
@@ -82,23 +84,25 @@ namespace SocketFileTransfer.Canvas
 				{
 					return;
 				}
-				var message = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
-
-				if (message.Contains(':'))
-				{
-					// prepare for file;
-					Logging(ContentType.File, message, TypeOfConnect.Received);
-				}
-				else if (message.Contains("@@"))
-				{
-					// It's a commend
-				}
-				else
-				{
-					// Simple Sting
-					Logging(ContentType.Message, message, TypeOfConnect.Received);
-				}
-				_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
+				//var message = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
+				//if (message.Contains(':'))
+				//{
+				//	// prepare for file;
+				//	Logging(ContentType.File, message, TypeOfConnect.Received);
+				//}
+				//else if (message.Contains("@@"))
+				//{
+				//	// It's a commend
+				//}
+				//else
+				//{
+				//	// Simple Sting
+				//	Logging(ContentType.Message, message, TypeOfConnect.Received);
+				//}
+				MessageBox.Show("showing the code");
+				var c = (NetworkPacket)buffer;
+				MessageBox.Show(c.Data.Length.ToString());
+                _clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 			}
 			catch
 			{
@@ -106,37 +110,47 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private void SendData(string file, ContentType fileTypes, Socket socket)
-		{
-			if (fileTypes == ContentType.File && File.Exists(file))
-			{
-				var fileInfo = new FileInfo(file);
-				var message = Encoding.ASCII.GetBytes($"{fileInfo.Name}:{fileInfo.Length}:{fileInfo.Extension}");
-				socket.Send(message, 0, message.Length, SocketFlags.None);
-				socket.SendFile(file);
+		//private void SendData(string file, ContentType fileTypes, Socket socket)
+		//{
+		//	if (fileTypes == ContentType.File && File.Exists(file))
+		//	{
+		//		var fileInfo = new FileInfo(file);
+		//		var message = Encoding.ASCII.GetBytes($"{fileInfo.Name}:{fileInfo.Length}:{fileInfo.Extension}");
+		//		socket.Send(message, 0, message.Length, SocketFlags.None);
+		//		socket.SendFile(file);
 
-				Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
-				return;
-			}
-			else if (fileTypes == ContentType.File && !File.Exists(file) || fileTypes == ContentType.Message)
-			{
-				var message = Encoding.ASCII.GetBytes(file);
-				socket.Send(message, 0, message.Length, SocketFlags.None);
-				Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
-			}
-			else
-			{
-				var message = Encoding.ASCII.GetBytes($"@@ {file.ToUpper()}");
-				socket.Send(message, 0, message.Length, SocketFlags.None);
-			}
-		}
+		//		Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
+		//		return;
+		//	}
+		//	else if (fileTypes == ContentType.File && !File.Exists(file) || fileTypes == ContentType.Message)
+		//	{
+		//		var message = Encoding.ASCII.GetBytes(file);
+		//		socket.Send(message, 0, message.Length, SocketFlags.None);
+		//		Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
+		//	}
+		//	else
+		//	{
+		//		var message = Encoding.ASCII.GetBytes($"@@ {file.ToUpper()}");
+		//		socket.Send(message, 0, message.Length, SocketFlags.None);
+		//	}
+		//}
+
+		async Task SendData(ContentType contentType, string content, Socket socket)
+		{
+			var chunkBuilder = new ChunkBuilder(contentType, content);
+            await foreach (var chunk in chunkBuilder.Get(0))
+            {
+				await socket.SendAsync((byte[])chunk);
+            }
+			Logging(contentType, content, TypeOfConnect.Send);
+        }
 
 		private void TextBox1_TextChanged(object sender, EventArgs e)
 		{
 			BtnOperate.Text = TxtMessage.Text.Length <= 0 ? "->" : "+";
 		}
 
-		private void Button1_Click(object sender, EventArgs e)
+		private async void Button1_Click(object sender, EventArgs e)
 		{
 			if (TxtMessage.Text.Length <= 0)
 			{
@@ -146,11 +160,11 @@ namespace SocketFileTransfer.Canvas
 				};
 
 				if (ofd.ShowDialog() == DialogResult.OK)
-					SendData(ofd.FileName, ContentType.File, _clientSocket);
+					await SendData(ContentType.File, ofd.FileName, _clientSocket);
 			}
 			else
 			{
-				SendData(TxtMessage.Text, ContentType.Message, _clientSocket);
+				await SendData(ContentType.Message, TxtMessage.Text, _clientSocket);
 				TxtMessage.Text = "";
 			}
 		}
