@@ -17,7 +17,7 @@ internal struct NetworkPacket
                 * networkPacket.Data.Length);
         var result = new byte[size];
         Unsafe.WriteUnaligned(ref result[0], networkPacket.ContentSize);
-        Unsafe.WriteUnaligned(ref result[8], networkPacket.ContentSize);
+        Unsafe.WriteUnaligned(ref result[8], networkPacket.PacketType);
         Array.Copy(networkPacket.Data, 0, result, 10, networkPacket.Data.Length);
         return result;
     }
@@ -27,7 +27,9 @@ internal struct NetworkPacket
         var result = new NetworkPacket();
         result.ContentSize = Unsafe.ReadUnaligned<long>(ref data[0]);
         result.PacketType = Unsafe.ReadUnaligned<ContentType>(ref data[8]);
-        Array.Copy(data, 5, result.Data, 0,data.Length - 10);
+        var contentSize = result.ContentSize - sizeof(short);
+        result.Data = new byte[contentSize];
+        Array.Copy(data, 10, result.Data, 0, contentSize);
         return result;
     }
 }
