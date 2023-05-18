@@ -20,9 +20,6 @@ internal struct NetworkPacket
         Unsafe.WriteUnaligned(ref result[7], networkPacket.ContentSize);
         Array.Copy(networkPacket.Data, 0, result, 9, networkPacket.Data.Length);
         var index = networkPacket.Data.Length + 9;
-        result[index + 1] = 0;
-        result[index + 2] = 0;
-        result[index + 3] = 10;
         return result;
     }
 
