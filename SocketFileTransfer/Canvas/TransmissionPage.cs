@@ -84,9 +84,8 @@ namespace SocketFileTransfer.Canvas
 				{
 					return;
 				}
-				var c = (NetworkPacket)buffer;
-				MessageBox.Show(c.Data.Length.ToString());
-				Logging(c.PacketType, c.ContentSize.ToString(), TypeOfConnect.Received);
+				var packet = (NetworkPacket)buffer;
+				ProcessNetworkPackets(packet);
                 _clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 			}
 			catch
@@ -95,7 +94,14 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		async Task SendData(ContentType contentType, string content, Socket socket)
+		private void ProcessNetworkPackets(NetworkPacket packet)
+		{
+
+
+            Logging(packet.PacketType, packet.ContentSize.ToString(), TypeOfConnect.Received);
+        }
+
+        async Task SendData(ContentType contentType, string content, Socket socket)
 		{
 			var chunkBuilder = new ChunkBuilder(contentType, content);
             await foreach (var chunk in chunkBuilder.Get(0))
