@@ -84,23 +84,9 @@ namespace SocketFileTransfer.Canvas
 				{
 					return;
 				}
-				//var message = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
-				//if (message.Contains(':'))
-				//{
-				//	// prepare for file;
-				//	Logging(ContentType.File, message, TypeOfConnect.Received);
-				//}
-				//else if (message.Contains("@@"))
-				//{
-				//	// It's a commend
-				//}
-				//else
-				//{
-				//	// Simple Sting
-				//	Logging(ContentType.Message, message, TypeOfConnect.Received);
-				//}
 				var c = (NetworkPacket)buffer;
 				MessageBox.Show(c.Data.Length.ToString());
+				Logging(c.PacketType, c.ContentSize.ToString(), TypeOfConnect.Received);
                 _clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 			}
 			catch
@@ -159,7 +145,7 @@ namespace SocketFileTransfer.Canvas
 					case ContentType.Commend:
 						break;
 					default:
-						throw new ArgumentOutOfRangeException(nameof(fileTypes), fileTypes, null);
+						break;
 				}
 			});
 
