@@ -99,7 +99,6 @@ namespace SocketFileTransfer.Canvas
 				//	// Simple Sting
 				//	Logging(ContentType.Message, message, TypeOfConnect.Received);
 				//}
-				MessageBox.Show("showing the code");
 				var c = (NetworkPacket)buffer;
 				MessageBox.Show(c.Data.Length.ToString());
                 _clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
@@ -109,31 +108,6 @@ namespace SocketFileTransfer.Canvas
 				Logging(ContentType.Message, "User is Disconnected", TypeOfConnect.None);
 			}
 		}
-
-		//private void SendData(string file, ContentType fileTypes, Socket socket)
-		//{
-		//	if (fileTypes == ContentType.File && File.Exists(file))
-		//	{
-		//		var fileInfo = new FileInfo(file);
-		//		var message = Encoding.ASCII.GetBytes($"{fileInfo.Name}:{fileInfo.Length}:{fileInfo.Extension}");
-		//		socket.Send(message, 0, message.Length, SocketFlags.None);
-		//		socket.SendFile(file);
-
-		//		Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
-		//		return;
-		//	}
-		//	else if (fileTypes == ContentType.File && !File.Exists(file) || fileTypes == ContentType.Message)
-		//	{
-		//		var message = Encoding.ASCII.GetBytes(file);
-		//		socket.Send(message, 0, message.Length, SocketFlags.None);
-		//		Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
-		//	}
-		//	else
-		//	{
-		//		var message = Encoding.ASCII.GetBytes($"@@ {file.ToUpper()}");
-		//		socket.Send(message, 0, message.Length, SocketFlags.None);
-		//	}
-		//}
 
 		async Task SendData(ContentType contentType, string content, Socket socket)
 		{
@@ -176,7 +150,7 @@ namespace SocketFileTransfer.Canvas
 				switch (fileTypes)
 				{
 					case ContentType.File:
-						var component = message.Split(":");
+						var component = new string[3] { "Test.Txt", "5000000","Txt" };
 						PanelContainer.Controls.Add(new CPFile(component[0], component[1], component[2], typeOfConnect));
 						break;
 					case ContentType.Message:
