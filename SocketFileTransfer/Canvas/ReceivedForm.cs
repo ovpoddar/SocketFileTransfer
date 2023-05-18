@@ -82,7 +82,7 @@ namespace SocketFileTransfer.Canvas
 				if (!string.IsNullOrWhiteSpace(port))
 					OnTransmissionIpFound.Raise(this, new ConnectionDetails
 					{
-						EndPoint = IPEndPoint.Parse(_clients[currentAdded].Clients.Client.LocalEndPoint.ToString().Split(":")[0] + ":" + port[1]),
+						EndPoint = IPEndPoint.Parse(_clients[currentAdded].Clients.Client.LocalEndPoint.ToString().Split(":")[0] + ":" + port),
 						TypeOfConnect = TypeOfConnect.Received
 					});
 			}
