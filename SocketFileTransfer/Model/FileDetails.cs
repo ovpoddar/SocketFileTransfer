@@ -42,7 +42,7 @@ internal class FileDetails
 		var result = new byte[size];
 		var index = 0;
 		Unsafe.WriteUnaligned(ref result[index], nameLength);
-		index += Marshal.SizeOf(nameLength) - 1;
+		index += Marshal.SizeOf(nameLength);
 		Array.Copy(name, 0, result, index, nameLength);
 		index += nameLength;
 		Unsafe.WriteUnaligned(ref result[index], fileDetails.Size);
@@ -60,7 +60,7 @@ internal class FileDetails
 		var result = new FileDetails();
 		var index = 0;
 		var nameSize = Unsafe.ReadUnaligned<int>(ref fileDetails[index]);
-		index += sizeof(int) - 1;
+		index += sizeof(int);
 		result.Name = Encoding.ASCII.GetString(fileDetails, index, nameSize);
 		index += nameSize;
 		result.Size = Unsafe.ReadUnaligned<long>(ref fileDetails[index]);
