@@ -2,6 +2,7 @@
 using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -88,8 +89,9 @@ namespace SocketFileTransfer.Canvas
 				ProcessNetworkPackets(packet);
                 _clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 			}
-			catch
+			catch(Exception ex) 
 			{
+				Debug.WriteLine(ex);
 				Logging(ContentType.Message, "User is Disconnected", TypeOfConnect.None);
 			}
 		}

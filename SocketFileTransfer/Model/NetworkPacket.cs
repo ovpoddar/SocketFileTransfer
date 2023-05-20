@@ -24,7 +24,7 @@ internal struct NetworkPacket
 		Unsafe.WriteUnaligned(ref result[index], networkPacket.PacketType);
         index += sizeof(short);
         Unsafe.WriteUnaligned(ref result[index], networkPacket.PacketId);
-        index += Marshal.SizeOf(Marshal.SizeOf(networkPacket.PacketId));
+        index += Marshal.SizeOf(networkPacket.PacketId);
 		Array.Copy(networkPacket.Data, 0, result, index, networkPacket.Data.Length);
         return result;
     }
@@ -38,7 +38,7 @@ internal struct NetworkPacket
 		result.PacketType = Unsafe.ReadUnaligned<ContentType>(ref data[index]);
 		index += sizeof(short);
         result.PacketId = Unsafe.ReadUnaligned<Guid>(ref data[index]);
-		index += Marshal.SizeOf(Marshal.SizeOf(result.PacketId));
+		index += Marshal.SizeOf(result.PacketId);
 		result.Data = new byte[result.ContentSize];
         Array.Copy(data, index, result.Data, 0, result.ContentSize);
         return result;
