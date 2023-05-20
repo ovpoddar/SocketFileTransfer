@@ -32,24 +32,26 @@ internal class FileDetails
 	public static explicit operator byte[](FileDetails fileDetails)
 	{
 		var name = Encoding.ASCII.GetBytes(fileDetails.Name);
+		var nameLength = name.Length;
 		var type = Encoding.ASCII.GetBytes(fileDetails.Type);
+		var typeLength = type.Length;
 		var size = Marshal.SizeOf(fileDetails.Size)
 			+ Marshal.SizeOf(fileDetails.Type)
-			+ name.Length + Marshal.SizeOf(name.Length)
-			+ type.Length + Marshal.SizeOf(type.Length);
+			+ nameLength + Marshal.SizeOf(nameLength)
+			+ typeLength + Marshal.SizeOf(typeLength);
 		var result = new byte[size];
 		var index = 0;
-		Unsafe.WriteUnaligned(ref result[index], name.Length);
-		index += Marshal.SizeOf(name.Length) - 1;
-		Array.Copy(name, 0, result, index, name.Length);
-		index += name.Length;
+		Unsafe.WriteUnaligned(ref result[index], nameLength);
+		index += Marshal.SizeOf(nameLength) - 1;
+		Array.Copy(name, 0, result, index, nameLength);
+		index += nameLength;
 		Unsafe.WriteUnaligned(ref result[index], fileDetails.Size);
 		index += Marshal.SizeOf(fileDetails.Size);
 		Unsafe.WriteUnaligned(ref result[index], fileDetails.ChunkSize);
 		index += Marshal.SizeOf(fileDetails.ChunkSize);
-		Unsafe.WriteUnaligned(ref result[index], type.Length);
-		index += Marshal.SizeOf(type.Length);
-		Array.Copy(type, 0, result, index, type.Length);
+		Unsafe.WriteUnaligned(ref result[index], typeLength);
+		index += Marshal.SizeOf(typeLength);
+		Array.Copy(type, 0, result, index, typeLength);
 		return result;
 	}
 
