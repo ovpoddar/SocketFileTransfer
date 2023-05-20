@@ -74,7 +74,7 @@ namespace SocketFileTransfer.Canvas
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 		}
 
-		private async void OnReceivedEnd(IAsyncResult ar)
+		private void OnReceivedEnd(IAsyncResult ar)
 		{
 			try
 			{
@@ -85,7 +85,7 @@ namespace SocketFileTransfer.Canvas
 					return;
 				}
 				var packet = (NetworkPacket)buffer;
-				await ProcessNetworkPacketsAsync(packet);
+				ProcessNetworkPackets(packet);
                 _clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 			}
 			catch
@@ -94,7 +94,7 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private async Task ProcessNetworkPacketsAsync(NetworkPacket packet)
+		private void ProcessNetworkPackets(NetworkPacket packet)
 		{
 			var isMessage = (packet.PacketType & ContentType.Message) == ContentType.Message;
 			if(isMessage)
