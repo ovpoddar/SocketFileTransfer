@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SocketFileTransfer.Model;
-[Serializable]
+
 internal class FileDetails
 {
 	private FileDetails()
@@ -36,7 +36,7 @@ internal class FileDetails
 		var type = Encoding.ASCII.GetBytes(fileDetails.Type);
 		var typeLength = type.Length;
 		var size = Marshal.SizeOf(fileDetails.Size)
-			+ Marshal.SizeOf(fileDetails.Type)
+			+ Marshal.SizeOf(fileDetails.ChunkSize)
 			+ nameLength + Marshal.SizeOf(nameLength)
 			+ typeLength + Marshal.SizeOf(typeLength);
 		var result = new byte[size];

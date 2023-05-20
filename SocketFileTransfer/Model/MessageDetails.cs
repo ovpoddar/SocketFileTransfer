@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SocketFileTransfer.Model;
-[Serializable]
 internal class MessageDetails
 {
     private MessageDetails()
