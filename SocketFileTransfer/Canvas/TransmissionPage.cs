@@ -127,12 +127,13 @@ namespace SocketFileTransfer.Canvas
 			Logging(packet.PacketType, packet.ContentSize.ToString(), TypeOfConnect.Received);
         }
 
-        async Task SendData(ContentType contentType, string content, Socket socket)
+        async void SendData(ContentType contentType, string content, Socket socket)
 		{
 			var chunkBuilder = new ChunkBuilder(contentType, content);
-            await foreach (var chunk in chunkBuilder.Get(0))
+            foreach (var chunk in chunkBuilder.Get(0))
             {
-				await socket.SendAsync((byte[])chunk);
+				var send = await socket.SendAsync((byte[])chunk);
+				MessageBox.Show(send.ToString());
             }
 			Logging(contentType, content, TypeOfConnect.Send);
         }
