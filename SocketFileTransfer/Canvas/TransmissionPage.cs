@@ -102,7 +102,7 @@ namespace SocketFileTransfer.Canvas
 				var isInformation = (packet.PacketType & ContentType.Information) == ContentType.Information;
 				if(isInformation)
 				{
-
+					var content = (MessageDetails)packet.Data;
 				}
 			}
 			var isFile = (packet.PacketType & ContentType.File) == ContentType.File;
@@ -111,7 +111,9 @@ namespace SocketFileTransfer.Canvas
 				var isInformation = (packet.PacketType & ContentType.Information) == ContentType.Information;
 				if (isInformation)
 				{
-					var jsonContent = (FileDetails)packet.Data;
+					var content = (FileDetails)packet.Data;
+					Logging(packet.PacketType, packet.ContentSize.ToString(), TypeOfConnect.Received);
+
 				}
 			}
 
@@ -124,7 +126,6 @@ namespace SocketFileTransfer.Canvas
 					
 				}
 			}
-			Logging(packet.PacketType, packet.ContentSize.ToString(), TypeOfConnect.Received);
         }
 
         async Task SendData(ContentType contentType, string content, Socket socket)
