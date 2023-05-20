@@ -12,8 +12,8 @@ internal struct NetworkPacket
 
     public static explicit operator byte[](NetworkPacket networkPacket)
     {
-        var size = sizeof(long)
-            + sizeof(ContentType)
+        var size = Marshal.SizeOf(networkPacket.ContentSize)
+            + Marshal.SizeOf(networkPacket.PacketType)
             + (Marshal.SizeOf(networkPacket.Data[0]) * networkPacket.Data.Length);
         var result = new byte[size];
         Unsafe.WriteUnaligned(ref result[0], networkPacket.ContentSize);
