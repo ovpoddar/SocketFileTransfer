@@ -74,7 +74,7 @@ namespace SocketFileTransfer.Canvas
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 		}
 
-		private void OnReceivedEnd(IAsyncResult ar)
+		private async void OnReceivedEnd(IAsyncResult ar)
 		{
 			try
 			{
@@ -85,7 +85,7 @@ namespace SocketFileTransfer.Canvas
 					return;
 				}
 				var packet = (NetworkPacket)buffer;
-				ProcessNetworkPackets(packet);
+				await ProcessNetworkPacketsAsync(packet);
                 _clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 			}
 			catch
@@ -94,11 +94,37 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private void ProcessNetworkPackets(NetworkPacket packet)
+		private async Task ProcessNetworkPacketsAsync(NetworkPacket packet)
 		{
+			var isMessage = (packet.PacketType & ContentType.Message) == ContentType.Message;
+			if(isMessage)
+			{
+				var isInformation = (packet.PacketType & ContentType.Information) == ContentType.Information;
+				if(isInformation)
+				{
 
+				}
+			}
+			var isFile = (packet.PacketType & ContentType.File) == ContentType.File;
+			if (isFile)
+			{
+				var isInformation = (packet.PacketType & ContentType.Information) == ContentType.Information;
+				if (isInformation)
+				{
+					var jsonContent = (FileDetails)packet.Data;
+				}
+			}
 
-            Logging(packet.PacketType, packet.ContentSize.ToString(), TypeOfConnect.Received);
+			var isCommmend = (packet.PacketType & ContentType.Commend) == ContentType.Commend;
+			if (isCommmend)
+			{
+				var isInformation = (packet.PacketType & ContentType.Information) == ContentType.Information;
+				if (isInformation)
+				{
+					
+				}
+			}
+			Logging(packet.PacketType, packet.ContentSize.ToString(), TypeOfConnect.Received);
         }
 
         async Task SendData(ContentType contentType, string content, Socket socket)

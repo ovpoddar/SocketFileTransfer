@@ -9,12 +9,12 @@ internal struct NetworkPacket
     public long ContentSize { get; set; }
     public ContentType PacketType { get; set; }
     public byte[] Data { get; set; }
+
     public static explicit operator byte[](NetworkPacket networkPacket)
     {
         var size = sizeof(long)
             + sizeof(ContentType)
-            + (Marshal.SizeOf(networkPacket.Data[0])
-                * networkPacket.Data.Length);
+            + (Marshal.SizeOf(networkPacket.Data[0]) * networkPacket.Data.Length);
         var result = new byte[size];
         Unsafe.WriteUnaligned(ref result[0], networkPacket.ContentSize);
         Unsafe.WriteUnaligned(ref result[8], networkPacket.PacketType);

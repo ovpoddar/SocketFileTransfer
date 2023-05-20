@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,10 +25,10 @@ internal class ChunkBuilder
 		if (_contentType == ContentType.File && !File.Exists(_content)) { throw new FileNotFoundException("File Could not Found.", _content); }
 	}
 
-	internal async IAsyncEnumerable<NetworkPacket> Get(int index = 0)
+	internal IEnumerable<NetworkPacket> Get(int index = 0)
 	{
 		if (index == 0)
-			yield return await GetPacketInfo();
+			yield return GetPacketInfo();
 
 		if (_contentType == ContentType.File)
 		{
@@ -71,9 +69,14 @@ internal class ChunkBuilder
 		}
 	}
 
-	async Task<NetworkPacket> GetPacketInfo()
+	NetworkPacket GetPacketInfo()
 	{
-		var fileDetails = await JsonWorker.GetContentDetails(_content, _contentType);
+		var fileDetails = _contentType switch
+		{
+			ContentType.File => (byte[])new FileDetails(_content),
+			ContentType.Message => (byte[])new MessageDetails(_content),
+			_ => null
+		};
 		return new NetworkPacket
 		{
 			PacketType = _contentType | ContentType.Information,
