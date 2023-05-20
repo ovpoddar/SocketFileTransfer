@@ -1,5 +1,7 @@
 ﻿using SocketFileTransfer.Model;
+using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.CustomControl
@@ -32,7 +34,15 @@ namespace SocketFileTransfer.CustomControl
 			{
 				TypeOfConnect.Send => Color.Blue,
 				TypeOfConnect.Received => Color.Green,
-				_ => BackColor
+				TypeOfConnect.None => Color.Gray,
+				_ => throw new NotImplementedException()
+			};
+			panel1.BackColor = typeOfConnect switch
+			{
+				TypeOfConnect.Send => SystemColors.ActiveCaption,
+				TypeOfConnect.Received => SystemColors.ActiveCaption,
+				TypeOfConnect.None => Color.Transparent,
+				_ => throw new NotImplementedException()
 			};
 		}
 
@@ -51,6 +61,11 @@ namespace SocketFileTransfer.CustomControl
 			LblName.Visible = false;
 
 			SetBackground(typeOfConnect);
+		}
+
+		private void CPFile_Load(object sender, EventArgs e)
+		{
+
 		}
 	}
 }

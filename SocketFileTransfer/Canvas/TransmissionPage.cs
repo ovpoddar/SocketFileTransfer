@@ -113,7 +113,6 @@ namespace SocketFileTransfer.Canvas
 				{
 					var content = (FileDetails)packet.Data;
 					Logging(packet.PacketType, packet.ContentSize.ToString(), TypeOfConnect.Received);
-
 				}
 			}
 

@@ -11,12 +11,14 @@ internal class ChunkBuilder
 {
 	private readonly ContentType _contentType;
 	private readonly string _content;
+	private readonly Guid _chunkBuilderId;
 
 	public ChunkBuilder(ContentType contentType, string content)
 	{
 		_contentType = contentType;
 		_content = content;
 		VerifyInputArgument();
+		_chunkBuilderId = Guid.NewGuid();
 	}
 
 	private void VerifyInputArgument()
@@ -46,7 +48,8 @@ internal class ChunkBuilder
 				{
 					PacketType = ContentType.File,
 					Data = chunk,
-					ContentSize = chunk.Length
+					ContentSize = chunk.Length,
+					PacketId = _chunkBuilderId
 				};
 			}
 		}
@@ -63,7 +66,8 @@ internal class ChunkBuilder
 				{
 					PacketType = ContentType.Message,
 					Data = Encoding.Unicode.GetBytes(chunk, 0, chunk.Length),
-					ContentSize = chunk.Length
+					ContentSize = chunk.Length,
+					PacketId = _chunkBuilderId
 				};
 			}
 		}
@@ -82,6 +86,7 @@ internal class ChunkBuilder
 			PacketType = _contentType | ContentType.Information,
 			Data = fileDetails,
 			ContentSize = fileDetails.Length,
+			PacketId = _chunkBuilderId
 		};
 	}
 }
