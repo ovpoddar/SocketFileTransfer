@@ -1,4 +1,5 @@
-﻿using SocketFileTransfer.Model;
+﻿using SocketFileTransfer.Configuration;
+using SocketFileTransfer.Model;
 using System;
 using System.Drawing;
 using System.IO;
@@ -8,6 +9,8 @@ namespace SocketFileTransfer.CustomControl
 {
 	public partial class CPFile : UserControl
 	{
+		private readonly int _totalPercentage;
+		private int _received = 0;
 
 		public CPFile()
 		{
@@ -19,7 +22,6 @@ namespace SocketFileTransfer.CustomControl
 
 			LblName.Text = name;
 
-			LblName.Visible = false;
 			LblSize.Visible = false;
 			LblType.Visible = false;
 
@@ -28,7 +30,7 @@ namespace SocketFileTransfer.CustomControl
 			SetBackground(typeOfConnect);
 		}
 
-		private void SetBackground(TypeOfConnect typeOfConnect)
+		void SetBackground(TypeOfConnect typeOfConnect)
 		{
 			BackColor = typeOfConnect switch
 			{
@@ -46,13 +48,14 @@ namespace SocketFileTransfer.CustomControl
 			};
 		}
 
-		public CPFile(string filename, string fileSize, string filetype, TypeOfConnect typeOfConnect)
+		public CPFile(FileDetails fileDetails, TypeOfConnect typeOfConnect)
 		{
 			InitializeComponent();
 
-			LblName.Text = filename;
-			LblSize.Text = fileSize;
-			LblType.Text = filetype;
+			LblName.Text = fileDetails.Name;
+			LblSize.Text = Math.Round((decimal)fileDetails.Size / (1024 * 1024), 2, MidpointRounding.AwayFromZero).ToString();
+			LblType.Text = fileDetails.Type;
+			_totalPercentage = fileDetails.ChunkSize;
 
 			LblName.Visible = true;
 			LblSize.Visible = true;
@@ -63,9 +66,13 @@ namespace SocketFileTransfer.CustomControl
 			SetBackground(typeOfConnect);
 		}
 
-		private void CPFile_Load(object sender, EventArgs e)
+		public void Write(NetworkPacket bytes)
 		{
-
+			var file = new FileStream(StaticConfiguration._storedLocation, FileMode.CreateNew);
+			file.Seek(0, SeekOrigin.End);
+			file.Write(bytes.Data, 0, bytes.Data.Length);
+			_received++;
+			panel1.Width = (int)(decimal)(100 / _totalPercentage) * _received;
 		}
 	}
 }

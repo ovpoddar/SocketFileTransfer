@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SocketFileTransfer.Model;
 
-internal class FileDetails
+public class FileDetails
 {
 	private FileDetails()
 	{

@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace SocketFileTransfer.Model;
-internal struct NetworkPacket
+public struct NetworkPacket
 {
     public long ContentSize { get; set; }
     public ContentType PacketType { get; set; }

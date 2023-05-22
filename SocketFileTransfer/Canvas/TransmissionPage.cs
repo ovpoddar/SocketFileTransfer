@@ -2,10 +2,13 @@
 using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,9 +20,12 @@ namespace SocketFileTransfer.Canvas
 	{
 		private Socket _clientSocket;
 		private Socket _serverSocket;
+		private readonly Dictionary<Guid, CPFile> _directory;
+
 		public TransmissionPage(ConnectionDetails connectionDetails)
 		{
 			InitializeComponent();
+			_directory = new();
 			var worker = new Thread(() =>
 			{
 				switch (connectionDetails.TypeOfConnect)
@@ -70,7 +76,7 @@ namespace SocketFileTransfer.Canvas
 		{
 			_clientSocket.EndConnect(ar);
 
-			var buffer = new byte[_clientSocket.ReceiveBufferSize];
+			var buffer = new byte[4];
 			
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 		}
@@ -85,8 +91,10 @@ namespace SocketFileTransfer.Canvas
 				{
 					return;
 				}
-				var packet = (NetworkPacket)buffer;
-				ProcessNetworkPackets(packet);
+				var packetSize = Unsafe.ReadUnaligned<int>(ref buffer[0]);
+				ProcessPacket(packetSize);
+				// need to figure out the next packet size and allocate new arrey
+				buffer = new byte[4];
                 _clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 			}
 			catch(Exception ex) 
@@ -96,44 +104,60 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private void ProcessNetworkPackets(NetworkPacket packet)
+		private async void ProcessPacket(int packetSize)
 		{
-			var isMessage = (packet.PacketType & ContentType.Message) == ContentType.Message;
-			if(isMessage)
+			var packet = new byte[packetSize];
+			var received = await _clientSocket.ReceiveAsync(packet);
+			if (received == packetSize)
+				MessageBox.Show("bingo. same size");
+
+			var networkPacket = (NetworkPacket)packet;
+			var loopSize = CalculateChunkLength(networkPacket);
+			Debug.Assert(loopSize > 0);
+			while(loopSize == 0)
 			{
-				var isInformation = (packet.PacketType & ContentType.Information) == ContentType.Information;
-				if(isInformation)
-				{
-					var content = (MessageDetails)packet.Data;
-				}
-			}
-			var isFile = (packet.PacketType & ContentType.File) == ContentType.File;
-			if (isFile)
-			{
-				var isInformation = (packet.PacketType & ContentType.Information) == ContentType.Information;
-				if (isInformation)
-				{
-					var content = (FileDetails)packet.Data;
-					Logging(packet.PacketType, packet.ContentSize.ToString(), TypeOfConnect.Received);
-				}
+				var pc = new byte[ProjectStandardUtilitiesHelper.ChunkSize];
+				var c = await _clientSocket.ReceiveAsync(packet);
+
+				loopSize--;
 			}
 
-			var isCommmend = (packet.PacketType & ContentType.Commend) == ContentType.Commend;
-			if (isCommmend)
-			{
-				var isInformation = (packet.PacketType & ContentType.Information) == ContentType.Information;
-				if (isInformation)
-				{
-					
-				}
-			}
-        }
+		}
 
-        async Task SendData(ContentType contentType, string content, Socket socket)
+		private int CalculateChunkLength(NetworkPacket networkPacket)
 		{
+			var result = 0;
+			if((networkPacket.PacketType & ContentType.File) == 0 && (networkPacket.PacketType & ContentType.Information) == 0)
+			{
+				var infoModel = (FileDetails)(networkPacket.Data);
+				result = infoModel.ChunkSize;
+			}
+			else if((networkPacket.PacketType & ContentType.Message) == 0 && (networkPacket.PacketType & ContentType.Information) == 0)
+			{
+				var infoModel = (MessageDetails)(networkPacket.Data);
+				result = (int)Math.Ceiling((double)infoModel.Length / ProjectStandardUtilitiesHelper.ChunkSize);
+			}
+			else
+			{
+				result = 1;
+			}
+			return result;
+		}
+
+		async Task SendData(ContentType contentType, string content, Socket socket)
+		{
+			var sendSize = true;
 			var chunkBuilder = new ChunkBuilder(contentType, content);
             foreach (var chunk in chunkBuilder.Get(0))
             {
+				if (sendSize)
+				{
+					var chunkSize = ((byte[])chunk).Length;
+					var chunkSizeBytes = new byte[4];
+					Unsafe.WriteUnaligned(ref chunkSizeBytes[0], chunkSize);
+					await socket.SendAsync(chunkSizeBytes);
+					sendSize = false;
+				}
 				var send = await socket.SendAsync((byte[])chunk);
 				MessageBox.Show(send.ToString());
             }
@@ -170,17 +194,17 @@ namespace SocketFileTransfer.Canvas
 			{
 				switch (fileTypes)
 				{
-					case ContentType.File:
-						var component = new string[3] { "Test.Txt", "5000000","Txt" };
-						PanelContainer.Controls.Add(new CPFile(component[0], component[1], component[2], typeOfConnect));
-						break;
-					case ContentType.Message:
-						PanelContainer.Controls.Add(new CPFile(message, typeOfConnect));
-						break;
-					case ContentType.Commend:
-						break;
-					default:
-						break;
+					//case ContentType.File:
+					//	var component = new string[3] { "Test.Txt", "5000000","Txt" };
+					//	PanelContainer.Controls.Add(new CPFile(component[0], component[1], component[2], typeOfConnect));
+					//	break;
+					//case ContentType.Message:
+					//	PanelContainer.Controls.Add(new CPFile(message, typeOfConnect));
+					//	break;
+					//case ContentType.Commend:
+					//	break;
+					//default:
+					//	break;
 				}
 			});
 
