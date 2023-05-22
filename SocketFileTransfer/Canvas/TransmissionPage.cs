@@ -117,7 +117,7 @@ namespace SocketFileTransfer.Canvas
 			while(loopSize == 0)
 			{
 				var pc = new byte[ProjectStandardUtilitiesHelper.ChunkSize];
-				var c = await _clientSocket.ReceiveAsync(packet);
+				var c = await _clientSocket.ReceiveAsync(pc);
 
 				loopSize--;
 			}
