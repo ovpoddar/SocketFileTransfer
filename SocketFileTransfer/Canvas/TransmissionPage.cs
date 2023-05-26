@@ -108,6 +108,9 @@ namespace SocketFileTransfer.Canvas
 		private async void ProcessPacket(int packetSize)
 		{
 			var packet = new byte[packetSize];
+			var buff = new byte[8];
+			Unsafe.WriteUnaligned(ref buff[0], packetSize);
+			_clientSocket.Send(buff);
 			var received = await _clientSocket.ReceiveAsync(packet);
 			if (received == packetSize)
 				MessageBox.Show("bingo. same size");
