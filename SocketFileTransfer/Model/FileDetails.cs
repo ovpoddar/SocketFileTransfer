@@ -22,11 +22,9 @@ public class FileDetails
 		Name = fileInfo.Name;
 		Size = fileInfo.Length;
 		Type = fileInfo.Extension;
-		ChunkSize = (int)Math.Ceiling((double)fileInfo.Length / ProjectStandardUtilitiesHelper.ChunkSize);
 	}
 	public string Name { get; set; }
 	public long Size { get; set; }
-	public int ChunkSize { get; set; }
 	public string Type { get; set; }
 
 	public static explicit operator byte[](FileDetails fileDetails)
@@ -36,7 +34,6 @@ public class FileDetails
 		var type = Encoding.ASCII.GetBytes(fileDetails.Type);
 		var typeLength = type.Length;
 		var size = Marshal.SizeOf(fileDetails.Size)
-			+ Marshal.SizeOf(fileDetails.ChunkSize)
 			+ nameLength + Marshal.SizeOf(nameLength)
 			+ typeLength + Marshal.SizeOf(typeLength);
 		var result = new byte[size];
@@ -47,8 +44,6 @@ public class FileDetails
 		index += nameLength;
 		Unsafe.WriteUnaligned(ref result[index], fileDetails.Size);
 		index += Marshal.SizeOf(fileDetails.Size);
-		Unsafe.WriteUnaligned(ref result[index], fileDetails.ChunkSize);
-		index += Marshal.SizeOf(fileDetails.ChunkSize);
 		Unsafe.WriteUnaligned(ref result[index], typeLength);
 		index += Marshal.SizeOf(typeLength);
 		Array.Copy(type, 0, result, index, typeLength);
@@ -65,8 +60,6 @@ public class FileDetails
 		index += nameSize;
 		result.Size = Unsafe.ReadUnaligned<long>(ref fileDetails[index]);
 		index += Marshal.SizeOf(result.Size);
-		result.ChunkSize = Unsafe.ReadUnaligned<int>(ref fileDetails[index]);
-		index += Marshal.SizeOf(result.ChunkSize);
 		var typeSize = Unsafe.ReadUnaligned<int>(ref fileDetails[index]);
 		index += sizeof(int);
 		result.Type = Encoding.ASCII.GetString(fileDetails, index, typeSize);

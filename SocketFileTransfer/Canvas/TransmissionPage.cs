@@ -76,7 +76,7 @@ namespace SocketFileTransfer.Canvas
 		{
 			_clientSocket.EndConnect(ar);
 
-			var buffer = new byte[4];
+			var buffer = new byte[8];
 			
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 		}
@@ -91,10 +91,11 @@ namespace SocketFileTransfer.Canvas
 				{
 					return;
 				}
+				
 				var packetSize = Unsafe.ReadUnaligned<int>(ref buffer[0]);
 				ProcessPacket(packetSize);
 				// need to figure out the next packet size and allocate new arrey
-				buffer = new byte[4];
+				buffer = new byte[8];
                 _clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 			}
 			catch(Exception ex) 
@@ -112,55 +113,21 @@ namespace SocketFileTransfer.Canvas
 				MessageBox.Show("bingo. same size");
 
 			var networkPacket = (NetworkPacket)packet;
-			var loopSize = CalculateChunkLength(networkPacket);
-			Debug.Assert(loopSize > 0);
-			while(loopSize == 0)
-			{
-				var pc = new byte[ProjectStandardUtilitiesHelper.ChunkSize];
-				var c = await _clientSocket.ReceiveAsync(pc);
-
-				loopSize--;
-			}
-
-		}
-
-		private int CalculateChunkLength(NetworkPacket networkPacket)
-		{
-			var result = 0;
-			if((networkPacket.PacketType & ContentType.File) == 0 && (networkPacket.PacketType & ContentType.Information) == 0)
-			{
-				var infoModel = (FileDetails)(networkPacket.Data);
-				result = infoModel.ChunkSize;
-			}
-			else if((networkPacket.PacketType & ContentType.Message) == 0 && (networkPacket.PacketType & ContentType.Information) == 0)
-			{
-				var infoModel = (MessageDetails)(networkPacket.Data);
-				result = (int)Math.Ceiling((double)infoModel.Length / ProjectStandardUtilitiesHelper.ChunkSize);
-			}
-			else
-			{
-				result = 1;
-			}
-			return result;
+			MessageBox.Show(networkPacket.ContentSize.ToString());
 		}
 
 		async Task SendData(ContentType contentType, string content, Socket socket)
 		{
-			var sendSize = true;
 			var chunkBuilder = new ChunkBuilder(contentType, content);
             foreach (var chunk in chunkBuilder.Get(0))
             {
-				if (sendSize)
+				var isSuccessFul = await ProjectStandardUtilitiesHelper.SendData(socket, chunk);
+				if (!isSuccessFul)
 				{
-					var chunkSize = ((byte[])chunk).Length;
-					var chunkSizeBytes = new byte[4];
-					Unsafe.WriteUnaligned(ref chunkSizeBytes[0], chunkSize);
-					await socket.SendAsync(chunkSizeBytes);
-					sendSize = false;
+					MessageBox.Show("Failed to send the file");
+					break;
 				}
-				var send = await socket.SendAsync((byte[])chunk);
-				MessageBox.Show(send.ToString());
-            }
+			}
 			Logging(contentType, content, TypeOfConnect.Send);
         }
 

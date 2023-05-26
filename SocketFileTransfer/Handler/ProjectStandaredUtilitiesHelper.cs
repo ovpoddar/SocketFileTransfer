@@ -5,13 +5,32 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SocketFileTransfer.Handler;
 internal static class ProjectStandardUtilitiesHelper
 {
-	public const int ChunkSize = 1024 * 1024 * 10;
+	public static async Task<bool> SendData(Socket socket, NetworkPacket packet)
+	{
+		var packetByte = (byte[])packet;
+		var packetSize = packetByte.LongLength;
+		var data = new byte[packetSize];
+		Unsafe.WriteUnaligned(ref data[0], packetSize);
+		await socket.SendAsync(data);
+		var aData = new byte[packetSize];
+		await socket.ReceiveAsync(aData);
+		if (Enumerable.SequenceEqual(data, aData))
+		{
+			await socket.SendAsync(packetByte);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 
 	// exclude the virtual machines
 	public static IEnumerable<(NetworkInterfaceType networkInterfaceType, UnicastIPAddressInformation ip)> DeviceNetworkInterfaceDiscovery() =>

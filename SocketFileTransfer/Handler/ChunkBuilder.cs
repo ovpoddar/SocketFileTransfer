@@ -27,7 +27,7 @@ internal class ChunkBuilder
 		if (_contentType == ContentType.File && !File.Exists(_content)) { throw new FileNotFoundException("File Could not Found.", _content); }
 	}
 
-	internal IEnumerable<NetworkPacket> Get(int index = 0)
+	internal IEnumerable<NetworkPacket> Get(int index = 0, int chunkSize = 1024 * 1024 * 10)
 	{
 		if (index == 0)
 			yield return GetPacketInfo();
@@ -39,9 +39,9 @@ internal class ChunkBuilder
 
 			while (index < stream.Length)
 			{
-				var chunk = new byte[(stream.Length - index) < ProjectStandardUtilitiesHelper.ChunkSize
+				var chunk = new byte[(stream.Length - index) < chunkSize
 					? stream.Length - index
-					: ProjectStandardUtilitiesHelper.ChunkSize];
+					: chunkSize];
 				stream.Read(chunk, 0, chunk.Length);
 				index += chunk.Length;
 				yield return new NetworkPacket
@@ -57,9 +57,9 @@ internal class ChunkBuilder
 		{
 			while (index < _content.Length)
 			{
-				var chunk = _content.Substring(index, (_content.Length - index) < ProjectStandardUtilitiesHelper.ChunkSize
+				var chunk = _content.Substring(index, (_content.Length - index) < chunkSize
 					? _content.Length - index
-					: ProjectStandardUtilitiesHelper.ChunkSize);
+					: chunkSize);
 
 				index += chunk.Length;
 				yield return new NetworkPacket

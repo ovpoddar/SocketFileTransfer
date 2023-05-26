@@ -9,7 +9,6 @@ namespace SocketFileTransfer.CustomControl
 {
 	public partial class CPFile : UserControl
 	{
-		private readonly int _totalPercentage;
 		private int _received = 0;
 
 		public CPFile()
@@ -55,7 +54,6 @@ namespace SocketFileTransfer.CustomControl
 			LblName.Text = fileDetails.Name;
 			LblSize.Text = Math.Round((decimal)fileDetails.Size / (1024 * 1024), 2, MidpointRounding.AwayFromZero).ToString();
 			LblType.Text = fileDetails.Type;
-			_totalPercentage = fileDetails.ChunkSize;
 
 			LblName.Visible = true;
 			LblSize.Visible = true;
@@ -72,7 +70,7 @@ namespace SocketFileTransfer.CustomControl
 			file.Seek(0, SeekOrigin.End);
 			file.Write(bytes.Data, 0, bytes.Data.Length);
 			_received++;
-			panel1.Width = (int)(decimal)(100 / _totalPercentage) * _received;
+			//panel1.Width = (int)(decimal)(100 / _totalPercentage) * _received;
 		}
 	}
 }
