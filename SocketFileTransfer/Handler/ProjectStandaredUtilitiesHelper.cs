@@ -18,7 +18,7 @@ internal static class ProjectStandardUtilitiesHelper
 		var packetSize = packetByte.LongLength;
 		var data = new byte[packetSize];
 		Unsafe.WriteUnaligned(ref data[0], packetSize);
-		await socket.SendAsync(data);
+		socket.Send(data);
 		var aData = new byte[packetSize];
 		await socket.ReceiveAsync(aData);
 		if (Enumerable.SequenceEqual(data, aData))
@@ -37,7 +37,7 @@ internal static class ProjectStandardUtilitiesHelper
 		var packetByte = new byte[packetSize];
 		var acc = new byte[8];
 		Unsafe.WriteUnaligned(ref acc[0], packetSize);
-		await socket.SendAsync(acc);
+		socket.Send(acc);
 		await socket.ReceiveAsync(packetByte);
 		return (NetworkPacket)packetByte;
 	}
