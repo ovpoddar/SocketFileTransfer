@@ -1,4 +1,5 @@
-﻿using SocketFileTransfer.CustomControl;
+﻿using Microsoft.VisualBasic.Logging;
+using SocketFileTransfer.CustomControl;
 using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
@@ -81,7 +82,7 @@ namespace SocketFileTransfer.Canvas
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 		}
 
-		private void OnReceivedEnd(IAsyncResult ar)
+		private async void OnReceivedEnd(IAsyncResult ar)
 		{
 			try
 			{
@@ -93,7 +94,8 @@ namespace SocketFileTransfer.Canvas
 				}
 				
 				var packetSize = Unsafe.ReadUnaligned<int>(ref buffer[0]);
-				ProcessPacket(packetSize);
+				var pakcet = await ProjectStandardUtilitiesHelper.ReceivedData(_clientSocket, packetSize);
+				Log(pakcet.Data.Length.ToString());
 				// need to figure out the next packet size and allocate new arrey
 				buffer = new byte[8];
                 _clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
@@ -111,10 +113,13 @@ namespace SocketFileTransfer.Canvas
 			var buff = new byte[8];
 			Unsafe.WriteUnaligned(ref buff[0], packetSize);
 			_clientSocket.Send(buff);
-			var received = await _clientSocket.ReceiveAsync(packet);
-			if (received == packetSize)
-				MessageBox.Show("bingo. same size");
+			_clientSocket.BeginReceive(packet, 0, packet.Length, SocketFlags.None, OnPackreceived, packet);
+			
+		}
 
+		private void OnPackreceived(IAsyncResult ar)
+		{
+			var packet = (byte[])ar.AsyncState;
 			var networkPacket = (NetworkPacket)packet;
 			MessageBox.Show(networkPacket.ContentSize.ToString());
 		}
@@ -178,6 +183,15 @@ namespace SocketFileTransfer.Canvas
 				}
 			});
 
+		}
+		void Log(string message)
+		{
+			Invoke(() =>
+			{
+				var control = new Label();
+				control.Text = message;
+				PanelContainer.Controls.Add(control);
+			});
 		}
 	}
 }

@@ -32,6 +32,16 @@ internal static class ProjectStandardUtilitiesHelper
 		}
 	}
 
+	public static async Task<NetworkPacket> ReceivedData(Socket socket, long packetSize)
+	{
+		var packetByte = new byte[packetSize];
+		var acc = new byte[8];
+		Unsafe.WriteUnaligned(ref acc[0], packetSize);
+		await socket.SendAsync(acc);
+		await socket.ReceiveAsync(packetByte);
+		return (NetworkPacket)packetByte;
+	}
+
 	// exclude the virtual machines
 	public static IEnumerable<(NetworkInterfaceType networkInterfaceType, UnicastIPAddressInformation ip)> DeviceNetworkInterfaceDiscovery() =>
 		from address in NetworkInterface.GetAllNetworkInterfaces()
@@ -112,7 +122,7 @@ internal static class ProjectStandardUtilitiesHelper
 		var response = await client.GetStream().ReadAsync(deviceNameAllocateByte);
 		if (response == 0)
 			return null;
-		return Encoding.ASCII.GetString(deviceNameAllocateByte, 0 ,response)
+		return Encoding.ASCII.GetString(deviceNameAllocateByte, 0, response)
 			.AsSpan()
 			.TrimEnd('\0')
 			.ToString();
