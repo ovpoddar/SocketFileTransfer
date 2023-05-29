@@ -126,16 +126,7 @@ namespace SocketFileTransfer.Canvas
 
 		async Task SendData(ContentType contentType, string content, Socket socket)
 		{
-			var chunkBuilder = new ChunkBuilder(contentType, content);
-            foreach (var chunk in chunkBuilder.Get(0))
-            {
-				var isSuccessFul = await ProjectStandardUtilitiesHelper.SendData(socket, chunk);
-				if (!isSuccessFul)
-				{
-					MessageBox.Show("Failed to send the file");
-					break;
-				}
-			}
+			
 			Logging(contentType, content, TypeOfConnect.Send);
         }
 

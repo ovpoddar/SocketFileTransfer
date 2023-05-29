@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 namespace SocketFileTransfer.Configuration;
 internal static class StaticConfiguration
 {
-	public static string _storedLocation = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+	public static string StoredLocation = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 }

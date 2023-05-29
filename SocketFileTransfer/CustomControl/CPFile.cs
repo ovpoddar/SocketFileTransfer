@@ -66,7 +66,7 @@ namespace SocketFileTransfer.CustomControl
 
 		public void Write(NetworkPacket bytes)
 		{
-			var file = new FileStream(StaticConfiguration._storedLocation, FileMode.CreateNew);
+			var file = new FileStream(StaticConfiguration.StoredLocation, FileMode.CreateNew);
 			file.Seek(0, SeekOrigin.End);
 			file.Write(bytes.Data, 0, bytes.Data.Length);
 			_received++;

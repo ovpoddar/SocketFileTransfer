@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 namespace SocketFileTransfer.Model;
 internal class MessageDetails
 {
-    private MessageDetails()
-    {
-        
-    }
+	private MessageDetails()
+	{
 
-    public MessageDetails(string content)
+	}
+
+	public MessageDetails(string content)
 	{
 		EncodingCodePage = Encoding.Unicode.CodePage;
 		Length = content.Length;

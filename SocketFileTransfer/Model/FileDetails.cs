@@ -14,8 +14,8 @@ public class FileDetails
 {
 	private FileDetails()
 	{
-
 	}
+
 	public FileDetails(string context)
 	{
 		var fileInfo = new FileInfo(context);
