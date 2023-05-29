@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 namespace SocketFileTransfer.Model;
 public struct NetworkPacket
 {
-	// need a soft casting
 	public long ContentSize { get; set; }
 	public ContentType PacketType { get; set; }
 	public byte[] Data { get; set; }
@@ -26,16 +25,23 @@ public struct NetworkPacket
 		return result;
 	}
 
-	public static explicit operator NetworkPacket(byte[] data)
+	public static implicit operator NetworkPacket(byte[] data)
 	{
-		var result = new NetworkPacket();
-		var index = 0;
-		result.ContentSize = Unsafe.ReadUnaligned<long>(ref data[index]);
-		index += Marshal.SizeOf(result.ContentSize);
-		result.PacketType = Unsafe.ReadUnaligned<ContentType>(ref data[index]);
-		index += sizeof(short);
-		result.Data = new byte[result.ContentSize];
-		Array.Copy(data, index, result.Data, 0, result.ContentSize);
-		return result;
+		try
+		{
+			var result = new NetworkPacket();
+			var index = 0;
+			result.ContentSize = Unsafe.ReadUnaligned<long>(ref data[index]);
+			index += Marshal.SizeOf(result.ContentSize);
+			result.PacketType = Unsafe.ReadUnaligned<ContentType>(ref data[index]);
+			index += sizeof(short);
+			result.Data = new byte[result.ContentSize];
+			Array.Copy(data, index, result.Data, 0, result.ContentSize);
+			return result;
+		}
+		catch
+		{
+			return null;
+		}
 	}
 }

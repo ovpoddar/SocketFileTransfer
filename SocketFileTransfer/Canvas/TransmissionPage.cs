@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -21,12 +22,11 @@ namespace SocketFileTransfer.Canvas
 	{
 		private Socket _clientSocket;
 		private Socket _serverSocket;
-		private readonly Dictionary<Guid, CPFile> _directory;
+		private PacketSender _packetSender;
 
 		public TransmissionPage(ConnectionDetails connectionDetails)
 		{
 			InitializeComponent();
-			_directory = new();
 			var worker = new Thread(() =>
 			{
 				switch (connectionDetails.TypeOfConnect)
@@ -63,8 +63,21 @@ namespace SocketFileTransfer.Canvas
 		private void AcceptClient(IAsyncResult ar)
 		{
 			_clientSocket = _serverSocket.EndAccept(ar);
+			_packetSender = new(_clientSocket);
+			_packetSender.EventHandler += ProgressEvent;
 			var buffer = new byte[_clientSocket.ReceiveBufferSize];
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
+		}
+
+		private void ProgressEvent(object sender, ProgressReport e)
+		{
+			var control = PanelContainer.Controls.Find("", false).First();
+			if (control != null)
+			{
+
+			}
+			Debug.WriteLine(e.Percentage);
+
 		}
 
 		private void ConnectPort(IPEndPoint endPoint)
@@ -76,7 +89,8 @@ namespace SocketFileTransfer.Canvas
 		private void OnConnect(IAsyncResult ar)
 		{
 			_clientSocket.EndConnect(ar);
-
+			_packetSender = new(_clientSocket);
+			_packetSender.EventHandler += ProgressEvent;
 			var buffer = new byte[8];
 			
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
@@ -92,13 +106,26 @@ namespace SocketFileTransfer.Canvas
 				{
 					return;
 				}
-				
 				var packetSize = Unsafe.ReadUnaligned<int>(ref buffer[0]);
-				var pakcet = await ProjectStandardUtilitiesHelper.ReceivedData(_clientSocket, packetSize);
-				Log(pakcet.Data.Length.ToString());
-				// need to figure out the next packet size and allocate new arrey
-				buffer = new byte[8];
-                _clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
+				var restOfPacket = new byte[packetSize];
+				await _clientSocket.ReceiveAsync(restOfPacket);
+				var fullPacket = new byte[packetSize + buffer.Length];
+				Array.Copy(buffer, fullPacket, buffer.Length - 1);
+				Array.Copy(restOfPacket, 0, fullPacket, buffer.Length, restOfPacket.Length);
+				NetworkPacket networkPack = fullPacket;
+				if (fullPacket is null)
+				{
+					buffer = new byte[8];
+					_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
+					return;
+				}
+				else
+				{
+					await _packetSender.ReceivedContent(fullPacket);
+					// need to figure out the next packet size and allocate new arrey
+					buffer = new byte[8];
+					_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
+				}
 			}
 			catch(Exception ex) 
 			{
@@ -107,26 +134,9 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private async void ProcessPacket(int packetSize)
+		async Task SendData(ContentType contentType, string content)
 		{
-			var packet = new byte[packetSize];
-			var buff = new byte[8];
-			Unsafe.WriteUnaligned(ref buff[0], packetSize);
-			_clientSocket.Send(buff);
-			_clientSocket.BeginReceive(packet, 0, packet.Length, SocketFlags.None, OnPackreceived, packet);
-			
-		}
-
-		private void OnPackreceived(IAsyncResult ar)
-		{
-			var packet = (byte[])ar.AsyncState;
-			var networkPacket = (NetworkPacket)packet;
-			MessageBox.Show(networkPacket.ContentSize.ToString());
-		}
-
-		async Task SendData(ContentType contentType, string content, Socket socket)
-		{
-			
+			await _packetSender.SendContent(content, contentType);
 			Logging(contentType, content, TypeOfConnect.Send);
         }
 
@@ -145,11 +155,11 @@ namespace SocketFileTransfer.Canvas
 				};
 
 				if (ofd.ShowDialog() == DialogResult.OK)
-					await SendData(ContentType.File, ofd.FileName, _clientSocket);
+					await SendData(ContentType.File, ofd.FileName);
 			}
 			else
 			{
-				await SendData(ContentType.Message, TxtMessage.Text, _clientSocket);
+				await SendData(ContentType.Message, TxtMessage.Text);
 				TxtMessage.Text = "";
 			}
 		}

@@ -12,40 +12,6 @@ using System.Threading.Tasks;
 namespace SocketFileTransfer.Handler;
 internal static class ProjectStandardUtilitiesHelper
 {
-	public static async Task<bool> SendData(Socket socket, NetworkPacket packet)
-	{
-		var packetByte = (byte[])packet;
-		var packetSize = packetByte.LongLength;
-		var data = new byte[packetSize];
-		Unsafe.WriteUnaligned(ref data[0], packetSize);
-		socket.NoDelay = true;
-		socket.Send(data); 
-		socket.NoDelay = false;
-		var aData = new byte[packetSize];
-		await socket.ReceiveAsync(aData);
-		if (Enumerable.SequenceEqual(data, aData))
-		{
-			await socket.SendAsync(packetByte);
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	public static async Task<NetworkPacket> ReceivedData(Socket socket, long packetSize)
-	{
-		var packetByte = new byte[packetSize];
-		var acc = new byte[8];
-		Unsafe.WriteUnaligned(ref acc[0], packetSize);
-		socket.NoDelay = true;
-		socket.Send(acc);
-		socket.NoDelay = false;
-		await socket.ReceiveAsync(packetByte);
-		return (NetworkPacket)packetByte;
-	}
-
 	// exclude the virtual machines
 	public static IEnumerable<(NetworkInterfaceType networkInterfaceType, UnicastIPAddressInformation ip)> DeviceNetworkInterfaceDiscovery() =>
 		from address in NetworkInterface.GetAllNetworkInterfaces()

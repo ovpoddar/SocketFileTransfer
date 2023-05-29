@@ -1,4 +1,5 @@
 ﻿using SocketFileTransfer.Configuration;
+using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Model;
 using System;
 using System.IO;
@@ -39,7 +40,7 @@ internal class PacketSender
 			{
 				chunkSize = fileInfo.Length - index < 1024 * 1024 ? (int)(fileInfo.Length - index) : 1024 * 1024;
 				SendFile(fileStream, ref index, chunkSize);
-				EventHandler.Invoke(this, new ProgressReport(fileInfo.Length, index));
+				EventHandler.Raise(this, new ProgressReport(fileInfo.Length, index));
 			}
 			var confirmation = new byte[2];
 			await _socket.ReceiveAsync(confirmation);
@@ -70,7 +71,7 @@ internal class PacketSender
 			{
 				writingChunk = fileSize - index < 1024 * 1024 ? (int)(fileSize - index) : 1024 * 1024;
 				ReceivedFile(fs, ref index, writingChunk);
-				EventHandler.Invoke(this, new ProgressReport(fileSize, index));
+				EventHandler.Raise(this, new ProgressReport(fileSize, index));
 				if (index == fileSize)
 					break;
 			}
