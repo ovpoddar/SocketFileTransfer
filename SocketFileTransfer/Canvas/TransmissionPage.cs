@@ -71,6 +71,7 @@ namespace SocketFileTransfer.Canvas
 
 		private void ProgressEvent(object sender, ProgressReport e)
 		{
+			// use the guid for fining the element.
 			var control = PanelContainer.Controls.Find("", false).First();
 			if (control != null)
 			{
@@ -121,6 +122,7 @@ namespace SocketFileTransfer.Canvas
 				}
 				else
 				{
+					//store a guid;
 					await _packetSender.ReceivedContent(fullPacket);
 					// need to figure out the next packet size and allocate new arrey
 					buffer = new byte[8];
