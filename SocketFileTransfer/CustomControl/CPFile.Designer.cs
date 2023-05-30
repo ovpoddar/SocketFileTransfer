@@ -33,7 +33,7 @@ namespace SocketFileTransfer.CustomControl
 			LblName = new System.Windows.Forms.Label();
 			LblSize = new System.Windows.Forms.Label();
 			LblText = new System.Windows.Forms.Label();
-			panel1 = new System.Windows.Forms.Panel();
+			ProgresPanel = new System.Windows.Forms.Panel();
 			SuspendLayout();
 			// 
 			// LblType
@@ -75,19 +75,19 @@ namespace SocketFileTransfer.CustomControl
 			LblText.TabIndex = 3;
 			LblText.Text = "label1";
 			// 
-			// panel1
+			// ProgresPanel
 			// 
-			panel1.BackColor = System.Drawing.SystemColors.ActiveCaption;
-			panel1.Location = new System.Drawing.Point(0, 0);
-			panel1.Name = "panel1";
-			panel1.Size = new System.Drawing.Size(10, 103);
-			panel1.TabIndex = 4;
+			ProgresPanel.BackColor = System.Drawing.SystemColors.ActiveCaption;
+			ProgresPanel.Location = new System.Drawing.Point(0, 0);
+			ProgresPanel.Name = "ProgresPanel";
+			ProgresPanel.Size = new System.Drawing.Size(0, 103);
+			ProgresPanel.TabIndex = 4;
 			// 
 			// CPFile
 			// 
 			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			Controls.Add(panel1);
+			Controls.Add(ProgresPanel);
 			Controls.Add(LblSize);
 			Controls.Add(LblName);
 			Controls.Add(LblType);
@@ -104,6 +104,6 @@ namespace SocketFileTransfer.CustomControl
 		private System.Windows.Forms.Label LblName;
 		private System.Windows.Forms.Label LblSize;
 		private System.Windows.Forms.Label LblText;
-		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.Panel ProgresPanel;
 	}
 }

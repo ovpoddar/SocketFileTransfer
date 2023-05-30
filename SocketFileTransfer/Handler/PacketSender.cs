@@ -32,6 +32,7 @@ internal class PacketSender
 
 		if (contentType == ContentType.File)
 		{
+			var fileDetails = (FileDetails)header.Data;
 			var fileInfo = new FileInfo(content);
 			using var fileStream = fileInfo.OpenRead();
 			long index = 0;
@@ -40,7 +41,7 @@ internal class PacketSender
 			{
 				chunkSize = fileInfo.Length - index < 1024 * 1024 ? (int)(fileInfo.Length - index) : 1024 * 1024;
 				SendFile(fileStream, ref index, chunkSize);
-				EventHandler.Raise(this, new ProgressReport(fileInfo.Length, index));
+				EventHandler.Raise(this, new ProgressReport(fileInfo.Length, index, fileDetails.FileHash));
 			}
 			var confirmation = new byte[2];
 			await _socket.ReceiveAsync(confirmation);
@@ -71,7 +72,7 @@ internal class PacketSender
 			{
 				writingChunk = fileSize - index < 1024 * 1024 ? (int)(fileSize - index) : 1024 * 1024;
 				ReceivedFile(fs, ref index, writingChunk);
-				EventHandler.Raise(this, new ProgressReport(fileSize, index));
+				EventHandler.Raise(this, new ProgressReport(fileSize, index, fileInfo.FileHash));
 				if (index == fileSize)
 					break;
 			}

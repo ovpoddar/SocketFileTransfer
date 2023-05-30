@@ -72,12 +72,11 @@ namespace SocketFileTransfer.Canvas
 		private void ProgressEvent(object sender, ProgressReport e)
 		{
 			// use the guid for fining the element.
-			//var control = PanelContainer.Controls.Find("", false).First();
-			//if (control != null)
-			//{
-
-			//}
-			Debug.WriteLine(e.Percentage);
+			var control = PanelContainer.Controls.OfType<CPFile>().FirstOrDefault(a => a.Name == e.TargetedItemName);
+			if (control != null)
+			{
+				control.ChangeProcess(e);
+			}
 
 		}
 
@@ -93,7 +92,7 @@ namespace SocketFileTransfer.Canvas
 			_packetSender = new(_clientSocket);
 			_packetSender.EventHandler += ProgressEvent;
 			var buffer = new byte[8];
-			
+
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 		}
 
@@ -122,24 +121,46 @@ namespace SocketFileTransfer.Canvas
 				}
 				else
 				{
-					//store a guid;
-					await _packetSender.ReceivedContent(fullPacket);
+					ProcessNetWorkPack(networkPack);
+					await _packetSender.ReceivedContent(networkPack);
 					buffer = new byte[8];
 					_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 				}
 			}
-			catch(Exception ex) 
+			catch (Exception ex)
 			{
 				Debug.WriteLine(ex);
 				Logging(ContentType.Message, "User is Disconnected", TypeOfConnect.None);
 			}
 		}
 
+		void ProcessNetWorkPack(NetworkPacket fullPacket)
+		{
+			if (fullPacket.PacketType == ContentType.File)
+			{
+				var fileInfo = (FileDetails)fullPacket.Data;
+				LogFile(fileInfo, TypeOfConnect.Received);
+			}
+		}
+
+		private void LogFile(FileDetails fileInfo, TypeOfConnect send)
+		{
+			Invoke(() =>
+			{
+				var fileItem = new CPFile(fileInfo, send);
+				PanelContainer.Controls.Add(fileItem);
+			});
+		}
+
 		async Task SendData(ContentType contentType, string content)
 		{
-			await _packetSender.SendContent(content, contentType);
-			Logging(contentType, content, TypeOfConnect.Send);
-        }
+			if (contentType == ContentType.File)
+			{
+				var fileinfo = new FileDetails(content);
+				LogFile(fileinfo, TypeOfConnect.Send);
+				await _packetSender.SendContent(content, contentType);
+			}
+		}
 
 		private void TextBox1_TextChanged(object sender, EventArgs e)
 		{
@@ -165,35 +186,6 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		public void Logging(ContentType fileTypes, string message, TypeOfConnect typeOfConnect)
-		{
-			Invoke(() =>
-			{
-				switch (fileTypes)
-				{
-					//case ContentType.File:
-					//	var component = new string[3] { "Test.Txt", "5000000","Txt" };
-					//	PanelContainer.Controls.Add(new CPFile(component[0], component[1], component[2], typeOfConnect));
-					//	break;
-					//case ContentType.Message:
-					//	PanelContainer.Controls.Add(new CPFile(message, typeOfConnect));
-					//	break;
-					//case ContentType.Commend:
-					//	break;
-					//default:
-					//	break;
-				}
-			});
 
-		}
-		void Log(string message)
-		{
-			Invoke(() =>
-			{
-				var control = new Label();
-				control.Text = message;
-				PanelContainer.Controls.Add(control);
-			});
-		}
 	}
 }

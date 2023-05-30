@@ -3,14 +3,13 @@ using SocketFileTransfer.Model;
 using System;
 using System.Drawing;
 using System.IO;
+using System.Text;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.CustomControl
 {
 	public partial class CPFile : UserControl
 	{
-		private int _received = 0;
-
 		public CPFile()
 		{
 			InitializeComponent();
@@ -38,7 +37,7 @@ namespace SocketFileTransfer.CustomControl
 				TypeOfConnect.None => Color.Gray,
 				_ => throw new NotImplementedException()
 			};
-			panel1.BackColor = typeOfConnect switch
+			ProgresPanel.BackColor = typeOfConnect switch
 			{
 				TypeOfConnect.Send => SystemColors.ActiveCaption,
 				TypeOfConnect.Received => SystemColors.ActiveCaption,
@@ -49,6 +48,9 @@ namespace SocketFileTransfer.CustomControl
 
 		public CPFile(FileDetails fileDetails, TypeOfConnect typeOfConnect)
 		{
+			var hashName = Encoding.ASCII.GetString(fileDetails.FileHash);
+			this.Name = hashName;
+
 			InitializeComponent();
 
 			LblName.Text = fileDetails.Name;
@@ -60,17 +62,13 @@ namespace SocketFileTransfer.CustomControl
 			LblType.Visible = true;
 
 			LblName.Visible = false;
-
 			SetBackground(typeOfConnect);
 		}
 
-		public void Write(NetworkPacket bytes)
+		public void ChangeProcess(ProgressReport progress)
 		{
-			var file = new FileStream(StaticConfiguration.StoredLocation, FileMode.CreateNew);
-			file.Seek(0, SeekOrigin.End);
-			file.Write(bytes.Data, 0, bytes.Data.Length);
-			_received++;
-			//panel1.Width = (int)(decimal)(100 / _totalPercentage) * _received;
+			this.LblSize.Text = $"{progress.Complete} / {progress.Total}";
+			this.ProgresPanel.Width = (int)progress.Percentage / 100 * Width;
 		}
 	}
 }
