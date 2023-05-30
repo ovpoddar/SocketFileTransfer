@@ -7,8 +7,8 @@ public struct ProgressReport
 	public decimal Percentage { get; }
 	public decimal Total { get; }
 	public decimal Complete { get; }
-    public string TargetedItemName { get; set; }
-    public ProgressReport(decimal total, decimal complete, byte[] fileHash)
+	public string TargetedItemName { get; set; }
+	public ProgressReport(decimal total, decimal complete, byte[] fileHash)
 	{
 		Total = total;
 		Complete = complete;

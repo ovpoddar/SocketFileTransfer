@@ -1,12 +1,9 @@
 ﻿using SocketFileTransfer.Handler;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SocketFileTransfer.Model;
 
@@ -28,15 +25,15 @@ public class FileDetails
 	public string Name { get; set; }
 	public long Size { get; set; }
 	public string Type { get; set; }
-    public byte[] FileHash { get; set; }
+	public byte[] FileHash { get; set; }
 
-    public static explicit operator byte[](FileDetails fileDetails)
+	public static explicit operator byte[](FileDetails fileDetails)
 	{
 		var name = Encoding.ASCII.GetBytes(fileDetails.Name);
 		var nameLength = name.Length;
 		var type = Encoding.ASCII.GetBytes(fileDetails.Type);
 		var typeLength = type.Length;
-		var size = Marshal.SizeOf(nameLength) + nameLength 
+		var size = Marshal.SizeOf(nameLength) + nameLength
 			+ Marshal.SizeOf(fileDetails.Size)
 			+ Marshal.SizeOf(typeLength) + typeLength
 			+ fileDetails.FileHash.Length * sizeof(byte) + Marshal.SizeOf(fileDetails.FileHash.Length);

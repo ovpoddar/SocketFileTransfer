@@ -3,7 +3,6 @@ using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;

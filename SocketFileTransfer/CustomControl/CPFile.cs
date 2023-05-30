@@ -1,8 +1,6 @@
-﻿using SocketFileTransfer.Configuration;
-using SocketFileTransfer.Model;
+﻿using SocketFileTransfer.Model;
 using System;
 using System.Drawing;
-using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
