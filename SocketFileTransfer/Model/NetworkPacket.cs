@@ -35,8 +35,8 @@ public struct NetworkPacket
 			index += Marshal.SizeOf(result.ContentSize);
 			result.PacketType = Unsafe.ReadUnaligned<ContentType>(ref data[index]);
 			index += sizeof(short);
-			result.Data = new byte[result.ContentSize];
-			Array.Copy(data, index, result.Data, 0, result.ContentSize);
+			result.Data = new byte[result.ContentSize - sizeof(short)];
+			Array.Copy(data, index, result.Data, 0, result.Data.Length);
 			return result;
 		}
 		catch
