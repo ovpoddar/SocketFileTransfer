@@ -186,6 +186,27 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
+		public void Logging(ContentType fileTypes, string message, TypeOfConnect typeOfConnect)
+		{
+			Invoke(() =>
+			{
+				switch (fileTypes)
+				{
+					//case ContentType.File:
+					//	var component = new string[3] { "Test.Txt", "5000000","Txt" };
+					//	PanelContainer.Controls.Add(new CPFile(component[0], component[1], component[2], typeOfConnect));
+					//	break;
+					//case ContentType.Message:
+					//	PanelContainer.Controls.Add(new CPFile(message, typeOfConnect));
+					//	break;
+					//case ContentType.Commend:
+					//	break;
+					//default:
+					//	break;
+				}
+			});
+
+		}
 
 	}
 }
