@@ -1,19 +1,14 @@
-﻿using Microsoft.VisualBasic.Logging;
-using SocketFileTransfer.CustomControl;
+﻿using SocketFileTransfer.CustomControl;
 using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.Canvas
@@ -153,15 +148,6 @@ namespace SocketFileTransfer.Canvas
 			});
 		}
 
-		async Task SendData(ContentType contentType, string content)
-		{
-			if (contentType == ContentType.File)
-			{
-				var fileinfo = new FileDetails(content);
-				LogFile(fileinfo, TypeOfConnect.Send);
-				await _packetSender.SendContent(content, contentType);
-			}
-		}
 
 		private void TextBox1_TextChanged(object sender, EventArgs e)
 		{
@@ -178,11 +164,16 @@ namespace SocketFileTransfer.Canvas
 				};
 
 				if (ofd.ShowDialog() == DialogResult.OK)
-					await SendData(ContentType.File, ofd.FileName);
+				{
+					var fileinfo = new FileDetails(ofd.FileName);
+					LogFile(fileinfo, TypeOfConnect.Send);
+					await _packetSender.SendContent(ofd.FileName, ContentType.File);
+				}
 			}
 			else
 			{
-				await SendData(ContentType.Message, TxtMessage.Text);
+				var messageInfo = new MessageDetails(TxtMessage.Text);
+				//LogMessage(fileinfo, TypeOfConnect.Send);
 				TxtMessage.Text = "";
 			}
 		}

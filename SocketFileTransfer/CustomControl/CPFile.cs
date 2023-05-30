@@ -60,7 +60,6 @@ namespace SocketFileTransfer.CustomControl
 			LblSize.Visible = true;
 			LblType.Visible = true;
 
-			LblName.Visible = false;
 			SetBackground(typeOfConnect);
 		}
 
