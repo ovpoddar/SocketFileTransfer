@@ -149,7 +149,6 @@ namespace SocketFileTransfer.Canvas
 			});
 		}
 
-
 		private void TextBox1_TextChanged(object sender, EventArgs e)
 		{
 			BtnOperate.Text = TxtMessage.Text.Length <= 0 ? "->" : "+";
@@ -157,28 +156,35 @@ namespace SocketFileTransfer.Canvas
 
 		private async void Button1_Click(object sender, EventArgs e)
 		{
-			if (TxtMessage.Text.Length <= 0)
+			try
 			{
-				var ofd = new OpenFileDialog
+				if (TxtMessage.Text.Length <= 0)
 				{
-					Multiselect = false
-				};
-
-				if (ofd.ShowDialog() == DialogResult.OK)
-				{
-					var fileinfo = new FileDetails(ofd.FileName);
-					LogFile(fileinfo, TypeOfConnect.Send);
-					await Task.Run(async () =>
+					var ofd = new OpenFileDialog
 					{
-						await _packetSender.SendContent(ofd.FileName, ContentType.File);
-					});
+						Multiselect = false
+					};
+
+					if (ofd.ShowDialog() == DialogResult.OK)
+					{
+						var fileinfo = new FileDetails(ofd.FileName);
+						LogFile(fileinfo, TypeOfConnect.Send);
+						await Task.Run(async () =>
+						{
+							await _packetSender.SendContent(ofd.FileName, ContentType.File);
+						});
+					}
+				}
+				else
+				{
+					var messageInfo = new MessageDetails(TxtMessage.Text);
+					//LogMessage(fileinfo, TypeOfConnect.Send);
+					TxtMessage.Text = "";
 				}
 			}
-			else
+			catch (Exception ex)
 			{
-				var messageInfo = new MessageDetails(TxtMessage.Text);
-				//LogMessage(fileinfo, TypeOfConnect.Send);
-				TxtMessage.Text = "";
+				Logging(ContentType.Information, ex.Message, TypeOfConnect.None);
 			}
 		}
 
