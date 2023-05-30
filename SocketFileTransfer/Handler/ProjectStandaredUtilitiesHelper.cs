@@ -1,11 +1,13 @@
 ﻿using SocketFileTransfer.Model;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -69,6 +71,21 @@ internal static class ProjectStandardUtilitiesHelper
 		{
 			SendDetails(client, "@Connected@");
 			return slice[1];
+		}
+	}
+
+	public static byte[] GetHashCode(string filePath)
+	{
+		using (var cryptoService = SHA256.Create())
+		{
+			using (var fileStream = new FileStream(filePath,
+												   FileMode.Open,
+												   FileAccess.Read,
+												   FileShare.ReadWrite))
+			{
+				var hash = cryptoService.ComputeHash(fileStream);
+				return hash;
+			}
 		}
 	}
 
