@@ -48,10 +48,9 @@ namespace SocketFileTransfer.CustomControl
 
 		public CPFile(FileDetails fileDetails, TypeOfConnect typeOfConnect)
 		{
+			InitializeComponent();
 			var hashName = Encoding.ASCII.GetString(fileDetails.FileHash);
 			this.Name = hashName;
-
-			InitializeComponent();
 
 			LblName.Text = fileDetails.Name;
 			LblSize.Text = Math.Round((decimal)fileDetails.Size / (1024 * 1024), 2, MidpointRounding.AwayFromZero).ToString();

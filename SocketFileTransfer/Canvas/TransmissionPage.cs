@@ -72,6 +72,7 @@ namespace SocketFileTransfer.Canvas
 		private void ProgressEvent(object sender, ProgressReport e)
 		{
 			// use the guid for fining the element.
+			var d = PanelContainer.Controls.OfType<CPFile>();
 			var control = PanelContainer.Controls.OfType<CPFile>().FirstOrDefault(a => a.Name == e.TargetedItemName);
 			if (control != null)
 			{
