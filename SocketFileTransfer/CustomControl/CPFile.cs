@@ -53,7 +53,7 @@ namespace SocketFileTransfer.CustomControl
 		public void ChangeProcess(ProgressReport progress)
 		{
 			this.LblSize.Text = $"{progress.Complete} / {progress.Total}";
-			this.ProgresPanel.Width = (int)progress.Percentage / 100 * Width;
+			this.ProgresPanel.Width = (int)(progress.Percentage / 100 * Width);
 		}
 	}
 }
