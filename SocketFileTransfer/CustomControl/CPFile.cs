@@ -14,19 +14,6 @@ namespace SocketFileTransfer.CustomControl
 		{
 			InitializeComponent();
 		}
-		public CPFile(string name, TypeOfConnect typeOfConnect)
-		{
-			InitializeComponent();
-
-			LblName.Text = name;
-
-			LblSize.Visible = false;
-			LblType.Visible = false;
-
-			LblName.Visible = true;
-
-			SetBackground(typeOfConnect);
-		}
 
 		void SetBackground(TypeOfConnect typeOfConnect)
 		{

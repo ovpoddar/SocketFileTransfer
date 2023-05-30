@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.Canvas
@@ -167,7 +168,10 @@ namespace SocketFileTransfer.Canvas
 				{
 					var fileinfo = new FileDetails(ofd.FileName);
 					LogFile(fileinfo, TypeOfConnect.Send);
-					await _packetSender.SendContent(ofd.FileName, ContentType.File);
+					await Task.Run(async () =>
+					{
+						await _packetSender.SendContent(ofd.FileName, ContentType.File);
+					});
 				}
 			}
 			else
