@@ -199,8 +199,11 @@ namespace SocketFileTransfer.Canvas
 				}
 				else
 				{
-					await _packetSender.SendContent(TxtMessage.Text, ContentType.Message);
-					TxtMessage.Text = "";
+					await Task.Run(async () =>
+					{
+						await _packetSender.SendContent(TxtMessage.Text, ContentType.Message);
+						TxtMessage.Text = "";
+					});
 				}
 			}
 			catch (Exception ex)
