@@ -3,6 +3,7 @@ using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -60,13 +61,22 @@ namespace SocketFileTransfer.Canvas
 			_clientSocket = _serverSocket.EndAccept(ar);
 			_packetSender = new(_clientSocket);
 			_packetSender.ProgressEventHandler += ProgressEvent;
+			_packetSender.MessageEventHandler += MessageEvent;
 			var buffer = new byte[8];
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 		}
 
+		private void MessageEvent(object sender, MessageReport e)
+		{
+			var control = PanelContainer.Controls.OfType<CPFile>().LastOrDefault();
+			if (control != null)
+			{
+				control.ChangeMessage(e);
+			}
+		}
+
 		private void ProgressEvent(object sender, ProgressReport e)
 		{
-			var d = PanelContainer.Controls.OfType<CPFile>();
 			var control = PanelContainer.Controls.OfType<CPFile>().FirstOrDefault(a => a.Name == e.TargetedItemName);
 			if (control != null)
 			{
@@ -86,6 +96,7 @@ namespace SocketFileTransfer.Canvas
 			_clientSocket.EndConnect(ar);
 			_packetSender = new(_clientSocket);
 			_packetSender.ProgressEventHandler += ProgressEvent;
+			_packetSender.MessageEventHandler += MessageEvent;
 			var buffer = new byte[8];
 
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
@@ -144,7 +155,11 @@ namespace SocketFileTransfer.Canvas
 
 		private void LogMessage(MessageDetails messageInfo, TypeOfConnect received)
 		{
-			throw new NotImplementedException();
+			Invoke(() =>
+			{
+				var fileItem = new CPFile(messageInfo, received);
+				PanelContainer.Controls.Add(fileItem);
+			});
 		}
 
 		private void LogFile(FileDetails fileInfo, TypeOfConnect send)

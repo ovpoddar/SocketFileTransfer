@@ -63,9 +63,11 @@ namespace SocketFileTransfer.CustomControl
 
 		}
 
-		public void ChangeMessage()
+		public void ChangeMessage(MessageReport messageReport)
 		{
-
+			var encoding = Encoding.GetEncoding(messageReport.EncodingPage);
+			var message = encoding.GetString(messageReport.Message);
+			LblName.Text += message;
 		}
 
         public void ChangeProcess(ProgressReport progress)
