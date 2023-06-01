@@ -48,7 +48,27 @@ namespace SocketFileTransfer.CustomControl
 			SetBackground(typeOfConnect);
 		}
 
-		public void ChangeProcess(ProgressReport progress)
+        public CPFile(MessageDetails messageDetails, TypeOfConnect typeOfConnect)
+		{
+			InitializeComponent();
+
+			LblName.Text = "";
+			Height = (messageDetails.Length / 30) * 3;
+
+			LblName.Visible = true;
+			LblSize.Visible = false;
+			LblType.Visible = false;
+
+			SetBackground(typeOfConnect);
+
+		}
+
+		public void ChangeMessage()
+		{
+
+		}
+
+        public void ChangeProcess(ProgressReport progress)
 		{
 			this.LblSize.Text = $"{progress.Complete} / {progress.Total}";
 			this.ProgresPanel.Width = (int)(progress.Percentage / 100 * Width);

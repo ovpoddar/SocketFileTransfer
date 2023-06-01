@@ -1,10 +1,14 @@
-﻿using SocketFileTransfer.Configuration;
+﻿using SocketFileTransfer.Canvas;
+using SocketFileTransfer.Configuration;
 using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Model;
 using System;
 using System.IO;
+using System.IO.Pipes;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace SocketFileTransfer.Handler;
@@ -13,7 +17,8 @@ internal class PacketSender
 {
 	private readonly Socket _socket;
 
-	public EventHandler<ProgressReport> EventHandler;
+	public EventHandler<ProgressReport> ProgressEventHandler;
+	public EventHandler<MessageReport> MessageEventHandler;
 
 	public PacketSender(Socket socket)
 	{
@@ -41,11 +46,26 @@ internal class PacketSender
 			{
 				chunkSize = fileInfo.Length - index < 1024 * 1024 ? (int)(fileInfo.Length - index) : 1024 * 1024;
 				SendFile(fileStream, ref index, chunkSize);
-				EventHandler.Raise(this, new ProgressReport(fileInfo.Length, index, fileDetails.FileHash));
+				ProgressEventHandler.Raise(this, new ProgressReport(fileInfo.Length, index, fileDetails.FileHash));
 			}
-			var confirmation = new byte[2];
-			await _socket.ReceiveAsync(confirmation);
 		}
+		else if (contentType == ContentType.Message)
+		{
+			// might need a chunk version.
+			var messageInfo = (MessageDetails)header.Data;
+			var encoding = Encoding.GetEncoding(messageInfo.EncodingCodePage);
+			var message = encoding.GetBytes(content);
+			await _socket.SendAsync(message, SocketFlags.None);
+			var report = new MessageReport()
+			{
+				EncodingPage = messageInfo.EncodingCodePage,
+				Message = message
+			};
+			MessageEventHandler.Raise(this, report);
+		}
+		var confirmation = new byte[2];
+		await _socket.ReceiveAsync(confirmation);
+		var c = Unsafe.ReadUnaligned<bool>(ref confirmation[0]);
 	}
 
 	void SendFile(FileStream fileStream, ref long index, int chunkSize)
@@ -72,15 +92,28 @@ internal class PacketSender
 			{
 				writingChunk = fileSize - index < 1024 * 1024 ? (int)(fileSize - index) : 1024 * 1024;
 				ReceivedFile(fs, ref index, writingChunk);
-				EventHandler.Raise(this, new ProgressReport(fileSize, index, fileInfo.FileHash));
+				ProgressEventHandler.Raise(this, new ProgressReport(fileSize, index, fileInfo.FileHash));
 				if (index == fileSize)
 					break;
 			}
 			fs.Close();
-			var confirmation = new byte[2];
-			Unsafe.WriteUnaligned(ref confirmation[0], true);
-			await _socket.SendAsync(confirmation);
 		}
+		else if (ContentType.Message == networkPacket.PacketType)
+		{
+			// might need a chunk version
+			var messageInfo = (MessageDetails)networkPacket.Data;
+			var message = new byte[messageInfo.Length];
+			await _socket.ReceiveAsync(message, SocketFlags.None);
+			var report = new MessageReport()
+			{
+				EncodingPage = messageInfo.EncodingCodePage,
+				Message = message,
+			};
+			MessageEventHandler.Raise(this, report);
+		}
+		var confirmation = new byte[2];
+		Unsafe.WriteUnaligned(ref confirmation[0], true);
+		await _socket.SendAsync(confirmation);
 	}
 
 	void ReceivedFile(FileStream fileStream, ref long index, int chunkSize)

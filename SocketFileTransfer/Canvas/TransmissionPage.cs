@@ -59,14 +59,13 @@ namespace SocketFileTransfer.Canvas
 		{
 			_clientSocket = _serverSocket.EndAccept(ar);
 			_packetSender = new(_clientSocket);
-			_packetSender.EventHandler += ProgressEvent;
-			var buffer = new byte[_clientSocket.ReceiveBufferSize];
+			_packetSender.ProgressEventHandler += ProgressEvent;
+			var buffer = new byte[8];
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 		}
 
 		private void ProgressEvent(object sender, ProgressReport e)
 		{
-			// use the guid for fining the element.
 			var d = PanelContainer.Controls.OfType<CPFile>();
 			var control = PanelContainer.Controls.OfType<CPFile>().FirstOrDefault(a => a.Name == e.TargetedItemName);
 			if (control != null)
@@ -86,7 +85,7 @@ namespace SocketFileTransfer.Canvas
 		{
 			_clientSocket.EndConnect(ar);
 			_packetSender = new(_clientSocket);
-			_packetSender.EventHandler += ProgressEvent;
+			_packetSender.ProgressEventHandler += ProgressEvent;
 			var buffer = new byte[8];
 
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
@@ -129,7 +128,6 @@ namespace SocketFileTransfer.Canvas
 				Logging(ContentType.Message, "User is Disconnected", TypeOfConnect.None);
 			}
 		}
-
 		void ProcessNetWorkPack(NetworkPacket fullPacket)
 		{
 			if (fullPacket.PacketType == ContentType.File)
@@ -137,6 +135,16 @@ namespace SocketFileTransfer.Canvas
 				var fileInfo = (FileDetails)fullPacket.Data;
 				LogFile(fileInfo, TypeOfConnect.Received);
 			}
+			else if (fullPacket.PacketType == ContentType.Message)
+			{
+				var messageInfo = (MessageDetails)fullPacket.Data;
+				LogMessage(messageInfo, TypeOfConnect.Received);
+			}
+		}
+
+		private void LogMessage(MessageDetails messageInfo, TypeOfConnect received)
+		{
+			throw new NotImplementedException();
 		}
 
 		private void LogFile(FileDetails fileInfo, TypeOfConnect send)
@@ -176,8 +184,7 @@ namespace SocketFileTransfer.Canvas
 				}
 				else
 				{
-					var messageInfo = new MessageDetails(TxtMessage.Text);
-					//LogMessage(fileinfo, TypeOfConnect.Send);
+					await _packetSender.SendContent(TxtMessage.Text, ContentType.Message);
 					TxtMessage.Text = "";
 				}
 			}

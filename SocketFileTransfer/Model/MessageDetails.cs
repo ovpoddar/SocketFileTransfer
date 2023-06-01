@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 
 namespace SocketFileTransfer.Model;
-internal class MessageDetails
+public class MessageDetails
 {
 	private MessageDetails()
 	{
@@ -31,8 +31,8 @@ internal class MessageDetails
 	public static explicit operator MessageDetails(byte[] messageDetails)
 	{
 		var result = new MessageDetails();
-		result.Length = Unsafe.ReadUnaligned<int>(ref messageDetails[0]);
-		result.EncodingCodePage = Unsafe.ReadUnaligned<int>(ref messageDetails[4]);
+		result.EncodingCodePage = Unsafe.ReadUnaligned<int>(ref messageDetails[0]);
+		result.Length= Unsafe.ReadUnaligned<int>(ref messageDetails[4]);
 		return result;
 	}
 }
