@@ -66,7 +66,7 @@ internal class PacketSender
 
 		Check:
 		var confirmation = new byte[2];
-		await _socket.ReceiveAsync(confirmation);
+		await _socket.ReceiveAsync(confirmation, SocketFlags.None);
 		var c = Unsafe.ReadUnaligned<bool>(ref confirmation[0]);
 		if (c)
 			return;
@@ -120,7 +120,7 @@ internal class PacketSender
 		Check:
 		var confirmation = new byte[2];
 		Unsafe.WriteUnaligned(ref confirmation[0], true);
-		var send  = await _socket.SendAsync(confirmation);
+		var send  = await _socket.SendAsync(confirmation, SocketFlags.None);
 		if (send == 2)
 			return;
 		await Task.Delay(1000);
