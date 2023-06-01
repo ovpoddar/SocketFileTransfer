@@ -13,7 +13,8 @@ public class MessageDetails
 	public MessageDetails(string content)
 	{
 		EncodingCodePage = Encoding.Unicode.CodePage;
-		Length = content.Length;
+		var length = Encoding.GetEncoding(EncodingCodePage).GetByteCount(content);
+		Length = length;
 	}
 	public int EncodingCodePage { get; set; }
 	public int Length { get; set; }
