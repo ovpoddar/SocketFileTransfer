@@ -64,14 +64,10 @@ internal class PacketSender
 			MessageEventHandler.Raise(this, report);
 		}
 
-		Check:
 		var confirmation = new byte[2];
-		await _socket.ReceiveAsync(confirmation, SocketFlags.None);
-		var c = Unsafe.ReadUnaligned<bool>(ref confirmation[0]);
-		if (c)
-			return;
-		await Task.Delay(1000);
-		goto Check;
+		var res = await _socket.ReceiveAsync(confirmation, SocketFlags.None);
+		if(res == 2)
+			Unsafe.ReadUnaligned<bool>(ref confirmation[0]);
 	}
 
 	void SendFile(FileStream fileStream, ref long index, int chunkSize)
@@ -117,14 +113,9 @@ internal class PacketSender
 			};
 			MessageEventHandler.Raise(this, report);
 		}
-		Check:
 		var confirmation = new byte[2];
 		Unsafe.WriteUnaligned(ref confirmation[0], true);
-		var send  = await _socket.SendAsync(confirmation, SocketFlags.None);
-		if (send == 2)
-			return;
-		await Task.Delay(1000);
-		goto Check;
+		_socket.Send(confirmation, 0, 2, SocketFlags.None);
 	}
 
 	void ReceivedFile(FileStream fileStream, ref long index, int chunkSize)
