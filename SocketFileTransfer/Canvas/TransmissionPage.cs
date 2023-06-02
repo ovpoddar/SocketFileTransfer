@@ -137,7 +137,7 @@ namespace SocketFileTransfer.Canvas
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex);
-				Logging(ContentType.Message, "User is Disconnected", TypeOfConnect.None);
+				Logging(ContentType.Commend, "User is Disconnected", TypeOfConnect.None);
 			}
 		}
 		void ProcessNetWorkPack(NetworkPacket fullPacket)
@@ -192,7 +192,7 @@ namespace SocketFileTransfer.Canvas
 			}
 			catch (Exception ex)
 			{
-				Logging(ContentType.Information, ex.Message, TypeOfConnect.None);
+				Logging(ContentType.Commend, ex.Message, TypeOfConnect.None);
 			}
 		}
 
