@@ -54,6 +54,9 @@ namespace SocketFileTransfer.Canvas
 			catch (Exception ex)
 			{
 				MessageBox.Show(ex.Message);
+
+				_clientSocket.Dispose();
+				_serverSocket.Dispose();
 			}
 		}
 
@@ -137,6 +140,7 @@ namespace SocketFileTransfer.Canvas
 			catch (Exception ex)
 			{
 				_clientSocket.Dispose();
+				_serverSocket.Dispose();
 				Logging(ContentType.Commend, "User is Disconnected", TypeOfConnect.None);
 			}
 		}
@@ -182,7 +186,8 @@ namespace SocketFileTransfer.Canvas
 				}
 				else
 				{
-					// log that i have send it
+					var messageInfo = new MessageDetails(TxtMessage.Text);
+					Logging(ContentType.Message, messageInfo, TypeOfConnect.Send);
 					await Task.Run(async () =>
 					{
 						await _packetSender.SendContent(TxtMessage.Text, ContentType.Message);
@@ -193,7 +198,9 @@ namespace SocketFileTransfer.Canvas
 			catch (Exception ex)
 			{
 				Logging(ContentType.Commend, ex.Message, TypeOfConnect.None);
+
 				_clientSocket.Dispose();
+				_serverSocket.Dispose();
 			}
 		}
 

@@ -52,12 +52,12 @@ namespace SocketFileTransfer.CustomControl
 		{
 			InitializeComponent();
 
-			LblName.Text = "";
+			LblType.Text = "";
 			Height = ((messageDetails.Length / 30) == 0 ? 1 : (messageDetails.Length / 30)) * 15;
 			// hide all other component and made lalname to dock fill
-			LblName.Visible = true;
+			LblName.Visible = false;
 			LblSize.Visible = false;
-			LblType.Visible = false;
+			LblType.Visible = true;
 
 			SetBackground(typeOfConnect);
 
@@ -81,7 +81,7 @@ namespace SocketFileTransfer.CustomControl
 		{
 			var encoding = Encoding.GetEncoding(messageReport.EncodingPage);
 			var message = encoding.GetString(messageReport.Message);
-			LblName.Text += message;
+			LblType.Text += message;
 		}
 
 		public void ChangeProcess(ProgressReport progress)
