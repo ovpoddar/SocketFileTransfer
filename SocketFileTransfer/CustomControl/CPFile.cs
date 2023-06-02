@@ -63,11 +63,11 @@ namespace SocketFileTransfer.CustomControl
 
 		}
 
-        public CPFile(TypeOfConnect typeOfConnect)
+        public CPFile(TypeOfConnect typeOfConnect, string message)
         {
             InitializeComponent();
 
-			LblName.Text = "User Has Been disconnected.";
+			LblName.Text = message;
 			Height = 200;
 			// hide all other component and made lalname to dock fill
 			LblName.Visible = true;

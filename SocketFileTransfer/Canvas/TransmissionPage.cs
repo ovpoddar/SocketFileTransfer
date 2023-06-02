@@ -210,7 +210,7 @@ namespace SocketFileTransfer.Canvas
 						PanelContainer.Controls.Add(new CPFile((MessageDetails)info, typeOfConnect));
 						break;
 					case ContentType.Commend:
-						PanelContainer.Controls.Add(new CPFile(typeOfConnect));
+						PanelContainer.Controls.Add(new CPFile(typeOfConnect, (string)info));
 						break;
 					default:
 						break;
