@@ -1,5 +1,6 @@
 ﻿using SocketFileTransfer.Model;
 using System;
+using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
@@ -59,6 +60,7 @@ namespace SocketFileTransfer.CustomControl
 			LblSize.Visible = false;
 			LblType.Visible = true;
 
+			LblType.Dock = DockStyle.Fill;
 			SetBackground(typeOfConnect);
 
 		}
@@ -67,13 +69,14 @@ namespace SocketFileTransfer.CustomControl
         {
             InitializeComponent();
 
-			LblName.Text = message;
+			LblType.Text = "";
 			Height = 30;
 			// hide all other component and made lalname to dock fill
-			LblName.Visible = true;
+			LblName.Visible = false;
 			LblSize.Visible = false;
-			LblType.Visible = false;
+			LblType.Visible = true;
 
+			LblType.Dock = DockStyle.Fill;
 			SetBackground(typeOfConnect);
         }
 
