@@ -1,105 +1,105 @@
 ﻿
 namespace SocketFileTransfer.Canvas
 {
-    partial class TransmissionPage
-    {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
+	partial class TransmissionPage
+	{
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && (components != null))
+			{
+				components.Dispose();
+			}
+			base.Dispose(disposing);
+		}
 
-        #region Windows Form Designer generated code
+		#region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
-        private void InitializeComponent()
-        {
-            this.PanelContainer = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.BtnOperate = new System.Windows.Forms.Button();
-            this.TxtMessage = new System.Windows.Forms.TextBox();
-            this.panel1.SuspendLayout();
-            this.SuspendLayout();
-            // 
-            // PanelContainer
-            // 
-            this.PanelContainer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(59)))), ((int)(((byte)(72)))), ((int)(((byte)(81)))));
-            this.PanelContainer.Dock = System.Windows.Forms.DockStyle.Top;
-            this.PanelContainer.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.PanelContainer.Location = new System.Drawing.Point(0, 0);
-            this.PanelContainer.Name = "PanelContainer";
-            this.PanelContainer.Size = new System.Drawing.Size(384, 542);
-            this.PanelContainer.TabIndex = 0;
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.BtnOperate);
-            this.panel1.Controls.Add(this.TxtMessage);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 542);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(384, 31);
-            this.panel1.TabIndex = 1;
-            // 
-            // BtnOprate
-            // 
-            this.BtnOperate.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.BtnOperate.Font = new System.Drawing.Font("Yu Gothic", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.BtnOperate.Location = new System.Drawing.Point(332, 0);
-            this.BtnOperate.Margin = new System.Windows.Forms.Padding(0);
-            this.BtnOperate.Name = "BtnOprate";
-            this.BtnOperate.Size = new System.Drawing.Size(52, 31);
-            this.BtnOperate.TabIndex = 1;
-            this.BtnOperate.Text = "+";
-            this.BtnOperate.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.BtnOperate.UseVisualStyleBackColor = true;
-            this.BtnOperate.Click += new System.EventHandler(this.Button1_Click);
-            // 
-            // TxtMessage
-            // 
-            this.TxtMessage.Dock = System.Windows.Forms.DockStyle.Left;
-            this.TxtMessage.Location = new System.Drawing.Point(0, 0);
-            this.TxtMessage.Multiline = true;
-            this.TxtMessage.Name = "TxtMessage";
-            this.TxtMessage.Size = new System.Drawing.Size(332, 31);
-            this.TxtMessage.TabIndex = 0;
-            this.TxtMessage.TextChanged += new System.EventHandler(this.TextBox1_TextChanged);
-            // 
-            // TransmissionPage
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 573);
-            this.Controls.Add(this.panel1);
-            this.Controls.Add(this.PanelContainer);
-            this.Name = "TransmissionPage";
-            this.Text = "TransmissionPage";
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            this.ResumeLayout(false);
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		private void InitializeComponent()
+		{
+			PanelContainer = new System.Windows.Forms.FlowLayoutPanel();
+			panel1 = new System.Windows.Forms.Panel();
+			BtnOperate = new System.Windows.Forms.Button();
+			TxtMessage = new System.Windows.Forms.TextBox();
+			panel1.SuspendLayout();
+			SuspendLayout();
+			// 
+			// PanelContainer
+			// 
+			PanelContainer.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			PanelContainer.AutoScroll = true;
+			PanelContainer.BackColor = System.Drawing.Color.FromArgb(59, 72, 81);
+			PanelContainer.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+			PanelContainer.Location = new System.Drawing.Point(0, 0);
+			PanelContainer.Name = "PanelContainer";
+			PanelContainer.Size = new System.Drawing.Size(384, 539);
+			PanelContainer.TabIndex = 0;
+			// 
+			// panel1
+			// 
+			panel1.Controls.Add(BtnOperate);
+			panel1.Controls.Add(TxtMessage);
+			panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+			panel1.Location = new System.Drawing.Point(0, 542);
+			panel1.Name = "panel1";
+			panel1.Size = new System.Drawing.Size(384, 31);
+			panel1.TabIndex = 1;
+			// 
+			// BtnOperate
+			// 
+			BtnOperate.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			BtnOperate.Font = new System.Drawing.Font("Yu Gothic", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+			BtnOperate.Location = new System.Drawing.Point(326, 0);
+			BtnOperate.Margin = new System.Windows.Forms.Padding(0);
+			BtnOperate.Name = "BtnOperate";
+			BtnOperate.Size = new System.Drawing.Size(58, 31);
+			BtnOperate.TabIndex = 1;
+			BtnOperate.Text = "+";
+			BtnOperate.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+			BtnOperate.UseVisualStyleBackColor = true;
+			BtnOperate.Click += Button1_Click;
+			// 
+			// TxtMessage
+			// 
+			TxtMessage.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			TxtMessage.Location = new System.Drawing.Point(0, 0);
+			TxtMessage.Multiline = true;
+			TxtMessage.Name = "TxtMessage";
+			TxtMessage.Size = new System.Drawing.Size(329, 31);
+			TxtMessage.TabIndex = 0;
+			TxtMessage.TextChanged += TextBox1_TextChanged;
+			// 
+			// TransmissionPage
+			// 
+			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			ClientSize = new System.Drawing.Size(384, 573);
+			Controls.Add(panel1);
+			Controls.Add(PanelContainer);
+			Name = "TransmissionPage";
+			Text = "TransmissionPage";
+			panel1.ResumeLayout(false);
+			panel1.PerformLayout();
+			ResumeLayout(false);
+		}
 
-        }
+		#endregion
 
-        #endregion
-
-        private System.Windows.Forms.FlowLayoutPanel PanelContainer;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.TextBox TxtMessage;
-        private System.Windows.Forms.Button BtnOperate;
-    }
+		private System.Windows.Forms.FlowLayoutPanel PanelContainer;
+		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.TextBox TxtMessage;
+		private System.Windows.Forms.Button BtnOperate;
+	}
 }
