@@ -1,5 +1,7 @@
-﻿using SocketFileTransfer.Model;
+﻿using SocketFileTransfer.Configuration;
+using SocketFileTransfer.Model;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -113,4 +115,22 @@ internal static class ProjectStandardUtilitiesHelper
 			.TrimEnd('\0')
 			.ToString();
 	}
+
+	public static async Task<bool> ExchangeNegotiation(Socket socket, TypeOfConnect type)
+	{
+		var tempMessage = new byte[2];
+		if(type == TypeOfConnect.Send)
+		{
+			socket.Send(StaticConfiguration.NegotiationMessage, 0, 2, SocketFlags.None);
+			await socket.ReceiveAsync(tempMessage);
+		}
+		else if(type == TypeOfConnect.Received)
+		{
+			await socket.ReceiveAsync(tempMessage);
+			socket.Send(StaticConfiguration.NegotiationMessage, 0, 2, SocketFlags.None);
+		}
+
+		return Enumerable.SequenceEqual(tempMessage, StaticConfiguration.NegotiationMessage);
+	}
+
 }
