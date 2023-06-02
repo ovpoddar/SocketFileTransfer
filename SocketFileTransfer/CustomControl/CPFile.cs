@@ -59,15 +59,15 @@ namespace SocketFileTransfer.CustomControl
 			LblName.Visible = false;
 			LblSize.Visible = false;
 			LblType.Visible = true;
-
+			LblName.Size = new Size(Width, 20);
 			LblType.Dock = DockStyle.Fill;
 			SetBackground(typeOfConnect);
 
 		}
 
-        public CPFile(TypeOfConnect typeOfConnect, string message)
-        {
-            InitializeComponent();
+		public CPFile(TypeOfConnect typeOfConnect, string message)
+		{
+			InitializeComponent();
 
 			LblType.Text = "";
 			Height = 30;
@@ -78,9 +78,9 @@ namespace SocketFileTransfer.CustomControl
 
 			LblType.Dock = DockStyle.Fill;
 			SetBackground(typeOfConnect);
-        }
+		}
 
-        public void ChangeMessage(MessageReport messageReport)
+		public void ChangeMessage(MessageReport messageReport)
 		{
 			var encoding = Encoding.GetEncoding(messageReport.EncodingPage);
 			var message = encoding.GetString(messageReport.Message);
