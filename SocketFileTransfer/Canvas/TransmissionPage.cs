@@ -136,7 +136,7 @@ namespace SocketFileTransfer.Canvas
 			}
 			catch (Exception ex)
 			{
-				Debug.WriteLine(ex);
+				_clientSocket.Dispose();
 				Logging(ContentType.Commend, "User is Disconnected", TypeOfConnect.None);
 			}
 		}
@@ -193,6 +193,7 @@ namespace SocketFileTransfer.Canvas
 			catch (Exception ex)
 			{
 				Logging(ContentType.Commend, ex.Message, TypeOfConnect.None);
+				_clientSocket.Dispose();
 			}
 		}
 
