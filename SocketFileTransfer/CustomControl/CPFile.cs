@@ -59,17 +59,16 @@ namespace SocketFileTransfer.CustomControl
 			LblName.Visible = false;
 			LblSize.Visible = false;
 			LblType.Visible = true;
-			LblName.Size = new Size(Width, 20);
+			LblName.Size = new Size(Width - 20, 20);
 			LblType.Dock = DockStyle.Fill;
 			SetBackground(typeOfConnect);
-
 		}
 
 		public CPFile(TypeOfConnect typeOfConnect, string message)
 		{
 			InitializeComponent();
 
-			LblType.Text = "";
+			LblType.Text = message;
 			Height = 30;
 			// hide all other component and made lalname to dock fill
 			LblName.Visible = false;
