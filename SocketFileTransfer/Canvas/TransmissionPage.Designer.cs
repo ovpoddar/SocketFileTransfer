@@ -47,6 +47,7 @@ namespace SocketFileTransfer.Canvas
 			PanelContainer.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
 			PanelContainer.Size = new System.Drawing.Size(384, 539);
 			PanelContainer.TabIndex = 0;
+			PanelContainer.WrapContents = false;
 			// 
 			// panel1
 			// 
