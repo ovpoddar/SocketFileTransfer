@@ -110,7 +110,7 @@ internal class PacketSender
 			};
 			MessageEventHandler.Raise(this, report);
 		}
-		var isSuccesfull = await ProjectStandardUtilitiesHelper.ExchangeNegotiation(_socket, TypeOfConnect.Received);
+		var isSuccesfull = await ProjectStandardUtilitiesHelper.ExchangeNegotiation(_socket, TypeOfConnect.Send);
 	}
 
 	void ReceivedFile(FileStream fileStream, ref long index, int chunkSize)
