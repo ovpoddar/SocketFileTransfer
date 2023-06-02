@@ -53,7 +53,7 @@ namespace SocketFileTransfer.CustomControl
 			InitializeComponent();
 
 			LblType.Text = "";
-			Height = ((messageDetails.Length / 30) == 0 ? 1 : (messageDetails.Length / 30)) * 15;
+			Height = ((messageDetails.Length / 30) == 0 ? 1 : (messageDetails.Length / 30)) * 30;
 			// hide all other component and made lalname to dock fill
 			LblName.Visible = false;
 			LblSize.Visible = false;
@@ -68,7 +68,7 @@ namespace SocketFileTransfer.CustomControl
             InitializeComponent();
 
 			LblName.Text = message;
-			Height = 200;
+			Height = 30;
 			// hide all other component and made lalname to dock fill
 			LblName.Visible = true;
 			LblSize.Visible = false;

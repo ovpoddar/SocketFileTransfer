@@ -91,6 +91,8 @@ namespace SocketFileTransfer.Canvas
 
 		private async void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
 		{
+			if(listBox1.SelectedIndex == -1) 
+				return;
 			var item = listBox1.SelectedItem.ToString();
 			if (!_clients.ContainsKey(item))
 				listBox1.Items.Remove(item);
