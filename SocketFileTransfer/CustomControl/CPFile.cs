@@ -48,7 +48,7 @@ namespace SocketFileTransfer.CustomControl
 			SetBackground(typeOfConnect);
 		}
 
-        public CPFile(MessageDetails messageDetails, TypeOfConnect typeOfConnect)
+		public CPFile(MessageDetails messageDetails, TypeOfConnect typeOfConnect)
 		{
 			InitializeComponent();
 
@@ -63,14 +63,28 @@ namespace SocketFileTransfer.CustomControl
 
 		}
 
-		public void ChangeMessage(MessageReport messageReport)
+        public CPFile(TypeOfConnect typeOfConnect)
+        {
+            InitializeComponent();
+
+			LblName.Text = "User Has Been disconnected.";
+			Height = 200;
+			// hide all other component and made lalname to dock fill
+			LblName.Visible = true;
+			LblSize.Visible = false;
+			LblType.Visible = false;
+
+			SetBackground(typeOfConnect);
+        }
+
+        public void ChangeMessage(MessageReport messageReport)
 		{
 			var encoding = Encoding.GetEncoding(messageReport.EncodingPage);
 			var message = encoding.GetString(messageReport.Message);
 			LblName.Text += message;
 		}
 
-        public void ChangeProcess(ProgressReport progress)
+		public void ChangeProcess(ProgressReport progress)
 		{
 			this.LblSize.Text = $"{progress.Complete} / {progress.Total}";
 			this.ProgresPanel.Width = (int)(progress.Percentage / 100 * Width);

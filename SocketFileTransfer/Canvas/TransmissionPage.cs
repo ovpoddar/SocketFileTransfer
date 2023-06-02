@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -144,31 +145,13 @@ namespace SocketFileTransfer.Canvas
 			if (fullPacket.PacketType == ContentType.File)
 			{
 				var fileInfo = (FileDetails)fullPacket.Data;
-				LogFile(fileInfo, TypeOfConnect.Received);
+				Logging(ContentType.File, fileInfo, TypeOfConnect.Received);
 			}
 			else if (fullPacket.PacketType == ContentType.Message)
 			{
 				var messageInfo = (MessageDetails)fullPacket.Data;
-				LogMessage(messageInfo, TypeOfConnect.Received);
+				Logging(ContentType.Message, messageInfo, TypeOfConnect.Received);
 			}
-		}
-
-		private void LogMessage(MessageDetails messageInfo, TypeOfConnect received)
-		{
-			Invoke(() =>
-			{
-				var fileItem = new CPFile(messageInfo, received);
-				PanelContainer.Controls.Add(fileItem);
-			});
-		}
-
-		private void LogFile(FileDetails fileInfo, TypeOfConnect send)
-		{
-			Invoke(() =>
-			{
-				var fileItem = new CPFile(fileInfo, send);
-				PanelContainer.Controls.Add(fileItem);
-			});
 		}
 
 		private void TextBox1_TextChanged(object sender, EventArgs e)
@@ -190,7 +173,7 @@ namespace SocketFileTransfer.Canvas
 					if (ofd.ShowDialog() == DialogResult.OK)
 					{
 						var fileinfo = new FileDetails(ofd.FileName);
-						LogFile(fileinfo, TypeOfConnect.Send);
+						Logging(ContentType.File, fileinfo, TypeOfConnect.Send);
 						await Task.Run(async () =>
 						{
 							await _packetSender.SendContent(ofd.FileName, ContentType.File);
@@ -199,6 +182,7 @@ namespace SocketFileTransfer.Canvas
 				}
 				else
 				{
+					// log that i have send it
 					await Task.Run(async () =>
 					{
 						await _packetSender.SendContent(TxtMessage.Text, ContentType.Message);
@@ -212,23 +196,23 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		public void Logging(ContentType fileTypes, string message, TypeOfConnect typeOfConnect)
+		public void Logging(ContentType fileTypes, object info, TypeOfConnect typeOfConnect)
 		{
 			Invoke(() =>
 			{
 				switch (fileTypes)
 				{
-					//case ContentType.File:
-					//	var component = new string[3] { "Test.Txt", "5000000","Txt" };
-					//	PanelContainer.Controls.Add(new CPFile(component[0], component[1], component[2], typeOfConnect));
-					//	break;
-					//case ContentType.Message:
-					//	PanelContainer.Controls.Add(new CPFile(message, typeOfConnect));
-					//	break;
-					//case ContentType.Commend:
-					//	break;
-					//default:
-					//	break;
+					case ContentType.File:
+						PanelContainer.Controls.Add(new CPFile((FileDetails)info, typeOfConnect));
+						break;
+					case ContentType.Message:
+						PanelContainer.Controls.Add(new CPFile((MessageDetails)info, typeOfConnect));
+						break;
+					case ContentType.Commend:
+						PanelContainer.Controls.Add(new CPFile(typeOfConnect));
+						break;
+					default:
+						break;
 				}
 			});
 

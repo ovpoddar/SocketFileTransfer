@@ -38,8 +38,9 @@ namespace SocketFileTransfer.CustomControl
 			// 
 			// LblType
 			// 
+			LblType.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
 			LblType.BackColor = System.Drawing.Color.Transparent;
-			LblType.Dock = System.Windows.Forms.DockStyle.Left;
+			LblType.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			LblType.Font = new System.Drawing.Font("Nirmala UI", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			LblType.Location = new System.Drawing.Point(0, 0);
 			LblType.Name = "LblType";
@@ -50,8 +51,8 @@ namespace SocketFileTransfer.CustomControl
 			// 
 			// LblName
 			// 
+			LblName.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			LblName.BackColor = System.Drawing.Color.Transparent;
-			LblName.Dock = System.Windows.Forms.DockStyle.Top;
 			LblName.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			LblName.Location = new System.Drawing.Point(90, 0);
 			LblName.Name = "LblName";
@@ -64,14 +65,16 @@ namespace SocketFileTransfer.CustomControl
 			// 
 			LblSize.AutoSize = true;
 			LblSize.BackColor = System.Drawing.Color.Transparent;
-			LblSize.Location = new System.Drawing.Point(96, 48);
+			LblSize.Location = new System.Drawing.Point(90, 48);
 			LblSize.Name = "LblSize";
 			LblSize.Size = new System.Drawing.Size(38, 15);
 			LblSize.TabIndex = 2;
 			LblSize.Text = "label1";
+			LblSize.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// LblText
 			// 
+			LblText.BackColor = System.Drawing.Color.Transparent;
 			LblText.Location = new System.Drawing.Point(0, 0);
 			LblText.Name = "LblText";
 			LblText.Size = new System.Drawing.Size(381, 103);
@@ -81,19 +84,19 @@ namespace SocketFileTransfer.CustomControl
 			// ProgresPanel
 			// 
 			ProgresPanel.BackColor = System.Drawing.SystemColors.ActiveCaption;
-			ProgresPanel.Location = new System.Drawing.Point(0, 0);
+			ProgresPanel.Location = new System.Drawing.Point(0, 85);
 			ProgresPanel.Name = "ProgresPanel";
-			ProgresPanel.Size = new System.Drawing.Size(54, 103);
+			ProgresPanel.Size = new System.Drawing.Size(0, 18);
 			ProgresPanel.TabIndex = 4;
 			// 
 			// CPFile
 			// 
 			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			Controls.Add(ProgresPanel);
+			Controls.Add(LblType);
 			Controls.Add(LblSize);
 			Controls.Add(LblName);
-			Controls.Add(LblType);
-			Controls.Add(ProgresPanel);
 			Controls.Add(LblText);
 			Name = "CPFile";
 			Size = new System.Drawing.Size(384, 103);
