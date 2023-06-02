@@ -186,12 +186,14 @@ namespace SocketFileTransfer.Canvas
 				}
 				else
 				{
-					var messageInfo = new MessageDetails(TxtMessage.Text);
+
+					var message = TxtMessage.Text;
+					var messageInfo = new MessageDetails(message);
 					Logging(ContentType.Message, messageInfo, TypeOfConnect.Send);
+					TxtMessage.Text = "";
 					await Task.Run(async () =>
 					{
-						await _packetSender.SendContent(TxtMessage.Text, ContentType.Message);
-						TxtMessage.Text = "";
+						await _packetSender.SendContent(message, ContentType.Message);
 					});
 				}
 			}
