@@ -116,24 +116,4 @@ internal static class ProjectStandardUtilitiesHelper
 			.ToString();
 	}
 
-	public static async Task<bool> ExchangeNegotiation(Socket socket, TypeOfConnect type)
-	{
-		var confirmMessage = new byte[2];
-		var stream = new NetworkStream(socket);
-		if(type == TypeOfConnect.Send)
-		{
-			stream.Write(StaticConfiguration.NegotiationMessage, 0, 2);
-			stream.Flush();
-			await socket.ReceiveAsync(confirmMessage);
-		}
-		else if(type == TypeOfConnect.Received)
-		{
-			await socket.ReceiveAsync(confirmMessage);
-			stream.Write(StaticConfiguration.NegotiationMessage, 0, 2);
-			stream.Flush();
-		}
-
-		return Enumerable.SequenceEqual(confirmMessage, StaticConfiguration.NegotiationMessage);
-	}
-
 }
