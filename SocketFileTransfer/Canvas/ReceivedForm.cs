@@ -88,7 +88,8 @@ namespace SocketFileTransfer.Canvas
 			}
 			finally
 			{
-				_clients[currentAdded].Dispose();
+				if(_clients.ContainsKey(currentAdded))
+					_clients[currentAdded].Dispose();
 			}
 		}
 
