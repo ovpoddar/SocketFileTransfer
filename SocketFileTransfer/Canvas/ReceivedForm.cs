@@ -95,7 +95,6 @@ namespace SocketFileTransfer.Canvas
 
 		private void BtnBack_Click(object sender, EventArgs e)
 		{
-			_fireWall.Close();
 			OnTransmissionIpFound.Raise(this, new ConnectionDetails()
 			{
 				TypeOfConnect = TypeOfConnect.None
