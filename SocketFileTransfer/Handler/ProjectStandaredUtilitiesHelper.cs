@@ -1,7 +1,5 @@
-﻿using SocketFileTransfer.Configuration;
-using SocketFileTransfer.Model;
+﻿using SocketFileTransfer.Model;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

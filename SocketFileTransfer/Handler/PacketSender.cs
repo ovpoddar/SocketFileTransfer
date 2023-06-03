@@ -1,13 +1,9 @@
-﻿using SocketFileTransfer.Canvas;
-using SocketFileTransfer.Configuration;
+﻿using SocketFileTransfer.Configuration;
 using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Model;
 using System;
 using System.IO;
-using System.IO.Pipes;
 using System.Net.Sockets;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 

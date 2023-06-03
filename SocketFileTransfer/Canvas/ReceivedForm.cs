@@ -7,8 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
-using UtilitiTools;
-using WindowsFirewallHelper;
 
 namespace SocketFileTransfer.Canvas
 {
@@ -90,7 +88,7 @@ namespace SocketFileTransfer.Canvas
 			}
 			finally
 			{
-				if(_clients.ContainsKey(currentAdded))
+				if (_clients.ContainsKey(currentAdded))
 					_clients[currentAdded].Dispose();
 			}
 		}

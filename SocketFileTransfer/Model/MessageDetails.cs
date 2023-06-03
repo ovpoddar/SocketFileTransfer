@@ -33,7 +33,7 @@ public class MessageDetails
 	{
 		var result = new MessageDetails();
 		result.EncodingCodePage = Unsafe.ReadUnaligned<int>(ref messageDetails[0]);
-		result.Length= Unsafe.ReadUnaligned<int>(ref messageDetails[4]);
+		result.Length = Unsafe.ReadUnaligned<int>(ref messageDetails[4]);
 		return result;
 	}
 }
