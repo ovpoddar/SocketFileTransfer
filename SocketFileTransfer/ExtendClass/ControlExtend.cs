@@ -6,7 +6,9 @@ internal static class ControlExtend
 {
 	internal static void InvokeFunctionInThreadSafeWay(this Control control, Action method)
 	{
-		if (control.InvokeRequired)
+		if (control == null)
+			return;
+		else if (control.InvokeRequired)
 			control.Invoke(method);
 		else
 			method.Invoke();

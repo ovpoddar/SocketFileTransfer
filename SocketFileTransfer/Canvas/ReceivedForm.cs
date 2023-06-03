@@ -100,11 +100,5 @@ namespace SocketFileTransfer.Canvas
 				EndPoint = null
 			});
 		}
-
-		~ReceivedForm()
-		{
-			for (var i = 0; i < _currentAdded; i++)
-				_clients[i].Dispose();
-		}
 	}
 }

@@ -18,6 +18,12 @@ namespace SocketFileTransfer.Canvas
 			{
 				components.Dispose();
 			}
+			if(disposing && _clientSocket.Connected)
+			{
+				_clientSocket.Close();
+				_clientSocket.Dispose();
+			}
+
 			base.Dispose(disposing);
 		}
 

@@ -116,11 +116,5 @@ namespace SocketFileTransfer.Canvas
 				TypeOfConnect = TypeOfConnect.None
 			});
 		}
-
-		~SendForm()
-		{
-			foreach (var stream in _clients)
-				stream.Value.Item1.Dispose();
-		}
 	}
 }
