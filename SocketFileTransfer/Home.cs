@@ -59,7 +59,9 @@ namespace SocketFileTransfer
 			{
 				case TypeOfConnect.Send:
 				case TypeOfConnect.Received:
-					OpenChildForm(new TransmissionPage(e));
+					var transmisssionPage = new TransmissionPage(e);
+					transmisssionPage.BackTransmissionRequest += GotTransmissionIp;
+					OpenChildForm(transmisssionPage);
 					break;
 				case TypeOfConnect.None:
 					var indexPage = new Canvas.Index();
@@ -93,7 +95,6 @@ namespace SocketFileTransfer
 			childForm.BringToFront();
 			childForm.Show();
 		}
-
 
 		[DllImport("user32.DLL", EntryPoint = "ReleaseCapture")]
 		private extern static void ReleaseCapture();

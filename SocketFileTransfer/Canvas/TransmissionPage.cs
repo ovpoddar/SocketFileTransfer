@@ -1,4 +1,5 @@
 ﻿using SocketFileTransfer.CustomControl;
+using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
@@ -20,6 +21,8 @@ namespace SocketFileTransfer.Canvas
 		private Socket _clientSocket;
 		private Socket _serverSocket;
 		private PacketSender _packetSender;
+
+		public event EventHandler<ConnectionDetails> BackTransmissionRequest;
 
 		public TransmissionPage(ConnectionDetails connectionDetails)
 		{
@@ -228,5 +231,14 @@ namespace SocketFileTransfer.Canvas
 
 		}
 
+		private void button1_Click_1(object sender, EventArgs e)
+		{
+			if (!_clientSocket.Connected || MessageBox.Show("Do you really want to left?", "Exit", MessageBoxButtons.YesNo) != DialogResult.No)
+				BackTransmissionRequest.Raise(this, new ConnectionDetails
+				{
+					EndPoint = null,
+					TypeOfConnect = TypeOfConnect.None
+				});
+		}
 	}
 }
