@@ -18,7 +18,6 @@ namespace SocketFileTransfer.Canvas
 		public EventHandler<ConnectionDetails> OnTransmissionIpFound;
 
 		private readonly List<NetworkStream> _streams = new List<NetworkStream>();
-		private bool _canScan = true;
 		public SendForm()
 		{
 			InitializeComponent();
@@ -29,51 +28,49 @@ namespace SocketFileTransfer.Canvas
 			var client = new WlanClient();
 			var thread = new Thread(() =>
 			{
-				while (_canScan)
+				try
 				{
-					try
+					Invoke(new MethodInvoker(() =>
+								{
+									listBox1.Items.Clear();
+									_streams.Clear();
+								}));
+					foreach (var networks in client.Interfaces.SelectMany(wlaninterfaces => wlaninterfaces.GetAvailableNetworkList(Wlan.WlanGetAvailableNetworkFlags.IncludeAllManualHiddenProfiles)))
 					{
+						if (networks.profileName == string.Empty)
+							continue;
 						Invoke(new MethodInvoker(() =>
-									{
-										listBox1.Items.Clear();
-										_streams.Clear();
-									}));
-						foreach (var networks in client.Interfaces.SelectMany(wlaninterfaces => wlaninterfaces.GetAvailableNetworkList(Wlan.WlanGetAvailableNetworkFlags.IncludeAllManualHiddenProfiles)))
 						{
-							if (networks.profileName == string.Empty)
-								continue;
-							Invoke(new MethodInvoker(() =>
-							{
-								listBox1.Items.Add($"{Encoding.ASCII.GetString(networks.dot11Ssid.SSID, 0, (int)networks.dot11Ssid.SSIDLength)} {TransfarMedia.WIFI}");
-							}));
-						}
+							listBox1.Items.Add($"{Encoding.ASCII.GetString(networks.dot11Ssid.SSID, 0, (int)networks.dot11Ssid.SSIDLength)} {TransfarMedia.WIFI}");
+						}));
 					}
-					catch
-					{
-					}
-					Thread.Sleep(500);
-
-					try
-					{
-						var obtainIps = GetRouterIp();
-
-						foreach (var ipadress in obtainIps)
-						{
-							var ipRange = ipadress.Split('.');
-							for (var i = 0; i < 255; i++)
-							{
-								var testIP = ipRange[0] + '.' + ipRange[1] + '.' + ipRange[2] + '.' + i.ToString();
-								var ping = new Ping();
-								ping.PingCompleted += Ping_PingCompleted;
-								ping.SendAsync(testIP, 100, testIP);
-								ping.Dispose();
-							}
-						}
-
-					}
-					catch { }
-					Thread.Sleep(1000);
 				}
+				catch
+				{
+				}
+				Thread.Sleep(500);
+
+				try
+				{
+					var obtainIps = GetRouterIp();
+
+					foreach (var ipadress in obtainIps)
+					{
+						var ipRange = ipadress.Split('.');
+						for (var i = 0; i < 255; i++)
+						{
+							var testIP = ipRange[0] + '.' + ipRange[1] + '.' + ipRange[2] + '.' + i.ToString();
+							var ping = new Ping();
+							ping.PingCompleted += Ping_PingCompleted;
+							ping.SendAsync(testIP, 100, testIP);
+							ping.Dispose();
+						}
+					}
+
+				}
+				catch { }
+				Thread.Sleep(1000);
+
 			});
 			thread.Start();
 		}
@@ -161,8 +158,6 @@ namespace SocketFileTransfer.Canvas
 
 		private void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			_canScan = false;
-
 			if (string.IsNullOrWhiteSpace(listBox1.SelectedItem.ToString()))
 				return;
 
@@ -237,7 +232,6 @@ namespace SocketFileTransfer.Canvas
 
 		private void BtnBack_Click(object sender, EventArgs e)
 		{
-			_canScan = false;
 			OnTransmissionIpFound.Raise(this, new ConnectionDetails()
 			{
 				EndPoint = null,
