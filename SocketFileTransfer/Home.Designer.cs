@@ -94,7 +94,7 @@ namespace SocketFileTransfer
             this.LblMessage.Name = "LblMessage";
             this.LblMessage.Size = new System.Drawing.Size(269, 58);
             this.LblMessage.TabIndex = 0;
-            this.LblMessage.Text = "Turn On your WiFi And Restart the application";
+            this.LblMessage.Text = "Turn On your Wifi And Restart the application";
             this.LblMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Home

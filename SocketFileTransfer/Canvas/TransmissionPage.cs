@@ -1,11 +1,14 @@
 ﻿using SocketFileTransfer.CustomControl;
+using SocketFileTransfer.ExtendClass;
+using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
-using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
+using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.Canvas
@@ -14,8 +17,14 @@ namespace SocketFileTransfer.Canvas
 	{
 		private Socket _clientSocket;
 		private Socket _serverSocket;
+		private PacketSender _packetSender;
+		private readonly TypeOfConnect _typeOfConnect;
+
+		public event EventHandler<ConnectionDetails> BackTransmissionRequest;
+
 		public TransmissionPage(ConnectionDetails connectionDetails)
 		{
+			_typeOfConnect = connectionDetails.TypeOfConnect;
 			InitializeComponent();
 			var worker = new Thread(() =>
 			{
@@ -53,8 +62,30 @@ namespace SocketFileTransfer.Canvas
 		private void AcceptClient(IAsyncResult ar)
 		{
 			_clientSocket = _serverSocket.EndAccept(ar);
-			var buffer = new byte[_clientSocket.ReceiveBufferSize];
+			_packetSender = new(_clientSocket);
+			_packetSender.ProgressEventHandler += ProgressEvent;
+			_packetSender.MessageEventHandler += MessageEvent;
+			var buffer = new byte[8];
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
+		}
+
+		private void MessageEvent(object sender, MessageReport e)
+		{
+			var control = PanelContainer.Controls.OfType<CPFile>().LastOrDefault();
+			if (control != null)
+			{
+				control.ChangeMessage(e);
+			}
+		}
+
+		private void ProgressEvent(object sender, ProgressReport e)
+		{
+			var control = PanelContainer.Controls.OfType<CPFile>().FirstOrDefault(a => a.Name == e.TargetedItemName);
+			if (control != null)
+			{
+				control.ChangeProcess(e);
+			}
+
 		}
 
 		private void ConnectPort(IPEndPoint endPoint)
@@ -66,13 +97,15 @@ namespace SocketFileTransfer.Canvas
 		private void OnConnect(IAsyncResult ar)
 		{
 			_clientSocket.EndConnect(ar);
-
-			var buffer = new byte[_clientSocket.ReceiveBufferSize];
+			_packetSender = new(_clientSocket);
+			_packetSender.ProgressEventHandler += ProgressEvent;
+			_packetSender.MessageEventHandler += MessageEvent;
+			var buffer = new byte[8];
 
 			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 		}
 
-		private void OnReceivedEnd(IAsyncResult ar)
+		private async void OnReceivedEnd(IAsyncResult ar)
 		{
 			try
 			{
@@ -82,99 +115,125 @@ namespace SocketFileTransfer.Canvas
 				{
 					return;
 				}
-				var message = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
-
-				if (message.Contains(':'))
+				var packetSize = Unsafe.ReadUnaligned<int>(ref buffer[0]);
+				var restOfPacket = new byte[packetSize];
+				await _clientSocket.ReceiveAsync(restOfPacket);
+				var fullPacket = new byte[packetSize + buffer.Length];
+				Array.Copy(buffer, fullPacket, buffer.Length - 1);
+				Array.Copy(restOfPacket, 0, fullPacket, buffer.Length, restOfPacket.Length);
+				NetworkPacket networkPack = fullPacket;
+				if (fullPacket is null)
 				{
-					// prepare for file;
-					Logging(FileTypes.File, message, TypeOfConnect.Received);
-				}
-				else if (message.Contains("@@"))
-				{
-					// It's a commend
+					buffer = new byte[8];
+					_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
+					return;
 				}
 				else
 				{
-					// Simple Sting
-					Logging(FileTypes.Text, message, TypeOfConnect.Received);
+					ProcessNetWorkPack(networkPack);
+					await _packetSender.ReceivedContent(networkPack);
+					buffer = new byte[8];
+					_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 				}
-				_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 			}
-			catch
+			catch (Exception ex)
 			{
-				Logging(FileTypes.Text, "User is Disconnected", TypeOfConnect.None);
+				Logging(ContentType.Commend, "User is Disconnected", TypeOfConnect.None);
 			}
 		}
-
-		private void SendData(string file, FileTypes fileTypes, Socket socket)
+		void ProcessNetWorkPack(NetworkPacket fullPacket)
 		{
-			if (fileTypes == FileTypes.File && File.Exists(file))
+			if (fullPacket.PacketType == ContentType.File)
 			{
-				var fileinfo = new FileInfo(file);
-				var message = Encoding.ASCII.GetBytes($"{fileinfo.Name}:{fileinfo.Length}:{fileinfo.Extension}");
-				socket.Send(message, 0, message.Length, SocketFlags.None);
-				socket.SendFile(file);
-
-				Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
-				return;
+				var fileInfo = (FileDetails)fullPacket.Data;
+				Logging(ContentType.File, fileInfo, TypeOfConnect.Received);
 			}
-			else if (fileTypes == FileTypes.File && !File.Exists(file) || fileTypes == FileTypes.Text)
+			else if (fullPacket.PacketType == ContentType.Message)
 			{
-				var message = Encoding.ASCII.GetBytes(file);
-				socket.Send(message, 0, message.Length, SocketFlags.None);
-				Logging(fileTypes, Encoding.ASCII.GetString(message), TypeOfConnect.Send);
-			}
-			else
-			{
-				var message = Encoding.ASCII.GetBytes($"@@ {file.ToUpper()}");
-				socket.Send(message, 0, message.Length, SocketFlags.None);
+				var messageInfo = (MessageDetails)fullPacket.Data;
+				Logging(ContentType.Message, messageInfo, TypeOfConnect.Received);
 			}
 		}
 
 		private void TextBox1_TextChanged(object sender, EventArgs e)
 		{
-			BtnOprate.Text = TxtMessage.Text.Length <= 0 ? "->" : "+";
+			BtnOperate.Text = TxtMessage.Text.Length <= 0 ? "->" : "+";
 		}
 
-		private void Button1_Click(object sender, EventArgs e)
+		private async void Button1_Click(object sender, EventArgs e)
 		{
-			if (TxtMessage.Text.Length <= 0)
+			try
 			{
-				var ofd = new OpenFileDialog
+				if (TxtMessage.Text.Length <= 0)
 				{
-					Multiselect = false
-				};
+					var ofd = new OpenFileDialog
+					{
+						Multiselect = false
+					};
 
-				if (ofd.ShowDialog() == DialogResult.OK)
-					SendData(ofd.FileName, FileTypes.File, _clientSocket);
+					if (ofd.ShowDialog() == DialogResult.OK)
+					{
+						var fileinfo = new FileDetails(ofd.FileName);
+						Logging(ContentType.File, fileinfo, TypeOfConnect.Send);
+						await Task.Run(async () =>
+						{
+							await _packetSender.SendContent(ofd.FileName, ContentType.File);
+						});
+					}
+				}
+				else
+				{
+
+					var message = TxtMessage.Text;
+					var messageInfo = new MessageDetails(message);
+					Logging(ContentType.Message, messageInfo, TypeOfConnect.Send);
+					TxtMessage.Text = "";
+					await Task.Run(async () =>
+					{
+						await _packetSender.SendContent(message, ContentType.Message);
+					});
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				SendData(TxtMessage.Text, FileTypes.Text, _clientSocket);
-				TxtMessage.Text = "";
+				Logging(ContentType.Commend, ex.Message, TypeOfConnect.None);
 			}
 		}
 
-		public void Logging(FileTypes fileTypes, string message, TypeOfConnect typeOfConnect)
+		public void Logging(ContentType fileTypes, object info, TypeOfConnect typeOfConnect)
 		{
-			Invoke(() =>
+			PanelContainer.InvokeFunctionInThreadSafeWay(() =>
 			{
 				switch (fileTypes)
 				{
-					case FileTypes.File:
-						var component = message.Split(":");
-						PanelContainer.Controls.Add(new CPFile(component[0], component[1], component[2], typeOfConnect));
+					case ContentType.File:
+						PanelContainer.Controls.Add(new CPFile((FileDetails)info, typeOfConnect));
 						break;
-					case FileTypes.Text:
-						PanelContainer.Controls.Add(new CPFile(message, typeOfConnect));
+					case ContentType.Message:
+						PanelContainer.Controls.Add(new CPFile((MessageDetails)info, typeOfConnect));
 						break;
-					case FileTypes.Commend:
+					case ContentType.Commend:
+						PanelContainer.Controls.Add(new CPFile(typeOfConnect, (string)info));
 						break;
 					default:
-						throw new ArgumentOutOfRangeException(nameof(fileTypes), fileTypes, null);
+						break;
 				}
 			});
+		}
 
+		private void button1_Click_1(object sender, EventArgs e)
+		{
+			if (!_clientSocket.Connected || MessageBox.Show("Do you really want to left?", "Exit", MessageBoxButtons.YesNo) != DialogResult.No)
+			{
+				if (_typeOfConnect == TypeOfConnect.Received)
+					Application.Exit();
+				else
+					BackTransmissionRequest.Raise(this, new ConnectionDetails
+					{
+						EndPoint = null,
+						TypeOfConnect = TypeOfConnect.None
+					});
+			}
 		}
 	}
 }

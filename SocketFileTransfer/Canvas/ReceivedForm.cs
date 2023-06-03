@@ -1,181 +1,105 @@
 ﻿using SocketFileTransfer.ExtendClass;
+using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Security.Principal;
-using System.Text;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.Canvas
 {
 	public partial class ReceivedForm : Form
 	{
-		public EventHandler<ConnectionDetails> OnTransmissionIpFound;
-
-		private readonly List<byte[]> _clientsData = new List<byte[]>();
-		private readonly List<NetworkStream> _clientStreams = new List<NetworkStream>();
-		private readonly List<TcpClient> _clients = new List<TcpClient>();
 		private int _currentAdded;
+		private readonly Dictionary<int, TcpClientModel> _clients = new Dictionary<int, TcpClientModel>();
+
+		public EventHandler<ConnectionDetails> OnTransmissionIpFound;
 
 		public ReceivedForm()
 		{
 			InitializeComponent();
-			StartHotspot();
-			if (CheckHotSpot() || CheckEthernet() || HasIp())
+		}
+
+		private void ReceivedForm_Load(object sender, EventArgs e)
+		{
+			var addresses = ProjectStandardUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
+
+			if (!addresses.Any())
+				LblMsg.Text = "Failed To start Your hotspot. Please do it manually or connect your self with a network cable which is connected with router.";
+			else
 			{
-				StartBrodcast();
+				foreach (var address in addresses)
+					BrodCastSignal(address.Item2.Address);
+
 				LblMsg.Text = "waiting for user to connect";
 			}
-			else
-				LblMsg.Text = "Faild To start Your hotspot. Please do it maually or connect your self with a network cable which is connected with router.";
 		}
 
-		private void StartHotspot()
+		private void BrodCastSignal(IPAddress address)
 		{
-			var id = WindowsIdentity.GetCurrent();
-			var p = new WindowsPrincipal(id);
-			if (p.IsInRole(WindowsBuiltInRole.Administrator))
-			{
-				var startInfo = new ProcessStartInfo();
-				startInfo.UseShellExecute = true;
-				startInfo.CreateNoWindow = true;
-				startInfo.WorkingDirectory = Environment.CurrentDirectory;
-				startInfo.FileName = System.Windows.Forms.Application.ExecutablePath;
-				startInfo.Verb = "runas";
-				Process.Start(startInfo);
+			var tcpListener = new TcpListener(address, 1400);
+			tcpListener.Start();
+			tcpListener.BeginAcceptTcpClient(BroadcastSignal, tcpListener);
+		}
 
-				Application.Exit();
+		private async void BroadcastSignal(IAsyncResult ar)
+		{
+			var tcpListener = (TcpListener)ar.AsyncState;
+			var client = tcpListener.EndAcceptTcpClient(ar);
+			var newDevice = await ProjectStandardUtilitiesHelper.ExchangeInformation(client, TypeOfConnect.Received);
+			var managedClient = new TcpClientModel(newDevice, client);
+
+			if (newDevice != null
+				&& managedClient.IsCreationSucceed
+				&& !_clients.Any(a => a.Value.Name == managedClient.Name))
+			{
+				_currentAdded = _clients.Count;
+
+				var bytes = new byte[client.ReceiveBufferSize];
+				client.GetStream().BeginRead(bytes, 0, bytes.Length, DataReceived, _currentAdded);
+				managedClient.Data = bytes;
+				_clients.Add(_currentAdded, managedClient);
 			}
 			else
 			{
-				var processStartInfo = new ProcessStartInfo("cmd.exe")
-				{
-					RedirectStandardInput = true,
-					RedirectStandardOutput = true,
-					CreateNoWindow = true,
-					UseShellExecute = false
-				};
-				var process = Process.Start(processStartInfo);
-				process.StandardInput.WriteLine("netsh wlan set hostednetwork mode=allow ssid=" + Dns.GetHostName());
-				process.StandardInput.WriteLine("netsh wlan start hosted network");
-				process.StandardInput.Close();
+				if (managedClient.IsCreationSucceed)
+					managedClient.Dispose();
 			}
-		}
+			tcpListener.BeginAcceptTcpClient(BroadcastSignal, tcpListener);
 
-		private bool CheckHotSpot() =>
-			NetworkInterface.GetAllNetworkInterfaces()
-				.Any(a => a.NetworkInterfaceType == NetworkInterfaceType.Wireless80211
-						  && a.OperationalStatus == OperationalStatus.Up
-						  && a.Name.ToUpper().Contains("Local Area Connection".ToUpper()));
-
-		private bool CheckEthernet() =>
-			NetworkInterface.GetAllNetworkInterfaces()
-				.Any(a => a.NetworkInterfaceType == NetworkInterfaceType.Ethernet
-						  && a.OperationalStatus == OperationalStatus.Up
-						  && a.Name.ToUpper() == "Ethernet".ToUpper());
-
-		private bool HasIp() => NetworkInterface.GetAllNetworkInterfaces()
-			.FirstOrDefault(a => a.OperationalStatus == OperationalStatus.Up
-				&& a.Name.ToUpper() == "Wi-Fi".ToUpper())
-			.GetIPProperties().UnicastAddresses
-			.Any(a => a.Address.AddressFamily == AddressFamily.InterNetwork);
-
-		public void StartBrodcast()
-		{
-			var tcpListner = new TcpListener(IPAddress.Any, 1400);
-			tcpListner.Start();
-			tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
-		}
-
-		private void BrodcastSignal(IAsyncResult ar)
-		{
-			var tcpListner = (TcpListener)ar.AsyncState;
-			var client = tcpListner.EndAcceptTcpClient(ar);
-			var buffer = new byte[client.ReceiveBufferSize];
-			var stream = client.GetStream();
-
-			_clients.Add(client);
-			_clientsData.Add(buffer);
-			_clientStreams.Add(stream);
-			_currentAdded = _clientStreams.Count - 1;
-
-			SendSelfInformation(stream);
-			var bytes = new byte[client.ReceiveBufferSize];
-			stream.BeginRead(bytes, 0, bytes.Length, DataReceived, _currentAdded);
-
-			tcpListner.BeginAcceptTcpClient(BrodcastSignal, tcpListner);
-
-		}
-
-		private void SendSelfInformation(NetworkStream stream)
-		{
-			var message = Encoding.ASCII.GetBytes(Dns.GetHostName());
-			stream.Write(message);
-			stream.Flush();
 		}
 
 		private void DataReceived(IAsyncResult ar)
 		{
 			var currentAdded = (int)ar.AsyncState;
-			var receved = _clientStreams[currentAdded].EndRead(ar);
 
 			try
 			{
-				if (receved == 0)
-				{
-					return;
-				}
-				var message = Encoding.ASCII.GetString(_clientsData[currentAdded], 0, receved);
-				if (message == "@@Connected")
-				{
+				var received = _clients[currentAdded].Streams.EndRead(ar);
+				var port = ProjectStandardUtilitiesHelper.ReceivedTheConnectionPort(_clients[currentAdded].Clients, _clients[currentAdded].Data, received);
+				if (!string.IsNullOrWhiteSpace(port))
 					OnTransmissionIpFound.Raise(this, new ConnectionDetails
 					{
-						EndPoint = (IPEndPoint)_clients[currentAdded].Client.RemoteEndPoint,
+						EndPoint = IPEndPoint.Parse(_clients[currentAdded].Clients.Client.LocalEndPoint.ToString().Split(":")[0] + ":" + port),
 						TypeOfConnect = TypeOfConnect.Received
 					});
-
-					for (var i = 0; i < _currentAdded; i++)
-					{
-						_clients[i].Close();
-						_clients[i].Dispose();
-						_clientStreams[i].Close();
-						_clientStreams[i].Dispose();
-					}
-					Dispose();
-				}
 			}
-			catch
+			finally
 			{
-				_clients[currentAdded].Close();
-				_clients[currentAdded].Dispose();
-				_clientStreams[currentAdded].Close();
-				_clientStreams[currentAdded].Dispose();
-				_clientsData.RemoveAt(currentAdded);
-				_clientStreams.RemoveAt(currentAdded);
-				_clients.RemoveAt(currentAdded);
+				if (_clients.ContainsKey(currentAdded))
+					_clients[currentAdded].Dispose();
 			}
 		}
 
 		private void BtnBack_Click(object sender, EventArgs e)
 		{
-			OnTransmissionIpFound.Raise(this, new ConnectionDetails
+			OnTransmissionIpFound.Raise(this, new ConnectionDetails()
 			{
-				TypeOfConnect = TypeOfConnect.None,
-				EndPoint = null
+				TypeOfConnect = TypeOfConnect.None
 			});
-			for (var i = 0; i < _currentAdded; i++)
-			{
-				_clients[i].Close();
-				_clients[i].Dispose();
-				_clientStreams[i].Close();
-				_clientStreams[i].Dispose();
-			}
-			Dispose();
 		}
+
 	}
 }

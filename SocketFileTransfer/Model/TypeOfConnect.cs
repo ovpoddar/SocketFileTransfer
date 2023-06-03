@@ -1,9 +1,9 @@
 ﻿namespace SocketFileTransfer.Model
 {
-    public enum TypeOfConnect
-    {
-        Send,
-        Received,
-        None
-    }
+	public enum TypeOfConnect
+	{
+		Send,
+		Received,
+		None
+	}
 }
