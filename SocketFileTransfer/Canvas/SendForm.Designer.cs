@@ -18,7 +18,6 @@ namespace SocketFileTransfer.Canvas
             {
                 components.Dispose();
             }
-            _canScan = false;
             base.Dispose(disposing);
         }
 
