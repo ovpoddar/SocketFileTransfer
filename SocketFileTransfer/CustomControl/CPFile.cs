@@ -54,9 +54,9 @@ namespace SocketFileTransfer.CustomControl
 			InitializeComponent();
 
 			LblType.Text = "";
-			Height = (int)((messageDetails.Length / 30M) == 0M 
+			Height = ((messageDetails.Length / 30) == 0 
 				? 1 
-				: (messageDetails.Length / 30M * .5M)) * 25;
+				: (int)(messageDetails.Length / 30D * .5)) * 25;
 			// hide all other component and made lalname to dock fill
 			LblName.Visible = false;
 			LblSize.Visible = false;
