@@ -51,6 +51,9 @@ namespace SocketFileTransfer
 				default:
 					throw new ArgumentOutOfRangeException(nameof(e), e, null);
 			}
+			var control = sender as Control;
+			if (control != null)
+				control.Dispose();
 		}
 
 		private void GotTransmissionIp(object sender, ConnectionDetails e)
@@ -70,9 +73,10 @@ namespace SocketFileTransfer
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(e), e, null);
-
-
 			}
+			var control = sender as Control;
+			if (control != null)
+				control.Dispose();
 		}
 
 		private void BtnExit_Click(object sender, EventArgs e) =>
