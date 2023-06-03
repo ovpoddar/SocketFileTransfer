@@ -21,11 +21,13 @@ namespace SocketFileTransfer.Canvas
 		private Socket _clientSocket;
 		private Socket _serverSocket;
 		private PacketSender _packetSender;
+		private readonly TypeOfConnect _typeOfConnect;
 
 		public event EventHandler<ConnectionDetails> BackTransmissionRequest;
 
 		public TransmissionPage(ConnectionDetails connectionDetails)
 		{
+			_typeOfConnect = connectionDetails.TypeOfConnect;
 			InitializeComponent();
 			var worker = new Thread(() =>
 			{
@@ -225,11 +227,16 @@ namespace SocketFileTransfer.Canvas
 		private void button1_Click_1(object sender, EventArgs e)
 		{
 			if (!_clientSocket.Connected || MessageBox.Show("Do you really want to left?", "Exit", MessageBoxButtons.YesNo) != DialogResult.No)
-				BackTransmissionRequest.Raise(this, new ConnectionDetails
-				{
-					EndPoint = null,
-					TypeOfConnect = TypeOfConnect.None
-				});
+			{
+				if (_typeOfConnect == TypeOfConnect.Received)
+					Application.Exit();
+				else
+					BackTransmissionRequest.Raise(this, new ConnectionDetails
+					{
+						EndPoint = null,
+						TypeOfConnect = TypeOfConnect.None
+					});
+			}
 		}
 	}
 }
