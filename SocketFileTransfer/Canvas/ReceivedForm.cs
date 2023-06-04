@@ -15,7 +15,7 @@ namespace SocketFileTransfer.Canvas
 		private int _currentAdded;
 		private readonly Dictionary<int, TcpClientModel> _clients = new Dictionary<int, TcpClientModel>();
 
-		public EventHandler<ConnectionDetails> OnTransmissionIpFound;
+		public event EventHandler<ConnectionDetails> OnTransmissionIpFound;
 
 		public ReceivedForm()
 		{
