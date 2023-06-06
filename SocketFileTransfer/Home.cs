@@ -41,12 +41,12 @@ namespace SocketFileTransfer
 			{
 				case TypeOfConnect.Send:
 					var connectSend = new SendForm();
-					connectSend.OnTransmissionIpFound += GotTransmissionIpNew;
+					connectSend.OnTransmissionIpFound += GotTransmissionIp;
 					OpenChildForm(connectSend);
 					break;
 				case TypeOfConnect.Received:
 					var connectReceived = new ReceivedForm();
-					connectReceived.OnTransmissionIpFound += GotTransmissionIpNew;
+					connectReceived.OnTransmissionIpFound += GotTransmissionIp;
 					OpenChildForm(connectReceived);
 					break;
 				default:
@@ -57,32 +57,24 @@ namespace SocketFileTransfer
 				control.Dispose();
 		}
 
-		private void GotTransmissionIpNew(object sender, Socket e)
+		private void GotTransmissionIp(object sender, Socket e)
 		{
-			if (e == null) return;
+			if (e == null)
+			{
+				var indexPage = new Canvas.Index();
+				indexPage.SelectItem += SelectConnectMethod;
+				OpenChildForm(indexPage);
+				//back signal
+			}
+			var transmissionPage = new TransmissionPage(e);
+			transmissionPage.BackTransmissionRequest += BackTransmission;
+			OpenChildForm(transmissionPage);
+
 		}
 
-		private void GotTransmissionIp(object sender, ConnectionDetails e)
+		private void BackTransmission(object sender, EventArgs e)
 		{
-			switch (e.TypeOfConnect)
-			{
-				case TypeOfConnect.Send:
-				case TypeOfConnect.Received:
-					var transmisssionPage = new TransmissionPage(e);
-					transmisssionPage.BackTransmissionRequest += GotTransmissionIp;
-					OpenChildForm(transmisssionPage);
-					break;
-				case TypeOfConnect.None:
-					var indexPage = new Canvas.Index();
-					indexPage.SelectItem += SelectConnectMethod;
-					OpenChildForm(indexPage);
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(e), e, null);
-			}
-			var control = sender as Control;
-			if (control != null)
-				control.Dispose();
+			throw new NotImplementedException();
 		}
 
 		private void BtnExit_Click(object sender, EventArgs e) =>

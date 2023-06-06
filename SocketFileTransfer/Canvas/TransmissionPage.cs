@@ -15,58 +15,20 @@ namespace SocketFileTransfer.Canvas
 {
 	public partial class TransmissionPage : Form
 	{
-		private Socket _clientSocket;
-		private Socket _serverSocket;
+		private Socket _socket;
 		private PacketSender _packetSender;
-		private readonly TypeOfConnect _typeOfConnect;
 
-		public event EventHandler<ConnectionDetails> BackTransmissionRequest;
+		public event EventHandler BackTransmissionRequest;
 
-		public TransmissionPage(ConnectionDetails connectionDetails)
+		public TransmissionPage(Socket socket)
 		{
-			_typeOfConnect = connectionDetails.TypeOfConnect;
 			InitializeComponent();
-			var worker = new Thread(() =>
-			{
-				switch (connectionDetails.TypeOfConnect)
-				{
-					case TypeOfConnect.Send:
-						ConnectPort(connectionDetails.EndPoint);
-						break;
-
-					case TypeOfConnect.Received:
-						OpenPortToConnect(connectionDetails.EndPoint);
-						break;
-					default:
-						throw new ArgumentOutOfRangeException(nameof(connectionDetails), connectionDetails, null);
-				}
-			});
-			worker.Start();
-		}
-
-		private void OpenPortToConnect(IPEndPoint endPoint)
-		{
-			try
-			{
-				_serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-				_serverSocket.Bind(endPoint);
-				_serverSocket.Listen(10);
-				_serverSocket.BeginAccept(AcceptClient, null);
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show(ex.Message);
-			}
-		}
-
-		private void AcceptClient(IAsyncResult ar)
-		{
-			_clientSocket = _serverSocket.EndAccept(ar);
-			_packetSender = new(_clientSocket);
+			_socket = socket;
+			_packetSender = new(_socket);
 			_packetSender.ProgressEventHandler += ProgressEvent;
 			_packetSender.MessageEventHandler += MessageEvent;
 			var buffer = new byte[8];
-			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
+			_socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 		}
 
 		private void MessageEvent(object sender, MessageReport e)
@@ -88,36 +50,19 @@ namespace SocketFileTransfer.Canvas
 
 		}
 
-		private void ConnectPort(IPEndPoint endPoint)
-		{
-			_clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			_clientSocket.BeginConnect(endPoint, OnConnect, null);
-		}
-
-		private void OnConnect(IAsyncResult ar)
-		{
-			_clientSocket.EndConnect(ar);
-			_packetSender = new(_clientSocket);
-			_packetSender.ProgressEventHandler += ProgressEvent;
-			_packetSender.MessageEventHandler += MessageEvent;
-			var buffer = new byte[8];
-
-			_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
-		}
-
 		private async void OnReceivedEnd(IAsyncResult ar)
 		{
 			try
 			{
 				var buffer = (byte[])ar.AsyncState;
-				var received = _clientSocket.EndReceive(ar);
+				var received = _socket.EndReceive(ar);
 				if (received == 0)
 				{
 					return;
 				}
 				var packetSize = Unsafe.ReadUnaligned<int>(ref buffer[0]);
 				var restOfPacket = new byte[packetSize];
-				await _clientSocket.ReceiveAsync(restOfPacket);
+				await _socket.ReceiveAsync(restOfPacket);
 				var fullPacket = new byte[packetSize + buffer.Length];
 				Array.Copy(buffer, fullPacket, buffer.Length - 1);
 				Array.Copy(restOfPacket, 0, fullPacket, buffer.Length, restOfPacket.Length);
@@ -125,7 +70,7 @@ namespace SocketFileTransfer.Canvas
 				if (fullPacket is null)
 				{
 					buffer = new byte[8];
-					_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
+					_socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 					return;
 				}
 				else
@@ -133,7 +78,7 @@ namespace SocketFileTransfer.Canvas
 					ProcessNetWorkPack(networkPack);
 					await _packetSender.ReceivedContent(networkPack);
 					buffer = new byte[8];
-					_clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
+					_socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 				}
 			}
 			catch (Exception ex)
@@ -223,16 +168,9 @@ namespace SocketFileTransfer.Canvas
 
 		private void button1_Click_1(object sender, EventArgs e)
 		{
-			if (!_clientSocket.Connected || MessageBox.Show("Do you really want to left?", "Exit", MessageBoxButtons.YesNo) != DialogResult.No)
+			if (!_socket.Connected || MessageBox.Show("Do you really want to left?", "Exit", MessageBoxButtons.YesNo) != DialogResult.No)
 			{
-				if (_typeOfConnect == TypeOfConnect.Received)
-					Application.Exit();
-				else
-					BackTransmissionRequest.Raise(this, new ConnectionDetails
-					{
-						EndPoint = null,
-						TypeOfConnect = TypeOfConnect.None
-					});
+				BackTransmissionRequest.Raise(this, EventArgs.Empty);
 			}
 		}
 	}
