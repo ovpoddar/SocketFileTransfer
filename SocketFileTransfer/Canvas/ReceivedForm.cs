@@ -1,4 +1,5 @@
-﻿using SocketFileTransfer.ExtendClass;
+﻿using SocketFileTransfer.Configuration;
+using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
@@ -12,10 +13,9 @@ namespace SocketFileTransfer.Canvas
 {
 	public partial class ReceivedForm : Form
 	{
-		private int _currentAdded;
-		private readonly Dictionary<int, TcpClientModel> _clients = new Dictionary<int, TcpClientModel>();
+		private readonly Dictionary<string, TcpClientModel> _newClients = new();
 
-		public event EventHandler<ConnectionDetails> OnTransmissionIpFound;
+		public event EventHandler<Socket> OnNewTransmissionIpFound;
 
 		public ReceivedForm()
 		{
@@ -39,66 +39,55 @@ namespace SocketFileTransfer.Canvas
 
 		private void BrodCastSignal(IPAddress address)
 		{
-			var tcpListener = new TcpListener(address, 1400);
-			tcpListener.Start();
-			tcpListener.BeginAcceptTcpClient(BroadcastSignal, tcpListener);
+			var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			serverSocket.Bind(new IPEndPoint(address, StaticConfiguration.ApplicationRequiredPort));
+			serverSocket.Listen(100);
+			serverSocket.BeginAccept(BroadcastSignal, serverSocket);
 		}
 
 		private async void BroadcastSignal(IAsyncResult ar)
 		{
-			var tcpListener = (TcpListener)ar.AsyncState;
-			var client = tcpListener.EndAcceptTcpClient(ar);
+			var serverSocket = ar.AsyncState as Socket;
+			var client = serverSocket.EndAccept(ar);
 			var newDevice = await ProjectStandardUtilitiesHelper.ExchangeInformation(client, TypeOfConnect.Received);
-			var managedClient = new TcpClientModel(newDevice, client);
 
 			if (newDevice != null
-				&& managedClient.IsCreationSucceed
-				&& !_clients.Any(a => a.Value.Name == managedClient.Name))
+				&& _newClients.ContainsKey(newDevice))
 			{
-				_currentAdded = _clients.Count;
-
-				var bytes = new byte[client.ReceiveBufferSize];
-				client.GetStream().BeginRead(bytes, 0, bytes.Length, DataReceived, _currentAdded);
-				managedClient.Data = bytes;
-				_clients.Add(_currentAdded, managedClient);
+				var buffer = new byte[client.ReceiveBufferSize];
+				client.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, DataReceivedNew, newDevice);
+				_newClients.Add(newDevice, new TcpClientModel(client, buffer));
 			}
 			else
 			{
-				if (managedClient.IsCreationSucceed)
-					managedClient.Dispose();
+				client.Dispose();
 			}
-			tcpListener.BeginAcceptTcpClient(BroadcastSignal, tcpListener);
 
+			serverSocket.BeginAccept(BroadcastSignal, serverSocket);
 		}
-
-		private void DataReceived(IAsyncResult ar)
+		private void DataReceivedNew(IAsyncResult ar)
 		{
-			var currentAdded = (int)ar.AsyncState;
-
+			var currentAdded = ar.AsyncState as string;
 			try
 			{
-				var received = _clients[currentAdded].Streams.EndRead(ar);
-				var port = ProjectStandardUtilitiesHelper.ReceivedTheConnectionPort(_clients[currentAdded].Clients, _clients[currentAdded].Data, received);
-				if (!string.IsNullOrWhiteSpace(port))
-					OnTransmissionIpFound.Raise(this, new ConnectionDetails
-					{
-						EndPoint = IPEndPoint.Parse(_clients[currentAdded].Clients.Client.LocalEndPoint.ToString().Split(":")[0] + ":" + port),
-						TypeOfConnect = TypeOfConnect.Received
-					});
+				var received = _newClients[currentAdded].Socket.EndReceive(ar);
+				var shouldConnect = ProjectStandardUtilitiesHelper.ReceivedConnectedSignal(_newClients[currentAdded].Bytes, received);
+				if (shouldConnect)
+					OnNewTransmissionIpFound.Raise(this, _newClients[currentAdded]);
 			}
 			finally
 			{
-				if (_clients.ContainsKey(currentAdded))
-					_clients[currentAdded].Dispose();
+				if (_newClients.ContainsKey(currentAdded))
+					_newClients[currentAdded].Socket.Dispose();
 			}
 		}
 
 		private void BtnBack_Click(object sender, EventArgs e)
 		{
-			OnTransmissionIpFound.Raise(this, new ConnectionDetails()
-			{
-				TypeOfConnect = TypeOfConnect.None
-			});
+			//OnTransmissionIpFound.Raise(this, new ConnectionDetails()
+			//{
+			//	TypeOfConnect = TypeOfConnect.None
+			//});
 		}
 
 	}

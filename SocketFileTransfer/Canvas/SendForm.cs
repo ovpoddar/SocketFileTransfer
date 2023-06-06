@@ -1,4 +1,5 @@
-﻿using SocketFileTransfer.ExtendClass;
+﻿using SocketFileTransfer.Configuration;
+using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
@@ -13,9 +14,9 @@ namespace SocketFileTransfer.Canvas
 {
 	public partial class SendForm : Form
 	{
-		private readonly Dictionary<string, (TcpClient, DeviceDetails)> _clients = new();
+		private readonly Dictionary<string, (Socket, DeviceDetails)> _clients = new();
 
-		public event EventHandler<ConnectionDetails> OnTransmissionIpFound;
+		public event EventHandler<Socket> OnTransmissionIpFound;
 
 		public SendForm()
 		{
@@ -45,33 +46,33 @@ namespace SocketFileTransfer.Canvas
 
 		private void DeviceFound(object sender, DeviceDetails e)
 		{
-			var tcpClient = new TcpClient();
+			var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			try
 			{
-				tcpClient.BeginConnect(e.IP, 1400, ConnectToEndPoint, (e, tcpClient));
+				var connectingPort = new IPEndPoint(e.IP, StaticConfiguration.ApplicationRequiredPort);
+				socket.BeginConnect(connectingPort, StartConnecting, (e, socket));
 			}
 			catch
 			{
-				tcpClient.Dispose();
+				socket.Dispose();
 			}
 		}
 
-		private async void ConnectToEndPoint(IAsyncResult ar)
+		private async void StartConnecting(IAsyncResult ar)
 		{
-			var connectedDeviceDetails = ar.AsyncState as (DeviceDetails DeviceDetails, TcpClient TcpClient)?;
+			var connectedDeviceDetails = ar.AsyncState as (DeviceDetails deviceDetails, Socket socket)?;
 			if (!connectedDeviceDetails.HasValue)
 				return;
 
 			try
 			{
-				connectedDeviceDetails.Value.TcpClient.EndConnect(ar);
-				var device = await ProjectStandardUtilitiesHelper.ExchangeInformation(connectedDeviceDetails.Value.TcpClient, TypeOfConnect.Send);
+				connectedDeviceDetails.Value.socket.EndConnect(ar);
+				var device = await ProjectStandardUtilitiesHelper.ExchangeInformation(connectedDeviceDetails.Value.socket, TypeOfConnect.Send);
 
-				// device is not unique here.
 				if (device != null)
 				{
-					// need to look at connectedDeviceDetails.Value.DeviceDetails.NetworkInterfaceType
-					_clients.Add(device, (connectedDeviceDetails.Value.TcpClient, connectedDeviceDetails.Value.DeviceDetails));
+					_clients.Add(device, (connectedDeviceDetails.Value.socket, connectedDeviceDetails.Value.deviceDetails));
+					// need to look at _clients
 					listBox1.InvokeFunctionInThreadSafeWay(() =>
 					{
 						listBox1.Items.Add($"{device}");
@@ -80,12 +81,12 @@ namespace SocketFileTransfer.Canvas
 				}
 				else
 				{
-					connectedDeviceDetails.Value.TcpClient.Dispose();
+					connectedDeviceDetails.Value.socket.Dispose();
 				}
 			}
-			catch (Exception)
+			catch
 			{
-				connectedDeviceDetails.Value.TcpClient.Dispose();
+				connectedDeviceDetails.Value.socket.Dispose();
 			}
 		}
 
@@ -97,24 +98,20 @@ namespace SocketFileTransfer.Canvas
 			if (!_clients.ContainsKey(item))
 				listBox1.Items.Remove(item);
 
-			var port = await ProjectStandardUtilitiesHelper.SendConnectSignalWithPort(_clients[item].Item1);
-			if (port != null)
-				OnTransmissionIpFound.Raise(this, new ConnectionDetails()
-				{
-					EndPoint = IPEndPoint.Parse(_clients[item].Item2.IP.ToString() + ":" + port),
-					TypeOfConnect = TypeOfConnect.Send
-				});
+			var port = await ProjectStandardUtilitiesHelper.SendConnectSignal(_clients[item].Item1);
+			if (port)
+				OnTransmissionIpFound.Raise(this, _clients[item].Item1);
 			else
 				MessageBox.Show("Failed to negotiate.");
 		}
 
 		private void BtnBack_Click(object sender, EventArgs e)
 		{
-			OnTransmissionIpFound.Raise(this, new ConnectionDetails()
-			{
-				EndPoint = null,
-				TypeOfConnect = TypeOfConnect.None
-			});
+			//OnTransmissionIpFound.Raise(this, new ConnectionDetails()
+			//{
+			//	EndPoint = null,
+			//	TypeOfConnect = TypeOfConnect.None
+			//});
 		}
 	}
 }

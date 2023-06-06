@@ -24,7 +24,39 @@ internal static class ProjectStandardUtilitiesHelper
 		where ip.Address.AddressFamily == AddressFamily.InterNetwork // removing ipv6 addresses
 		select (networkInterfaceType, ip);
 
-	public static async ValueTask<string> ExchangeInformation(TcpClient client, TypeOfConnect type)
+	public static async Task<bool> SendConnectSignal(Socket socket)
+	{
+		var message = "@@Connected@@";
+		SendDetails(socket, message.AsSpan());
+		var receivedConfirmation = await ReadDetails(socket);
+		return receivedConfirmation == "@Connected@";
+	}
+
+	public static bool ReceivedConnectedSignal(byte[] messageAsBytes, int messageLength)
+	{
+		if (messageLength == 0)
+			return false;
+
+		var receivedMessage = Encoding.ASCII.GetString(messageAsBytes, 0, messageLength);
+		return receivedMessage == "@@Connected@@";
+	}
+
+	public static byte[] GetHashCode(string filePath)
+	{
+		using (var cryptoService = SHA256.Create())
+		{
+			using (var fileStream = new FileStream(filePath,
+												   FileMode.Open,
+												   FileAccess.Read,
+												   FileShare.ReadWrite))
+			{
+				var hash = cryptoService.ComputeHash(fileStream);
+				return hash;
+			}
+		}
+	}
+
+	public static async ValueTask<string> ExchangeInformation(Socket client, TypeOfConnect type)
 	{
 		string response;
 		switch (type)
@@ -43,75 +75,22 @@ internal static class ProjectStandardUtilitiesHelper
 		return response;
 	}
 
-	public static async Task<string> SendConnectSignalWithPort(TcpClient client)
-	{
-		var connectingPort = GeneratePort();
-		var message = $"@@Connected::{connectingPort}";
-		SendDetails(client, message.AsSpan());
-		var receivedConfirmation = await ReadDetails(client);
-		if (receivedConfirmation == "@Connected@")
-			return connectingPort;
-		return null;
-	}
-
-	public static string ReceivedTheConnectionPort(TcpClient client, byte[] messageAsBytes, int messageLength)
-	{
-		if (messageLength == 0)
-			return null;
-
-		var receivedMessage = Encoding.ASCII.GetString(messageAsBytes, 0, messageLength);
-		if (!receivedMessage.StartsWith("@@Connected::"))
-			return null;
-
-		var slice = receivedMessage.Split("::");
-		if (slice.Length != 2)
-			return null;
-		else
-		{
-			SendDetails(client, "@Connected@");
-			return slice[1];
-		}
-	}
-
-	public static byte[] GetHashCode(string filePath)
-	{
-		using (var cryptoService = SHA256.Create())
-		{
-			using (var fileStream = new FileStream(filePath,
-												   FileMode.Open,
-												   FileAccess.Read,
-												   FileShare.ReadWrite))
-			{
-				var hash = cryptoService.ComputeHash(fileStream);
-				return hash;
-			}
-		}
-	}
-
-	static string GeneratePort()
-	{
-		Random random = new Random(DateTime.UtcNow.Month);
-		var port = random.Next(1000, 1200);
-		return port.ToString();
-	}
-
-	static void SendDetails(TcpClient client, ReadOnlySpan<char> message)
-	{
-		var deviceNameAsByte = Encoding.ASCII.GetBytes(message.ToString());
-		client.GetStream().Write(deviceNameAsByte);
-		client.GetStream().Flush();
-	}
-
-	static async ValueTask<string> ReadDetails(TcpClient client)
+	static async ValueTask<string> ReadDetails(Socket client)
 	{
 		var deviceNameAllocateByte = new byte[client.ReceiveBufferSize];
-		var response = await client.GetStream().ReadAsync(deviceNameAllocateByte);
+		var response = await client.ReceiveAsync(deviceNameAllocateByte);
 		if (response == 0)
 			return null;
 		return Encoding.ASCII.GetString(deviceNameAllocateByte, 0, response)
 			.AsSpan()
 			.TrimEnd('\0')
 			.ToString();
+	}
+
+	static void SendDetails(Socket client, ReadOnlySpan<char> message)
+	{
+		var deviceNameAsByte = Encoding.ASCII.GetBytes(message.ToString());
+		client.Send(deviceNameAsByte, SocketFlags.None);
 	}
 
 }

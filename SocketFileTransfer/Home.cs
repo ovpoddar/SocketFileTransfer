@@ -3,6 +3,7 @@ using SocketFileTransfer.Model;
 using System;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -40,12 +41,12 @@ namespace SocketFileTransfer
 			{
 				case TypeOfConnect.Send:
 					var connectSend = new SendForm();
-					connectSend.OnTransmissionIpFound += GotTransmissionIp;
+					connectSend.OnTransmissionIpFound += GotTransmissionIpNew;
 					OpenChildForm(connectSend);
 					break;
 				case TypeOfConnect.Received:
 					var connectReceived = new ReceivedForm();
-					connectReceived.OnTransmissionIpFound += GotTransmissionIp;
+					connectReceived.OnNewTransmissionIpFound += GotTransmissionIpNew;
 					OpenChildForm(connectReceived);
 					break;
 				default:
@@ -54,6 +55,11 @@ namespace SocketFileTransfer
 			var control = sender as Control;
 			if (control != null)
 				control.Dispose();
+		}
+
+		private void GotTransmissionIpNew(object sender, Socket e)
+		{
+
 		}
 
 		private void GotTransmissionIp(object sender, ConnectionDetails e)
