@@ -13,6 +13,7 @@ namespace SocketFileTransfer.Canvas
 {
 	public partial class ReceivedForm : Form
 	{
+		private Socket _scanSocket;
 		private readonly Dictionary<string, TcpClientModel> _clients = new();
 
 		public event EventHandler<Connection> OnTransmissionIpFound;
@@ -39,16 +40,15 @@ namespace SocketFileTransfer.Canvas
 
 		private void BrodCastSignal(IPAddress address)
 		{
-			var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			serverSocket.Bind(new IPEndPoint(address, StaticConfiguration.ApplicationRequiredPort));
-			serverSocket.Listen(100);
-			serverSocket.BeginAccept(BroadcastSignal, serverSocket);
+			_scanSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			_scanSocket.Bind(new IPEndPoint(address, StaticConfiguration.ApplicationRequiredPort));
+			_scanSocket.Listen(100);
+			_scanSocket.BeginAccept(BroadcastSignal, null);
 		}
 
 		private async void BroadcastSignal(IAsyncResult ar)
 		{
-			var serverSocket = ar.AsyncState as Socket;
-			var client = serverSocket.EndAccept(ar);
+			var client = _scanSocket.EndAccept(ar);
 			var newDevice = await ProjectStandardUtilitiesHelper.ExchangeInformation(client, TypeOfConnect.Received);
 
 			if (newDevice != null
@@ -63,7 +63,7 @@ namespace SocketFileTransfer.Canvas
 				client.Dispose();
 			}
 
-			serverSocket.BeginAccept(BroadcastSignal, serverSocket);
+			_scanSocket.BeginAccept(BroadcastSignal, null);
 		}
 		private void DataReceivedNew(IAsyncResult ar)
 		{

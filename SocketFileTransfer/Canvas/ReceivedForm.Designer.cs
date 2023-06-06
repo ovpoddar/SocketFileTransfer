@@ -22,7 +22,7 @@ namespace SocketFileTransfer.Canvas
 			{
 				foreach (var stream in _clients)
 					stream.Value.Socket.Dispose();
-
+				_scanSocket.Dispose();
 				_clients.Clear();
 			}
 
