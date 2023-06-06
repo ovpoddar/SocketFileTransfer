@@ -77,6 +77,9 @@ namespace SocketFileTransfer
 				transmissionPage.BackTransmissionRequest += GotTransmissionIp;
 				OpenChildForm(transmissionPage);
 			}
+			var control = sender as Control;
+			if (control != null)
+				control.Dispose();
 		}
 
 		private void BtnExit_Click(object sender, EventArgs e) =>
