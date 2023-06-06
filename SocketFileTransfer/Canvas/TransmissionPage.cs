@@ -18,7 +18,7 @@ namespace SocketFileTransfer.Canvas
 		private Socket _socket;
 		private PacketSender _packetSender;
 
-		public event EventHandler BackTransmissionRequest;
+		public event EventHandler<TypeOfConnect> BackTransmissionRequest;
 
 		public TransmissionPage(Socket socket)
 		{
@@ -174,7 +174,7 @@ namespace SocketFileTransfer.Canvas
 		{
 			if (!_socket.Connected || MessageBox.Show("Do you really want to left?", "Exit", MessageBoxButtons.YesNo) != DialogResult.No)
 			{
-				BackTransmissionRequest.Raise(this, EventArgs.Empty);
+				BackTransmissionRequest.Raise(this, TypeOfConnect.None);
 			}
 		}
 	}

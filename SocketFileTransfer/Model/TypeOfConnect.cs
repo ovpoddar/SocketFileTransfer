@@ -4,6 +4,7 @@
 	{
 		Send,
 		Received,
+		Transmission,
 		None
 	}
 }

@@ -4,7 +4,6 @@ using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -15,13 +14,15 @@ namespace SocketFileTransfer.Canvas
 {
 	public partial class SendForm : Form
 	{
+		private Socket _socket;
 		private readonly Dictionary<string, (Socket, DeviceDetails)> _clients = new();
 
-		public event EventHandler<SocketInformation?> OnTransmissionIpFound;
+		public event EventHandler<TypeOfConnect> OnTransmissionIpFound;
 
-		public SendForm()
+		public SendForm(Socket socket)
 		{
 			InitializeComponent();
+			_socket = socket;
 		}
 
 		private void StartScanForm_Load(object sender, EventArgs e)
@@ -101,15 +102,19 @@ namespace SocketFileTransfer.Canvas
 
 			var port = await ProjectStandardUtilitiesHelper.SendConnectSignal(_clients[item].Item1);
 			if (port)
-				OnTransmissionIpFound.Raise(this, _clients[item].Item1.DuplicateAndClose(Environment.ProcessId));
-			// dispose all the rest clients
+			{
+				_socket = _clients[item].Item1;
+				_clients.Remove(item);
+				OnTransmissionIpFound.Raise(this, TypeOfConnect.Transmission);
+			}
 			else
 				MessageBox.Show("Failed to negotiate.");
+			// dispose all the rest clients
 		}
 
 		private void BtnBack_Click(object sender, EventArgs e)
 		{
-			OnTransmissionIpFound.Raise(this, EventArgs.Empty);
+			OnTransmissionIpFound.Raise(this, TypeOfConnect.None);
 		}
 	}
 }

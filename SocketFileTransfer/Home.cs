@@ -1,6 +1,7 @@
 ﻿using SocketFileTransfer.Canvas;
 using SocketFileTransfer.Model;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -12,6 +13,8 @@ namespace SocketFileTransfer
 	public partial class Home : Form
 	{
 		private Form _currentChildForm;
+		private Socket _communicationSocket;
+
 		public Home()
 		{
 			InitializeComponent();
@@ -40,12 +43,12 @@ namespace SocketFileTransfer
 			switch (e)
 			{
 				case TypeOfConnect.Send:
-					var connectSend = new SendForm();
+					var connectSend = new SendForm(_communicationSocket);
 					connectSend.OnTransmissionIpFound += GotTransmissionIp;
 					OpenChildForm(connectSend);
 					break;
 				case TypeOfConnect.Received:
-					var connectReceived = new ReceivedForm();
+					var connectReceived = new ReceivedForm(_communicationSocket);
 					connectReceived.OnTransmissionIpFound += GotTransmissionIp;
 					OpenChildForm(connectReceived);
 					break;
@@ -57,26 +60,22 @@ namespace SocketFileTransfer
 				control.Dispose();
 		}
 
-		private void GotTransmissionIp(object sender, SocketInformation? e)
+		private void GotTransmissionIp(object sender, TypeOfConnect e)
 		{
-			if (!e.HasValue)
+			if (e == TypeOfConnect.None)
 			{
 				var indexPage = new Canvas.Index();
 				indexPage.SelectItem += SelectConnectMethod;
 				OpenChildForm(indexPage);
-
 				//back signal
 			}
-			var socket = new Socket(e.Value);
-			var transmissionPage = new TransmissionPage(socket);
-			transmissionPage.BackTransmissionRequest += BackTransmission;
-			OpenChildForm(transmissionPage);
-
-		}
-
-		private void BackTransmission(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
+			else
+			{
+				Debug.Assert(e == TypeOfConnect.Transmission);
+				var transmissionPage = new TransmissionPage(_communicationSocket);
+				transmissionPage.BackTransmissionRequest += GotTransmissionIp;
+				OpenChildForm(transmissionPage);
+			}
 		}
 
 		private void BtnExit_Click(object sender, EventArgs e) =>
