@@ -18,6 +18,13 @@ namespace SocketFileTransfer.Canvas
 			{
 				components.Dispose();
 			}
+			if(disposing && _clients.Count>0)
+			{
+				foreach (var stream in _clients)
+					stream.Value.Socket.Dispose();
+
+				_clients.Clear();
+			}
 
 			base.Dispose(disposing);
 		}

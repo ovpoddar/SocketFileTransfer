@@ -13,7 +13,7 @@ namespace SocketFileTransfer.Canvas
 {
 	public partial class ReceivedForm : Form
 	{
-		private readonly Dictionary<string, TcpClientModel> _newClients = new();
+		private readonly Dictionary<string, TcpClientModel> _clients = new();
 
 		public event EventHandler<SocketInformation?> OnTransmissionIpFound;
 
@@ -52,11 +52,11 @@ namespace SocketFileTransfer.Canvas
 			var newDevice = await ProjectStandardUtilitiesHelper.ExchangeInformation(client, TypeOfConnect.Received);
 
 			if (newDevice != null
-				&& !_newClients.ContainsKey(newDevice))
+				&& !_clients.ContainsKey(newDevice))
 			{
 				var buffer = new byte[client.ReceiveBufferSize];
 				client.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, DataReceivedNew, newDevice);
-				_newClients.Add(newDevice, new TcpClientModel(client, buffer));
+				_clients.Add(newDevice, new TcpClientModel(client, buffer));
 			}
 			else
 			{
@@ -70,15 +70,15 @@ namespace SocketFileTransfer.Canvas
 			var currentAdded = ar.AsyncState as string;
 			try
 			{
-				var received = _newClients[currentAdded].Socket.EndReceive(ar);
-				var shouldConnect = ProjectStandardUtilitiesHelper.ReceivedConnectedSignal(_newClients[currentAdded].Socket, _newClients[currentAdded].Bytes, received);
+				var received = _clients[currentAdded].Socket.EndReceive(ar);
+				var shouldConnect = ProjectStandardUtilitiesHelper.ReceivedConnectedSignal(_clients[currentAdded].Socket, _clients[currentAdded].Bytes, received);
 				if (shouldConnect)
-					OnTransmissionIpFound.Raise(this, _newClients[currentAdded].Socket.DuplicateAndClose(Environment.ProcessId));
+					OnTransmissionIpFound.Raise(this, _clients[currentAdded].Socket.DuplicateAndClose(Environment.ProcessId));
 			}
 			finally
 			{
-				if (_newClients.ContainsKey(currentAdded))
-					_newClients[currentAdded].Socket.Dispose();
+				if (_clients.ContainsKey(currentAdded))
+					_clients[currentAdded].Socket.Dispose();
 			}
 		}
 
