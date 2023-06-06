@@ -28,17 +28,20 @@ internal static class ProjectStandardUtilitiesHelper
 	{
 		var message = "@@Connected@@";
 		SendDetails(socket, message.AsSpan());
+
 		var receivedConfirmation = await ReadDetails(socket);
 		return receivedConfirmation == "@Connected@";
 	}
 
-	public static bool ReceivedConnectedSignal(byte[] messageAsBytes, int messageLength)
+	public static bool ReceivedConnectedSignal(Socket socket, byte[] messageAsBytes, int messageLength)
 	{
 		if (messageLength == 0)
 			return false;
-
 		var receivedMessage = Encoding.ASCII.GetString(messageAsBytes, 0, messageLength);
-		return receivedMessage == "@@Connected@@";
+		var result = receivedMessage == "@@Connected@@";
+		var message = "@Connected@";
+		SendDetails(socket, message.AsSpan());
+		return result;
 	}
 
 	public static byte[] GetHashCode(string filePath)

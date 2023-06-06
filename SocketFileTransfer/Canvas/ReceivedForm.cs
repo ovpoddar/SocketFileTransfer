@@ -71,7 +71,7 @@ namespace SocketFileTransfer.Canvas
 			try
 			{
 				var received = _newClients[currentAdded].Socket.EndReceive(ar);
-				var shouldConnect = ProjectStandardUtilitiesHelper.ReceivedConnectedSignal(_newClients[currentAdded].Bytes, received);
+				var shouldConnect = ProjectStandardUtilitiesHelper.ReceivedConnectedSignal(_newClients[currentAdded].Socket, _newClients[currentAdded].Bytes, received);
 				if (shouldConnect)
 					OnNewTransmissionIpFound.Raise(this, _newClients[currentAdded].Socket);
 			}
