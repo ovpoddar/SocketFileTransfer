@@ -52,7 +52,7 @@ namespace SocketFileTransfer.Canvas
 			var newDevice = await ProjectStandardUtilitiesHelper.ExchangeInformation(client, TypeOfConnect.Received);
 
 			if (newDevice != null
-				&& _newClients.ContainsKey(newDevice))
+				&& !_newClients.ContainsKey(newDevice))
 			{
 				var buffer = new byte[client.ReceiveBufferSize];
 				client.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, DataReceivedNew, newDevice);
