@@ -43,12 +43,12 @@ namespace SocketFileTransfer
 			switch (e)
 			{
 				case TypeOfConnect.Send:
-					var connectSend = new SendForm(ref _communicationSocket);
+					var connectSend = new SendForm();
 					connectSend.OnTransmissionIpFound += GotTransmissionIp;
 					OpenChildForm(connectSend);
 					break;
 				case TypeOfConnect.Received:
-					var connectReceived = new ReceivedForm(ref _communicationSocket);
+					var connectReceived = new ReceivedForm();
 					connectReceived.OnTransmissionIpFound += GotTransmissionIp;
 					OpenChildForm(connectReceived);
 					break;
@@ -60,9 +60,9 @@ namespace SocketFileTransfer
 				control.Dispose();
 		}
 
-		private void GotTransmissionIp(object sender, TypeOfConnect e)
+		private void GotTransmissionIp(object sender, Connection e)
 		{
-			if (e == TypeOfConnect.None)
+			if (e.TypeOfConnect == TypeOfConnect.None)
 			{
 				var indexPage = new Canvas.Index();
 				indexPage.SelectItem += SelectConnectMethod;
@@ -71,7 +71,8 @@ namespace SocketFileTransfer
 			}
 			else
 			{
-				Debug.Assert(e == TypeOfConnect.Transmission);
+				Debug.Assert(e.TypeOfConnect == TypeOfConnect.Transmission);
+				_communicationSocket = e.Socket;
 				var transmissionPage = new TransmissionPage(_communicationSocket);
 				transmissionPage.BackTransmissionRequest += GotTransmissionIp;
 				OpenChildForm(transmissionPage);

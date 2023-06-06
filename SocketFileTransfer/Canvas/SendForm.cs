@@ -14,15 +14,13 @@ namespace SocketFileTransfer.Canvas
 {
 	public partial class SendForm : Form
 	{
-		private Socket _socket;
 		private readonly Dictionary<string, (Socket, DeviceDetails)> _clients = new();
 
-		public event EventHandler<TypeOfConnect> OnTransmissionIpFound;
+		public event EventHandler<Connection> OnTransmissionIpFound;
 
-		public SendForm(ref Socket socket)
+		public SendForm()
 		{
 			InitializeComponent();
-			_socket = socket;
 		}
 
 		private void StartScanForm_Load(object sender, EventArgs e)
@@ -103,9 +101,13 @@ namespace SocketFileTransfer.Canvas
 			var port = await ProjectStandardUtilitiesHelper.SendConnectSignal(_clients[item].Item1);
 			if (port)
 			{
-				_socket = _clients[item].Item1;
+				var responce = new Connection
+				{
+					Socket = _clients[item].Item1,
+					TypeOfConnect = TypeOfConnect.Transmission
+				};
 				_clients.Remove(item);
-				OnTransmissionIpFound.Raise(this, TypeOfConnect.Transmission);
+				OnTransmissionIpFound.Raise(this, responce);
 			}
 			else
 				MessageBox.Show("Failed to negotiate.");
@@ -114,7 +116,7 @@ namespace SocketFileTransfer.Canvas
 
 		private void BtnBack_Click(object sender, EventArgs e)
 		{
-			OnTransmissionIpFound.Raise(this, TypeOfConnect.None);
+			OnTransmissionIpFound.Raise(this, new Connection(TypeOfConnect.None));
 		}
 	}
 }
