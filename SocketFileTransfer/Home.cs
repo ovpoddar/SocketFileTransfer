@@ -43,12 +43,12 @@ namespace SocketFileTransfer
 			switch (e)
 			{
 				case TypeOfConnect.Send:
-					var connectSend = new SendForm(_communicationSocket);
+					var connectSend = new SendForm(ref _communicationSocket);
 					connectSend.OnTransmissionIpFound += GotTransmissionIp;
 					OpenChildForm(connectSend);
 					break;
 				case TypeOfConnect.Received:
-					var connectReceived = new ReceivedForm(_communicationSocket);
+					var connectReceived = new ReceivedForm(ref _communicationSocket);
 					connectReceived.OnTransmissionIpFound += GotTransmissionIp;
 					OpenChildForm(connectReceived);
 					break;

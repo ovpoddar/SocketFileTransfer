@@ -18,7 +18,7 @@ namespace SocketFileTransfer.Canvas
 
 		public event EventHandler<TypeOfConnect> OnTransmissionIpFound;
 
-		public ReceivedForm(Socket socket)
+		public ReceivedForm(ref Socket socket)
 		{
 			InitializeComponent();
 			_socket = socket;
