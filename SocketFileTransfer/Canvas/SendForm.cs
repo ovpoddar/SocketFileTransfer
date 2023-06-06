@@ -107,11 +107,7 @@ namespace SocketFileTransfer.Canvas
 
 		private void BtnBack_Click(object sender, EventArgs e)
 		{
-			//OnTransmissionIpFound.Raise(this, new ConnectionDetails()
-			//{
-			//	EndPoint = null,
-			//	TypeOfConnect = TypeOfConnect.None
-			//});
+			OnTransmissionIpFound.Raise(this, EventArgs.Empty);
 		}
 	}
 }

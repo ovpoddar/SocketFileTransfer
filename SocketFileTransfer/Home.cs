@@ -46,7 +46,7 @@ namespace SocketFileTransfer
 					break;
 				case TypeOfConnect.Received:
 					var connectReceived = new ReceivedForm();
-					connectReceived.OnNewTransmissionIpFound += GotTransmissionIpNew;
+					connectReceived.OnTransmissionIpFound += GotTransmissionIpNew;
 					OpenChildForm(connectReceived);
 					break;
 				default:
@@ -59,7 +59,7 @@ namespace SocketFileTransfer
 
 		private void GotTransmissionIpNew(object sender, Socket e)
 		{
-
+			if (e == null) return;
 		}
 
 		private void GotTransmissionIp(object sender, ConnectionDetails e)
