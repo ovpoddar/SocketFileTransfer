@@ -57,16 +57,18 @@ namespace SocketFileTransfer
 				control.Dispose();
 		}
 
-		private void GotTransmissionIp(object sender, Socket e)
+		private void GotTransmissionIp(object sender, SocketInformation? e)
 		{
-			if (e == null)
+			if (!e.HasValue)
 			{
 				var indexPage = new Canvas.Index();
 				indexPage.SelectItem += SelectConnectMethod;
 				OpenChildForm(indexPage);
+
 				//back signal
 			}
-			var transmissionPage = new TransmissionPage(e);
+			var socket = new Socket(e.Value);
+			var transmissionPage = new TransmissionPage(socket);
 			transmissionPage.BackTransmissionRequest += BackTransmission;
 			OpenChildForm(transmissionPage);
 

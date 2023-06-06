@@ -24,6 +24,10 @@ namespace SocketFileTransfer.Canvas
 		{
 			InitializeComponent();
 			_socket = socket;
+		}
+
+		private void TransmissionPage_Load(object sender, EventArgs e)
+		{
 			_packetSender = new(_socket);
 			_packetSender.ProgressEventHandler += ProgressEvent;
 			_packetSender.MessageEventHandler += MessageEvent;

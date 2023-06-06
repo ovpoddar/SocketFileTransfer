@@ -15,7 +15,7 @@ namespace SocketFileTransfer.Canvas
 	{
 		private readonly Dictionary<string, TcpClientModel> _newClients = new();
 
-		public event EventHandler<Socket> OnTransmissionIpFound;
+		public event EventHandler<SocketInformation?> OnTransmissionIpFound;
 
 		public ReceivedForm()
 		{
@@ -73,7 +73,7 @@ namespace SocketFileTransfer.Canvas
 				var received = _newClients[currentAdded].Socket.EndReceive(ar);
 				var shouldConnect = ProjectStandardUtilitiesHelper.ReceivedConnectedSignal(_newClients[currentAdded].Socket, _newClients[currentAdded].Bytes, received);
 				if (shouldConnect)
-					OnTransmissionIpFound.Raise(this, _newClients[currentAdded].Socket);
+					OnTransmissionIpFound.Raise(this, _newClients[currentAdded].Socket.DuplicateAndClose(Environment.ProcessId));
 			}
 			finally
 			{

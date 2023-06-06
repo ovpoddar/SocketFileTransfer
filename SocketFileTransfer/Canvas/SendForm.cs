@@ -4,6 +4,7 @@ using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -16,7 +17,7 @@ namespace SocketFileTransfer.Canvas
 	{
 		private readonly Dictionary<string, (Socket, DeviceDetails)> _clients = new();
 
-		public event EventHandler<Socket> OnTransmissionIpFound;
+		public event EventHandler<SocketInformation?> OnTransmissionIpFound;
 
 		public SendForm()
 		{
@@ -100,7 +101,8 @@ namespace SocketFileTransfer.Canvas
 
 			var port = await ProjectStandardUtilitiesHelper.SendConnectSignal(_clients[item].Item1);
 			if (port)
-				OnTransmissionIpFound.Raise(this, _clients[item].Item1);
+				OnTransmissionIpFound.Raise(this, _clients[item].Item1.DuplicateAndClose(Environment.ProcessId));
+			// dispose all the rest clients
 			else
 				MessageBox.Show("Failed to negotiate.");
 		}
