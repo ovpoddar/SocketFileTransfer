@@ -63,7 +63,7 @@ namespace SocketFileTransfer
 		{
 			if (e.TypeOfConnect == TypeOfConnect.None)
 			{
-				if (e.ServerSocket == null)
+				if (e.ServerSocket != null)
 				{
 					e.ServerSocket.Close();
 					e.ServerSocket.Dispose();
