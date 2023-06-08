@@ -66,7 +66,7 @@ namespace SocketFileTransfer.Canvas
 			}
 
 			if(_scan)
-				scanSocket.BeginAccept(BroadcastSignal, null);
+				scanSocket.BeginAccept(BroadcastSignal, scanSocket);
 		}
 		private void DataReceivedNew(IAsyncResult ar)
 		{
