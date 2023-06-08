@@ -60,33 +60,32 @@ namespace SocketFileTransfer.Canvas
 
 		private async void StartConnecting(IAsyncResult ar)
 		{
-			var connectedDeviceDetails = ar.AsyncState as (DeviceDetails deviceDetails, Socket socket)?;
-			if (!connectedDeviceDetails.HasValue)
-				return;
-
+			var connectedDeviceDetails = ((DeviceDetails deviceDetails, Socket socket))ar.AsyncState;
+			
 			try
 			{
-				connectedDeviceDetails.Value.socket.EndConnect(ar);
-				var device = await ProjectStandardUtilitiesHelper.ExchangeInformation(connectedDeviceDetails.Value.socket, TypeOfConnect.Send);
+				connectedDeviceDetails.socket.EndConnect(ar);
+				var device = await ProjectStandardUtilitiesHelper.ExchangeInformation(connectedDeviceDetails.socket, TypeOfConnect.Send);
 
 				if (device != null)
 				{
-					_clients.Add(device, (connectedDeviceDetails.Value.socket, connectedDeviceDetails.Value.deviceDetails));
+					_clients.Add(device, (connectedDeviceDetails.socket, connectedDeviceDetails.deviceDetails));
 					// need to look at _clients
 					listBox1.InvokeFunctionInThreadSafeWay(() =>
 					{
 						listBox1.Items.Add($"{device}");
 					});
 					// start reading because when reading has issue thats means user disconnected.
+					// then on base of the user id remove the entry from list and from ui
 				}
 				else
 				{
-					connectedDeviceDetails.Value.socket.Dispose();
+					connectedDeviceDetails.socket.Dispose();
 				}
 			}
 			catch
 			{
-				connectedDeviceDetails.Value.socket.Dispose();
+				connectedDeviceDetails.socket.Dispose();
 			}
 		}
 

@@ -63,6 +63,11 @@ namespace SocketFileTransfer
 		{
 			if (e.TypeOfConnect == TypeOfConnect.None)
 			{
+				if (e.ServerSocket == null)
+				{
+					e.ServerSocket.Close();
+					e.ServerSocket.Dispose();
+				}
 				var indexPage = new Canvas.Index();
 				indexPage.SelectItem += SelectConnectMethod;
 				OpenChildForm(indexPage);

@@ -68,7 +68,7 @@ namespace SocketFileTransfer.Canvas
 				scanSocket.BeginAccept(BroadcastSignal, scanSocket);
 			}
 			catch(ObjectDisposedException ex){}
-			catch(Exception ex) { MessageBox.Show(ex.Message); }
+			catch(Exception ex) { }
 		}
 		private void DataReceivedNew(IAsyncResult ar)
 		{
@@ -89,6 +89,7 @@ namespace SocketFileTransfer.Canvas
 					OnTransmissionIpFound.Raise(this, responce);
 				}
 			}
+			catch (Exception ex) { }
 			finally
 			{
 				if (_clients.ContainsKey(models.newdevice))
