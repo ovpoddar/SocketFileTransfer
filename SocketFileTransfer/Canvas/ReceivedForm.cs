@@ -49,7 +49,7 @@ namespace SocketFileTransfer.Canvas
 
 		private async void BroadcastSignal(IAsyncResult ar)
 		{
-			var scanSocket = ar as Socket;
+			var scanSocket = ar.AsyncState as Socket;
 			var client = scanSocket.EndAccept(ar);
 			var newDevice = await ProjectStandardUtilitiesHelper.ExchangeInformation(client, TypeOfConnect.Received);
 
