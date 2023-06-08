@@ -9,7 +9,10 @@ internal static class ControlExtend
 		if (control == null || control.IsDisposed)
 			return;
 		else if (control.InvokeRequired)
-			control.Invoke(method);
+			control.Invoke(() =>
+			{
+				method(control);
+			});
 		else
 			method(control);
 	}
