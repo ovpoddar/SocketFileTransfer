@@ -1,10 +1,8 @@
 ﻿using SocketFileTransfer.Canvas;
 using SocketFileTransfer.Model;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 

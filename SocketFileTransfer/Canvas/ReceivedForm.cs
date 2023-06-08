@@ -67,8 +67,8 @@ namespace SocketFileTransfer.Canvas
 
 				scanSocket.BeginAccept(BroadcastSignal, scanSocket);
 			}
-			catch(ObjectDisposedException ex){}
-			catch(Exception ex) { }
+			catch (ObjectDisposedException ex) { }
+			catch (Exception ex) { }
 		}
 		private void DataReceivedNew(IAsyncResult ar)
 		{
@@ -97,10 +97,8 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private void BtnBack_Click(object sender, EventArgs e)
-		{
+		private void BtnBack_Click(object sender, EventArgs e) =>
 			OnTransmissionIpFound.Raise(this, new Connection(TypeOfConnect.None));
-		}
 
 	}
 }

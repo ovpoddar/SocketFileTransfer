@@ -61,7 +61,7 @@ namespace SocketFileTransfer.Canvas
 		private async void StartConnecting(IAsyncResult ar)
 		{
 			var connectedDeviceDetails = ((DeviceDetails deviceDetails, Socket socket))ar.AsyncState;
-			
+
 			try
 			{
 				connectedDeviceDetails.socket.EndConnect(ar);
@@ -113,9 +113,8 @@ namespace SocketFileTransfer.Canvas
 			// dispose all the rest clients
 		}
 
-		private void BtnBack_Click(object sender, EventArgs e)
-		{
+		private void BtnBack_Click(object sender, EventArgs e) =>
 			OnTransmissionIpFound.Raise(this, new Connection(TypeOfConnect.None));
-		}
+
 	}
 }
