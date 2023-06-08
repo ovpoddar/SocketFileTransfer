@@ -13,7 +13,7 @@ namespace SocketFileTransfer.Canvas
 {
 	public partial class ReceivedForm : Form
 	{
-		private Socket _scanSocket;
+		private bool _scan;
 		private readonly Dictionary<string, TcpClientModel> _clients = new();
 
 		public event EventHandler<Connection> OnTransmissionIpFound;
@@ -21,6 +21,7 @@ namespace SocketFileTransfer.Canvas
 		public ReceivedForm()
 		{
 			InitializeComponent();
+			_scan = true;
 		}
 
 		private void ReceivedForm_Load(object sender, EventArgs e)
@@ -40,15 +41,16 @@ namespace SocketFileTransfer.Canvas
 
 		private void BrodCastSignal(IPAddress address)
 		{
-			_scanSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			_scanSocket.Bind(new IPEndPoint(address, StaticConfiguration.ApplicationRequiredPort));
-			_scanSocket.Listen(100);
-			_scanSocket.BeginAccept(BroadcastSignal, null);
+			var scanSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			scanSocket.Bind(new IPEndPoint(address, StaticConfiguration.ApplicationRequiredPort));
+			scanSocket.Listen(100);
+			scanSocket.BeginAccept(BroadcastSignal, scanSocket);
 		}
 
 		private async void BroadcastSignal(IAsyncResult ar)
 		{
-			var client = _scanSocket.EndAccept(ar);
+			var scanSocket = ar as Socket;
+			var client = scanSocket.EndAccept(ar);
 			var newDevice = await ProjectStandardUtilitiesHelper.ExchangeInformation(client, TypeOfConnect.Received);
 
 			if (newDevice != null
@@ -63,7 +65,8 @@ namespace SocketFileTransfer.Canvas
 				client.Dispose();
 			}
 
-			_scanSocket.BeginAccept(BroadcastSignal, null);
+			if(_scan)
+				scanSocket.BeginAccept(BroadcastSignal, null);
 		}
 		private void DataReceivedNew(IAsyncResult ar)
 		{
@@ -80,6 +83,7 @@ namespace SocketFileTransfer.Canvas
 						TypeOfConnect = TypeOfConnect.Transmission
 					};
 					_clients.Remove(currentAdded);
+					_scan = false;
 					OnTransmissionIpFound.Raise(this, responce);
 				}
 			}
@@ -92,7 +96,7 @@ namespace SocketFileTransfer.Canvas
 
 		private void BtnBack_Click(object sender, EventArgs e)
 		{
-			OnTransmissionIpFound.Raise(this, new Connection( TypeOfConnect.None));
+			OnTransmissionIpFound.Raise(this, new Connection(TypeOfConnect.None));
 		}
 
 	}

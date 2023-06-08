@@ -24,10 +24,6 @@ namespace SocketFileTransfer.Canvas
 					stream.Value.Socket.Dispose();
 				_clients.Clear();
 			}
-			if (disposing)
-			{
-				_scanSocket.Dispose();
-			}
 			base.Dispose(disposing);
 		}
 

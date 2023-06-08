@@ -13,7 +13,6 @@ namespace SocketFileTransfer
 	public partial class Home : Form
 	{
 		private Form _currentChildForm;
-		private Socket _communicationSocket;
 
 		public Home()
 		{
@@ -71,9 +70,7 @@ namespace SocketFileTransfer
 			}
 			else
 			{
-				Debug.Assert(e.TypeOfConnect == TypeOfConnect.Transmission);
-				_communicationSocket = e.Socket;
-				var transmissionPage = new TransmissionPage(_communicationSocket);
+				var transmissionPage = new TransmissionPage(e.Socket);
 				transmissionPage.BackTransmissionRequest += GotTransmissionIp;
 				OpenChildForm(transmissionPage);
 			}
