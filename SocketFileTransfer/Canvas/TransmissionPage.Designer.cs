@@ -25,6 +25,7 @@ namespace SocketFileTransfer.Canvas
 			if(disposing && ScanSocket != null)
 			{
 				ScanSocket.Close();
+				ScanSocket.Dispose();
 			}
 			base.Dispose(disposing);
 		}

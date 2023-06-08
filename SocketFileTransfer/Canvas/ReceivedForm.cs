@@ -13,7 +13,6 @@ namespace SocketFileTransfer.Canvas
 {
 	public partial class ReceivedForm : Form
 	{
-		private bool _scan;
 		private readonly Dictionary<string, TcpClientModel> _clients = new();
 
 		public event EventHandler<Connection> OnTransmissionIpFound;
@@ -21,7 +20,6 @@ namespace SocketFileTransfer.Canvas
 		public ReceivedForm()
 		{
 			InitializeComponent();
-			_scan = true;
 		}
 
 		private void ReceivedForm_Load(object sender, EventArgs e)
@@ -49,24 +47,28 @@ namespace SocketFileTransfer.Canvas
 
 		private async void BroadcastSignal(IAsyncResult ar)
 		{
-			var scanSocket = ar.AsyncState as Socket;
-			var client = scanSocket.EndAccept(ar);
-			var newDevice = await ProjectStandardUtilitiesHelper.ExchangeInformation(client, TypeOfConnect.Received);
-
-			if (newDevice != null
-				&& !_clients.ContainsKey(newDevice))
+			try
 			{
-				var buffer = new byte[client.ReceiveBufferSize];
-				client.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, DataReceivedNew, (newDevice, scanSocket));
-				_clients.Add(newDevice, new TcpClientModel(client, buffer));
-			}
-			else
-			{
-				client.Dispose();
-			}
+				var scanSocket = ar.AsyncState as Socket;
+				var client = scanSocket.EndAccept(ar);
+				var newDevice = await ProjectStandardUtilitiesHelper.ExchangeInformation(client, TypeOfConnect.Received);
 
-			if(_scan)
+				if (newDevice != null
+					&& !_clients.ContainsKey(newDevice))
+				{
+					var buffer = new byte[client.ReceiveBufferSize];
+					client.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, DataReceivedNew, (newDevice, scanSocket));
+					_clients.Add(newDevice, new TcpClientModel(client, buffer));
+				}
+				else
+				{
+					client.Dispose();
+				}
+
 				scanSocket.BeginAccept(BroadcastSignal, scanSocket);
+			}
+			catch(ObjectDisposedException ex){}
+			catch(Exception ex) { MessageBox.Show(ex.Message); }
 		}
 		private void DataReceivedNew(IAsyncResult ar)
 		{
@@ -84,7 +86,6 @@ namespace SocketFileTransfer.Canvas
 						ServerSocket = models.scanSocket
 					};
 					_clients.Remove(models.newdevice);
-					_scan = false;
 					OnTransmissionIpFound.Raise(this, responce);
 				}
 			}
