@@ -148,18 +148,18 @@ namespace SocketFileTransfer.Canvas
 
 		public void Logging(ContentType fileTypes, object info, TypeOfConnect typeOfConnect)
 		{
-			PanelContainer.InvokeFunctionInThreadSafeWay(() =>
+			PanelContainer.InvokeFunctionInThreadSafeWay(a =>
 			{
 				switch (fileTypes)
 				{
 					case ContentType.File:
-						PanelContainer.Controls.Add(new CPFile((FileDetails)info, typeOfConnect));
+						a.Controls.Add(new CPFile((FileDetails)info, typeOfConnect));
 						break;
 					case ContentType.Message:
-						PanelContainer.Controls.Add(new CPFile((MessageDetails)info, typeOfConnect));
+						a.Controls.Add(new CPFile((MessageDetails)info, typeOfConnect));
 						break;
 					case ContentType.Commend:
-						PanelContainer.Controls.Add(new CPFile(typeOfConnect, (string)info));
+						a.Controls.Add(new CPFile(typeOfConnect, (string)info));
 						break;
 					default:
 						break;

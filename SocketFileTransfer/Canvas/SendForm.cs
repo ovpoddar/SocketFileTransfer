@@ -71,9 +71,9 @@ namespace SocketFileTransfer.Canvas
 				{
 					_clients.Add(device, (connectedDeviceDetails.socket, connectedDeviceDetails.deviceDetails));
 					// need to look at _clients
-					listBox1.InvokeFunctionInThreadSafeWay(() =>
+					listBox1.InvokeFunctionInThreadSafeWay(a =>
 					{
-						listBox1.Items.Add($"{device}");
+						a.Items.Add($"{device}");
 					});
 					// start reading because when reading has issue thats means user disconnected.
 					// then on base of the user id remove the entry from list and from ui
