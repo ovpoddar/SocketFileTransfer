@@ -16,5 +16,6 @@ namespace SocketFileTransfer.Model
 
 		public Socket Socket { get; set; }
 		public TypeOfConnect TypeOfConnect { get; set; }
-	}
+        public Socket? ServerSocket { get; set; }
+    }
 }

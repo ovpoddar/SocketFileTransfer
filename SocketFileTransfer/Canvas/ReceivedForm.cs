@@ -57,7 +57,7 @@ namespace SocketFileTransfer.Canvas
 				&& !_clients.ContainsKey(newDevice))
 			{
 				var buffer = new byte[client.ReceiveBufferSize];
-				client.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, DataReceivedNew, newDevice);
+				client.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, DataReceivedNew, (newDevice, scanSocket));
 				_clients.Add(newDevice, new TcpClientModel(client, buffer));
 			}
 			else
@@ -70,27 +70,28 @@ namespace SocketFileTransfer.Canvas
 		}
 		private void DataReceivedNew(IAsyncResult ar)
 		{
-			var currentAdded = ar.AsyncState as string;
+			var models = ((string newdevice, Socket scanSocket))ar.AsyncState;
 			try
 			{
-				var received = _clients[currentAdded].Socket.EndReceive(ar);
-				var shouldConnect = ProjectStandardUtilitiesHelper.ReceivedConnectedSignal(_clients[currentAdded].Socket, _clients[currentAdded].Bytes, received);
+				var received = _clients[models.newdevice].Socket.EndReceive(ar);
+				var shouldConnect = ProjectStandardUtilitiesHelper.ReceivedConnectedSignal(_clients[models.newdevice].Socket, _clients[models.newdevice].Bytes, received);
 				if (shouldConnect)
 				{
 					var responce = new Connection
 					{
-						Socket = _clients[currentAdded].Socket,
-						TypeOfConnect = TypeOfConnect.Transmission
+						Socket = _clients[models.newdevice].Socket,
+						TypeOfConnect = TypeOfConnect.Transmission,
+						ServerSocket = models.scanSocket
 					};
-					_clients.Remove(currentAdded);
+					_clients.Remove(models.newdevice);
 					_scan = false;
 					OnTransmissionIpFound.Raise(this, responce);
 				}
 			}
 			finally
 			{
-				if (_clients.ContainsKey(currentAdded))
-					_clients[currentAdded].Socket.Dispose();
+				if (_clients.ContainsKey(models.newdevice))
+					_clients[models.newdevice].Socket.Dispose();
 			}
 		}
 

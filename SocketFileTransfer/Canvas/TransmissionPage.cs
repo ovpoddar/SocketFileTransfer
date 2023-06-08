@@ -17,6 +17,7 @@ namespace SocketFileTransfer.Canvas
 		private PacketSender _packetSender;
 
 		public event EventHandler<Connection> BackTransmissionRequest;
+		public Socket ScanSocket;
 
 		public TransmissionPage(Socket socket)
 		{
@@ -102,10 +103,8 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private void TextBox1_TextChanged(object sender, EventArgs e)
-		{
+		private void TextBox1_TextChanged(object sender, EventArgs e) =>
 			BtnOperate.Text = TxtMessage.Text.Length <= 0 ? "->" : "+";
-		}
 
 		private async void Button1_Click(object sender, EventArgs e)
 		{
@@ -168,12 +167,10 @@ namespace SocketFileTransfer.Canvas
 			});
 		}
 
-		private void button1_Click_1(object sender, EventArgs e)
+		private void Button1_Click_1(object sender, EventArgs e)
 		{
 			if (!_socket.Connected || MessageBox.Show("Do you really want to left?", "Exit", MessageBoxButtons.YesNo) != DialogResult.No)
-			{
 				BackTransmissionRequest.Raise(this, new Connection(TypeOfConnect.None));
-			}
 		}
 	}
 }

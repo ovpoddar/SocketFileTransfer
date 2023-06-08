@@ -22,6 +22,10 @@ namespace SocketFileTransfer.Canvas
 			{
 				_socket.Dispose();
 			}
+			if(disposing && ScanSocket != null)
+			{
+				ScanSocket.Close();
+			}
 			base.Dispose(disposing);
 		}
 
@@ -56,7 +60,7 @@ namespace SocketFileTransfer.Canvas
 			button1.Text = "Back";
 			button1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			button1.UseVisualStyleBackColor = false;
-			button1.Click += button1_Click_1;
+			button1.Click += Button1_Click_1;
 			// 
 			// PanelContainer
 			// 

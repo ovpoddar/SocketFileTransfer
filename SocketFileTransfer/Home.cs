@@ -72,6 +72,7 @@ namespace SocketFileTransfer
 			{
 				var transmissionPage = new TransmissionPage(e.Socket);
 				transmissionPage.BackTransmissionRequest += GotTransmissionIp;
+				transmissionPage.ScanSocket = e.ServerSocket;
 				OpenChildForm(transmissionPage);
 			}
 			var control = sender as Control;
