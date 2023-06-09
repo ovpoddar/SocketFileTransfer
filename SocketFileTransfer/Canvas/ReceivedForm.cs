@@ -43,22 +43,21 @@ namespace SocketFileTransfer.Canvas
 			_scanSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			_scanSocket.Bind(new IPEndPoint(address, StaticConfiguration.ApplicationRequiredPort));
 			_scanSocket.Listen(100);
-			_scanSocket.BeginAccept(BroadcastSignal, _scanSocket);
+			_scanSocket.BeginAccept(BroadcastSignal, null);
 		}
 
 		private async void BroadcastSignal(IAsyncResult ar)
 		{
 			try
 			{
-				var scanSocket = ar.AsyncState as Socket;
-				var client = scanSocket.EndAccept(ar);
+				var client = _scanSocket.EndAccept(ar);
 				var newDevice = await ProjectStandardUtilitiesHelper.ExchangeInformation(client, TypeOfConnect.Received);
 
 				if (newDevice != null
 					&& !_clients.ContainsKey(newDevice))
 				{
 					var buffer = new byte[client.ReceiveBufferSize];
-					client.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, DataReceivedNew, (newDevice, scanSocket));
+					client.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, DataReceivedNew, (newDevice, _scanSocket));
 					_clients.Add(newDevice, new TcpClientModel(client, buffer));
 				}
 				else
@@ -66,7 +65,7 @@ namespace SocketFileTransfer.Canvas
 					client.Dispose();
 				}
 
-				scanSocket.BeginAccept(BroadcastSignal, scanSocket);
+				_scanSocket.BeginAccept(BroadcastSignal, null);
 			}
 			catch (ObjectDisposedException ex) { }
 			catch (Exception ex) { }

@@ -8,9 +8,9 @@ namespace SocketFileTransfer.Model
 		{
 			TypeOfConnect = typeOfConnect;
 		}
-        public Connection(Socket socket, TypeOfConnect typeOfConnect)
+        public Connection(Socket serverSocket, TypeOfConnect typeOfConnect)
         {
-			Socket = socket;
+			ServerSocket = serverSocket;
 			TypeOfConnect = typeOfConnect;
 		}
         public Connection()
