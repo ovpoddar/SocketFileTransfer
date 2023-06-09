@@ -61,6 +61,7 @@ namespace SocketFileTransfer
 		{
 			if (e.TypeOfConnect == TypeOfConnect.None)
 			{
+				// work on back signal.
 				if (e.ServerSocket != null)
 				{
 					e.ServerSocket.Close();
@@ -69,7 +70,6 @@ namespace SocketFileTransfer
 				var indexPage = new Canvas.Index();
 				indexPage.SelectItem += SelectConnectMethod;
 				OpenChildForm(indexPage);
-				//back signal
 			}
 			else
 			{

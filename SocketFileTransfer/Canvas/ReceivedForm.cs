@@ -14,6 +14,7 @@ namespace SocketFileTransfer.Canvas
 	public partial class ReceivedForm : Form
 	{
 		private readonly Dictionary<string, TcpClientModel> _clients = new();
+		private Socket _scanSocket;
 
 		public event EventHandler<Connection> OnTransmissionIpFound;
 
@@ -39,10 +40,10 @@ namespace SocketFileTransfer.Canvas
 
 		private void BrodCastSignal(IPAddress address)
 		{
-			var scanSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			scanSocket.Bind(new IPEndPoint(address, StaticConfiguration.ApplicationRequiredPort));
-			scanSocket.Listen(100);
-			scanSocket.BeginAccept(BroadcastSignal, scanSocket);
+			_scanSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			_scanSocket.Bind(new IPEndPoint(address, StaticConfiguration.ApplicationRequiredPort));
+			_scanSocket.Listen(100);
+			_scanSocket.BeginAccept(BroadcastSignal, _scanSocket);
 		}
 
 		private async void BroadcastSignal(IAsyncResult ar)
@@ -98,7 +99,7 @@ namespace SocketFileTransfer.Canvas
 		}
 
 		private void BtnBack_Click(object sender, EventArgs e) =>
-			OnTransmissionIpFound.Raise(this, new Connection(TypeOfConnect.None));
+			OnTransmissionIpFound.Raise(this, new Connection(_scanSocket, TypeOfConnect.None));
 
 	}
 }

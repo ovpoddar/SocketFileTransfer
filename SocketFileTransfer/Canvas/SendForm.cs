@@ -14,6 +14,7 @@ namespace SocketFileTransfer.Canvas
 {
 	public partial class SendForm : Form
 	{
+		//TODO: need a rescan button
 		private readonly Dictionary<string, (Socket, DeviceDetails)> _clients = new();
 
 		public event EventHandler<Connection> OnTransmissionIpFound;
@@ -94,12 +95,12 @@ namespace SocketFileTransfer.Canvas
 		private void BeginMoniter(IAsyncResult ar)
 		{
 			var connectionDetails = ((DeviceDetails deviceDetails, Socket socket, string device))ar.AsyncState;
-			_ = connectionDetails.socket.EndReceive(ar);
 			listBox1.InvokeFunctionInThreadSafeWay(ar =>
 			{
 				ar.Items.Remove($"{connectionDetails.device}");
 			});
 			_clients.Remove(connectionDetails.device);
+			connectionDetails.socket.Disconnect(true);
 			connectionDetails.socket.Dispose();
 		}
 
