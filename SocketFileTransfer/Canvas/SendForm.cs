@@ -69,14 +69,16 @@ namespace SocketFileTransfer.Canvas
 
 				if (device != null)
 				{
+					if (_clients.ContainsKey(device))
+						throw new Exception("Already have an connection.So throw it for disposal.");
+
 					_clients.Add(device, (connectedDeviceDetails.socket, connectedDeviceDetails.deviceDetails));
-					// need to look at _clients
 					listBox1.InvokeFunctionInThreadSafeWay(a =>
 					{
 						a.Items.Add($"{device}");
 					});
-					// start reading because when reading has issue thats means user disconnected.
-					// then on base of the user id remove the entry from list and from ui
+					byte[] buffer = new byte[16];
+					connectedDeviceDetails.socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, BeginMoniter, (connectedDeviceDetails.deviceDetails, connectedDeviceDetails.socket, device));
 				}
 				else
 				{
@@ -87,6 +89,18 @@ namespace SocketFileTransfer.Canvas
 			{
 				connectedDeviceDetails.socket.Dispose();
 			}
+		}
+
+		private void BeginMoniter(IAsyncResult ar)
+		{
+			var connectionDetails = ((DeviceDetails deviceDetails, Socket socket, string device))ar.AsyncState;
+			_ = connectionDetails.socket.EndReceive(ar);
+			listBox1.InvokeFunctionInThreadSafeWay(ar =>
+			{
+				ar.Items.Remove($"{connectionDetails.device}");
+			});
+			_clients.Remove(connectionDetails.device);
+			connectionDetails.socket.Dispose();
 		}
 
 		private async void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
