@@ -94,14 +94,21 @@ namespace SocketFileTransfer.Canvas
 
 		private void BeginMoniter(IAsyncResult ar)
 		{
-			var connectionDetails = ((DeviceDetails deviceDetails, Socket socket, string device))ar.AsyncState;
-			listBox1.InvokeFunctionInThreadSafeWay(ar =>
+			try
 			{
-				ar.Items.Remove($"{connectionDetails.device}");
-			});
-			_clients.Remove(connectionDetails.device);
-			connectionDetails.socket.Disconnect(true);
-			connectionDetails.socket.Dispose();
+				var connectionDetails = ((DeviceDetails deviceDetails, Socket socket, string device))ar.AsyncState;
+				listBox1.InvokeFunctionInThreadSafeWay(ar =>
+				{
+					ar.Items.Remove($"{connectionDetails.device}");
+				});
+				_clients.Remove(connectionDetails.device);
+				connectionDetails.socket.Disconnect(true);
+				connectionDetails.socket.Dispose();
+			}
+			catch
+			{
+
+			}
 		}
 
 		private async void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
