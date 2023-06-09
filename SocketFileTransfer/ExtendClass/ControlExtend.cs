@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.ExtendClass;
@@ -8,6 +9,7 @@ internal static class ControlExtend
 	{
 		try
 		{
+			Thread.Sleep(500);
 			if (control.IsDisposed)
 				return;
 			else if (control.InvokeRequired)
