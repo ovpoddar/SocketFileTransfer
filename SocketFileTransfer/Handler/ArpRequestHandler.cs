@@ -18,7 +18,7 @@ internal class ArpRequestHandler : ArpBase
 
 	public ArpRequestHandler(IPAddress address, NetworkInterfaceType interfaceType) : base(address) =>
 		_interfaceType = interfaceType;
-
+	//TODO: prepare cancellation token
 	public async Task GetNetWorkDevices()
 	{
 		var ipAddresses = base.GenerateIpList();

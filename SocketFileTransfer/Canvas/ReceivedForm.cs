@@ -89,7 +89,11 @@ namespace SocketFileTransfer.Canvas
 					OnTransmissionIpFound.Raise(this, responce);
 				}
 			}
-			catch (Exception ex) { }
+			catch (Exception ex)
+			{
+				_clients[models.newdevice].Socket.Dispose();
+				_clients.Remove(models.newdevice);
+			}
 			finally
 			{
 				if (_clients.ContainsKey(models.newdevice))
