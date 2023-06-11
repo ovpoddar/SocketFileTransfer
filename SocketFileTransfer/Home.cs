@@ -81,6 +81,7 @@ namespace SocketFileTransfer
 			var control = sender as Control;
 			if (control != null)
 				control.Dispose();
+			GC.Collect();
 		}
 
 		private void BtnExit_Click(object sender, EventArgs e) =>
