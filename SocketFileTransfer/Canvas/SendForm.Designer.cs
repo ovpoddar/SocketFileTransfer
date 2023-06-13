@@ -25,6 +25,11 @@ namespace SocketFileTransfer.Canvas
 
 				_clients.Clear();
 			}
+			if(disposing && !_cancellationTokenSource.IsCancellationRequested)
+			{
+				_cancellationTokenSource.Cancel();
+				_cancellationTokenSource.Dispose();
+			}
 			base.Dispose(disposing);
 		}
 

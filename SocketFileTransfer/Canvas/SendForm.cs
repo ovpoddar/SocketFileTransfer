@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.Canvas
@@ -16,6 +17,7 @@ namespace SocketFileTransfer.Canvas
 	{
 		//TODO: need a rescan button
 		private readonly Dictionary<string, (Socket, DeviceDetails)> _clients = new();
+		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public event EventHandler<Connection> OnTransmissionIPFound;
 
@@ -38,11 +40,11 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private void FindDevices((NetworkInterfaceType, UnicastIPAddressInformation) address)
+		private async void FindDevices((NetworkInterfaceType, UnicastIPAddressInformation) address)
 		{
 			var arp = new ArpRequestHandler(address.Item2.Address, address.Item1);
 			arp.OnDeviceFound += DeviceFound;
-			_ = arp.GetNetWorkDevices();
+			await arp.GetNetWorkDevices(_cancellationTokenSource.Token);
 		}
 
 		private void DeviceFound(object sender, DeviceDetails e)

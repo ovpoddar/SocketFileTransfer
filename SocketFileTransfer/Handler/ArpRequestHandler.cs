@@ -19,19 +19,21 @@ internal class ArpRequestHandler : ArpBase
 
 	public ArpRequestHandler(IPAddress address, NetworkInterfaceType interfaceType) : base(address) =>
 		_interfaceType = interfaceType;
-	//TODO: prepare cancellation token
-	public async Task GetNetWorkDevices()
+
+	public async Task GetNetWorkDevices(CancellationToken cancellationToken)
 	{
-		var ipAddresses = base.GenerateIpList();
+		var ipAddresses = base.GenerateIPList();
+		var po = new ParallelOptions
+		{
+			CancellationToken = cancellationToken,
+			MaxDegreeOfParallelism = Environment.ProcessorCount
+		};
+
 		try
 		{
-			await Parallel.ForEachAsync(ipAddresses, async (ipAddress, cts) =>
+			await Parallel.ForEachAsync(ipAddresses,po, async (ipAddress, _) =>
 			{
-				var response = await base.CheckIpAddressWithARP(ipAddress);
-				if (cts.IsCancellationRequested == true)
-				{
-					cts.ThrowIfCancellationRequested();
-				}
+				var response = await CheckIPAddressWithARP(ipAddress);
 				if (response)
 					OnDeviceFound.Raise(this, new DeviceDetails(ipAddress, _interfaceType));
 			});
