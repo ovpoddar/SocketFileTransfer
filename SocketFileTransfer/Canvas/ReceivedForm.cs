@@ -16,7 +16,7 @@ namespace SocketFileTransfer.Canvas
 		private readonly Dictionary<string, TcpClientModel> _clients = new();
 		private Socket _scanSocket;
 
-		public event EventHandler<Connection> OnTransmissionIpFound;
+		public event EventHandler<Connection> OnTransmissionIPFound;
 
 		public ReceivedForm()
 		{
@@ -72,37 +72,37 @@ namespace SocketFileTransfer.Canvas
 		}
 		private void DataReceivedNew(IAsyncResult ar)
 		{
-			var models = ((string newdevice, Socket scanSocket))ar.AsyncState;
+			var (newdevice, scanSocket) = ((string newdevice, Socket scanSocket))ar.AsyncState;
 			try
 			{
-				var received = _clients[models.newdevice].Socket.EndReceive(ar);
-				var shouldConnect = ProjectStandardUtilitiesHelper.ReceivedConnectedSignal(_clients[models.newdevice].Socket, _clients[models.newdevice].Bytes, received);
+				var received = _clients[newdevice].Socket.EndReceive(ar);
+				var shouldConnect = ProjectStandardUtilitiesHelper.ReceivedConnectedSignal(_clients[newdevice].Socket, _clients[newdevice].Bytes, received);
 				if (shouldConnect)
 				{
 					var responce = new Connection
 					{
-						Socket = _clients[models.newdevice].Socket,
+						Socket = _clients[newdevice].Socket,
 						TypeOfConnect = TypeOfConnect.Transmission,
-						ServerSocket = models.scanSocket
+						ServerSocket = scanSocket
 					};
-					_clients.Remove(models.newdevice);
-					OnTransmissionIpFound.Raise(this, responce);
+					_clients.Remove(newdevice);
+					OnTransmissionIPFound.Raise(this, responce);
 				}
 			}
 			catch (Exception ex)
 			{
-				_clients[models.newdevice].Socket.Dispose();
-				_clients.Remove(models.newdevice);
+				_clients[newdevice].Socket.Dispose();
+				_clients.Remove(newdevice);
 			}
 			finally
 			{
-				if (_clients.ContainsKey(models.newdevice))
-					_clients[models.newdevice].Socket.Dispose();
+				if (_clients.ContainsKey(newdevice))
+					_clients[newdevice].Socket.Dispose();
 			}
 		}
 
 		private void BtnBack_Click(object sender, EventArgs e) =>
-			OnTransmissionIpFound.Raise(this, new Connection(_scanSocket, TypeOfConnect.None));
+			OnTransmissionIPFound.Raise(this, new Connection(_scanSocket, TypeOfConnect.None));
 
 	}
 }

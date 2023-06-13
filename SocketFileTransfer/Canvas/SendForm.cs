@@ -17,7 +17,7 @@ namespace SocketFileTransfer.Canvas
 		//TODO: need a rescan button
 		private readonly Dictionary<string, (Socket, DeviceDetails)> _clients = new();
 
-		public event EventHandler<Connection> OnTransmissionIpFound;
+		public event EventHandler<Connection> OnTransmissionIPFound;
 
 		public SendForm()
 		{
@@ -61,34 +61,34 @@ namespace SocketFileTransfer.Canvas
 
 		private async void StartConnecting(IAsyncResult ar)
 		{
-			var connectedDeviceDetails = ((DeviceDetails deviceDetails, Socket socket))ar.AsyncState;
+			var (deviceDetails, socket) = ((DeviceDetails deviceDetails, Socket socket))ar.AsyncState;
 
 			try
 			{
-				connectedDeviceDetails.socket.EndConnect(ar);
-				var device = await ProjectStandardUtilitiesHelper.ExchangeInformation(connectedDeviceDetails.socket, TypeOfConnect.Send);
+				socket.EndConnect(ar);
+				var device = await ProjectStandardUtilitiesHelper.ExchangeInformation(socket, TypeOfConnect.Send);
 
 				if (device != null)
 				{
 					if (_clients.ContainsKey(device))
 						throw new Exception("Already have an connection.So throw it for disposal.");
 
-					_clients.Add(device, (connectedDeviceDetails.socket, connectedDeviceDetails.deviceDetails));
+					_clients.Add(device, (socket, deviceDetails));
 					listBox1.InvokeFunctionInThreadSafeWay(a =>
 					{
 						a.Items.Add($"{device}");
 					});
-					byte[] buffer = new byte[16];
-					connectedDeviceDetails.socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, BeginMoniter, (connectedDeviceDetails.deviceDetails, connectedDeviceDetails.socket, device));
+					var buffer = new byte[16];
+					socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, BeginMoniter, (deviceDetails, socket, device));
 				}
 				else
 				{
-					connectedDeviceDetails.socket.Dispose();
+					socket.Dispose();
 				}
 			}
 			catch
 			{
-				connectedDeviceDetails.socket.Dispose();
+				socket.Dispose();
 			}
 		}
 
@@ -96,14 +96,14 @@ namespace SocketFileTransfer.Canvas
 		{
 			try
 			{
-				var connectionDetails = ((DeviceDetails deviceDetails, Socket socket, string device))ar.AsyncState;
+				var (deviceDetails, socket, device) = ((DeviceDetails deviceDetails, Socket socket, string device))ar.AsyncState;
 				listBox1.InvokeFunctionInThreadSafeWay(ar =>
 				{
-					ar.Items.Remove($"{connectionDetails.device}");
+					ar.Items.Remove($"{device}");
 				});
-				_clients.Remove(connectionDetails.device);
-				connectionDetails.socket.Disconnect(true);
-				connectionDetails.socket.Dispose();
+				_clients.Remove(device);
+				socket.Disconnect(true);
+				socket.Dispose();
 			}
 			catch
 			{
@@ -128,7 +128,7 @@ namespace SocketFileTransfer.Canvas
 					TypeOfConnect = TypeOfConnect.Transmission
 				};
 				_clients.Remove(item);
-				OnTransmissionIpFound.Raise(this, responce);
+				OnTransmissionIPFound.Raise(this, responce);
 			}
 			else
 				MessageBox.Show("Failed to negotiate.");
@@ -136,7 +136,7 @@ namespace SocketFileTransfer.Canvas
 		}
 
 		private void BtnBack_Click(object sender, EventArgs e) =>
-			OnTransmissionIpFound.Raise(this, new Connection(TypeOfConnect.None));
+			OnTransmissionIPFound.Raise(this, new Connection(TypeOfConnect.None));
 
 	}
 }

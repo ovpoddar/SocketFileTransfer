@@ -16,23 +16,25 @@ namespace SocketFileTransfer
 		{
 			InitializeComponent();
 
-			if (!TestForWIFIOrLanConnection()) return;
+			if (!TestForWIFIOrLanConnection()) 
+				return;
 
 			var indexPage = new Canvas.Index();
 			indexPage.SelectItem += SelectConnectMethod;
 			OpenChildForm(indexPage);
 		}
 
-		private bool TestForWIFIOrLanConnection()
+		private static bool TestForWIFIOrLanConnection()
 		{
-			if (!NetworkInterface.GetIsNetworkAvailable()) return false;
+			if (!NetworkInterface.GetIsNetworkAvailable())
+				return false;
 
 			var netWorkInterfaces = NetworkInterface.GetAllNetworkInterfaces().ToList();
 
 			return netWorkInterfaces.Any(e =>
-			(e.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
-			e.NetworkInterfaceType == NetworkInterfaceType.Wireless80211) &&
-			e.OperationalStatus == OperationalStatus.Up);
+				(e.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
+				e.NetworkInterfaceType == NetworkInterfaceType.Wireless80211) &&
+				e.OperationalStatus == OperationalStatus.Up);
 		}
 
 		private void SelectConnectMethod(object sender, TypeOfConnect e)
@@ -41,19 +43,18 @@ namespace SocketFileTransfer
 			{
 				case TypeOfConnect.Send:
 					var connectSend = new SendForm();
-					connectSend.OnTransmissionIpFound += GotTransmissionIp;
+					connectSend.OnTransmissionIPFound += GotTransmissionIp;
 					OpenChildForm(connectSend);
 					break;
 				case TypeOfConnect.Received:
 					var connectReceived = new ReceivedForm();
-					connectReceived.OnTransmissionIpFound += GotTransmissionIp;
+					connectReceived.OnTransmissionIPFound += GotTransmissionIp;
 					OpenChildForm(connectReceived);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(e), e, null);
 			}
-			var control = sender as Control;
-			if (control != null)
+			if (sender is Control control)
 				control.Dispose();
 		}
 
@@ -78,8 +79,7 @@ namespace SocketFileTransfer
 				transmissionPage.ScanSocket = e.ServerSocket;
 				OpenChildForm(transmissionPage);
 			}
-			var control = sender as Control;
-			if (control != null)
+			if (sender is Control control)
 				control.Dispose();
 			GC.Collect();
 		}
@@ -90,10 +90,7 @@ namespace SocketFileTransfer
 		private void OpenChildForm(Form childForm)
 		{
 			//open only form
-			if (_currentChildForm != null)
-			{
-				_currentChildForm.Close();
-			}
+			_currentChildForm?.Close();
 			_currentChildForm = childForm;
 			//End
 			childForm.TopLevel = false;

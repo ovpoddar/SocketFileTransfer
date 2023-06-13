@@ -13,7 +13,7 @@ namespace SocketFileTransfer.Canvas
 {
 	public partial class TransmissionPage : Form
 	{
-		private Socket _socket;
+		private readonly Socket _socket;
 		private PacketSender _packetSender;
 
 		public event EventHandler<Connection> BackTransmissionRequest;
@@ -37,19 +37,13 @@ namespace SocketFileTransfer.Canvas
 		private void MessageEvent(object sender, MessageReport e)
 		{
 			var control = PanelContainer.Controls.OfType<CPFile>().LastOrDefault();
-			if (control != null)
-			{
-				control.ChangeMessage(e);
-			}
+			control?.ChangeMessage(e);
 		}
 
 		private void ProgressEvent(object sender, ProgressReport e)
 		{
 			var control = PanelContainer.Controls.OfType<CPFile>().FirstOrDefault(a => a.Name == e.TargetedItemName);
-			if (control != null)
-			{
-				control.ChangeProcess(e);
-			}
+			control?.ChangeProcess(e);
 
 		}
 
