@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿// Ignore Spelling: Arp
+
+using System.Net;
 using System.Runtime.InteropServices;
 
 namespace UtilityTools;

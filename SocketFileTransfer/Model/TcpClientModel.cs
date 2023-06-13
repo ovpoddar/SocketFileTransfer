@@ -1,7 +1,7 @@
 ﻿using System.Net.Sockets;
 
 namespace SocketFileTransfer.Model;
-internal struct TcpClientModel
+internal readonly struct TcpClientModel
 {
 	public readonly Socket Socket { get; init; }
 	public byte[] Bytes { get; }
