@@ -166,6 +166,7 @@ namespace SocketFileTransfer.Canvas
 		{
 			TaskButton.Text = "Cancel";
 			TaskButton.Enabled = false;
+			MessageBox.Show("It under testing.");
 			Scan();
 		}
 	}
