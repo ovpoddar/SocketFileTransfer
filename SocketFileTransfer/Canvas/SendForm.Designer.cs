@@ -67,23 +67,23 @@ namespace SocketFileTransfer.Canvas
 			// 
 			listBox1.BackColor = System.Drawing.Color.FromArgb(59, 72, 81);
 			listBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			listBox1.Dock = System.Windows.Forms.DockStyle.Top;
+			listBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			listBox1.FormattingEnabled = true;
 			listBox1.ItemHeight = 15;
 			listBox1.Location = new System.Drawing.Point(0, 37);
 			listBox1.Name = "listBox1";
-			listBox1.Size = new System.Drawing.Size(386, 510);
+			listBox1.Size = new System.Drawing.Size(386, 544);
 			listBox1.TabIndex = 1;
 			listBox1.SelectedIndexChanged += ListBox1_SelectedIndexChanged;
 			// 
 			// TaskButton
 			// 
-			TaskButton.Dock = System.Windows.Forms.DockStyle.Fill;
+			TaskButton.Dock = System.Windows.Forms.DockStyle.Bottom;
 			TaskButton.Enabled = false;
 			TaskButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			TaskButton.Location = new System.Drawing.Point(0, 547);
+			TaskButton.Location = new System.Drawing.Point(0, 551);
 			TaskButton.Name = "TaskButton";
-			TaskButton.Size = new System.Drawing.Size(386, 34);
+			TaskButton.Size = new System.Drawing.Size(386, 30);
 			TaskButton.TabIndex = 2;
 			TaskButton.Text = "Cancel";
 			TaskButton.UseVisualStyleBackColor = true;
