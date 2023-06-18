@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.Canvas
@@ -33,6 +34,11 @@ namespace SocketFileTransfer.Canvas
 
 		private void StartScanForm_Load(object sender, EventArgs e)
 		{
+			Scan();
+		}
+
+		void Scan()
+		{
 			var addresses = ProjectStandardUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
 
 			if (!addresses.Any())
@@ -45,7 +51,7 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private async void FindDevices((NetworkInterfaceType, UnicastIPAddressInformation) address)
+		async void FindDevices((NetworkInterfaceType, UnicastIPAddressInformation) address)
 		{
 			var arp = new ArpRequestHandler(address.Item2.Address, address.Item1);
 			arp.OnDeviceFound += DeviceFound;
@@ -53,7 +59,7 @@ namespace SocketFileTransfer.Canvas
 			await arp.GetNetWorkDevices(_cancellationTokenSource.Token);
 		}
 
-		private void ScanCompleted(object sender, EventArgs e)
+		void ScanCompleted(object sender, EventArgs e)
 		{
 			_currentSceanAddress++;
 			if (_currentSceanAddress == _totalAddress)
@@ -63,7 +69,7 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private void DeviceFound(object sender, DeviceDetails e)
+		void DeviceFound(object sender, DeviceDetails e)
 		{
 			var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			try
@@ -77,7 +83,7 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private async void StartConnecting(IAsyncResult ar)
+		async void StartConnecting(IAsyncResult ar)
 		{
 			var (deviceDetails, socket) = ((DeviceDetails deviceDetails, Socket socket))ar.AsyncState;
 
@@ -110,7 +116,7 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private void BeginMoniter(IAsyncResult ar)
+		void BeginMoniter(IAsyncResult ar)
 		{
 			try
 			{
@@ -158,16 +164,9 @@ namespace SocketFileTransfer.Canvas
 
 		private void TaskButton_Click(object sender, EventArgs e)
 		{
-			var addresses = ProjectStandardUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
-
-			if (!addresses.Any())
-				MessageBox.Show("No Device found");
-			else
-			{
-				// combine into task then wait for completion
-				foreach (var address in addresses)
-					FindDevices(address);
-			}
+			TaskButton.Text = "Cancel";
+			TaskButton.Enabled = false;
+			Scan();
 		}
 	}
 }
