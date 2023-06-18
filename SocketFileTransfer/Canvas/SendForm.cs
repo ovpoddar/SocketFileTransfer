@@ -44,7 +44,14 @@ namespace SocketFileTransfer.Canvas
 		{
 			var arp = new ArpRequestHandler(address.Item2.Address, address.Item1);
 			arp.OnDeviceFound += DeviceFound;
+			arp.OnScanComplete += ScanCompleted;
 			await arp.GetNetWorkDevices(_cancellationTokenSource.Token);
+		}
+
+		private void ScanCompleted(object sender, bool e)
+		{
+			TaskButton.Text = "Rescan";
+			TaskButton.Enabled = true;
 		}
 
 		private void DeviceFound(object sender, DeviceDetails e)
@@ -140,5 +147,18 @@ namespace SocketFileTransfer.Canvas
 		private void BtnBack_Click(object sender, EventArgs e) =>
 			OnTransmissionIPFound.Raise(this, new Connection(TypeOfConnect.None));
 
+		private void TaskButton_Click(object sender, EventArgs e)
+		{
+			var addresses = ProjectStandardUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
+
+			if (!addresses.Any())
+				MessageBox.Show("No Device found");
+			else
+			{
+				// combine into task then wait for completion
+				foreach (var address in addresses)
+					FindDevices(address);
+			}
+		}
 	}
 }
