@@ -18,12 +18,17 @@ namespace SocketFileTransfer.Canvas
 		//TODO: need a rescan button
 		private readonly Dictionary<string, (Socket, DeviceDetails)> _clients = new();
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private int _totalAddress = 0;
+		private int _currentSceanAddress = 0;
 
 		public event EventHandler<Connection> OnTransmissionIPFound;
 
 		public SendForm()
 		{
 			InitializeComponent();
+
+			var addresses = ProjectStandardUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
+			_totalAddress = addresses.Count();
 		}
 
 		private void StartScanForm_Load(object sender, EventArgs e)
@@ -48,10 +53,14 @@ namespace SocketFileTransfer.Canvas
 			await arp.GetNetWorkDevices(_cancellationTokenSource.Token);
 		}
 
-		private void ScanCompleted(object sender, bool e)
+		private void ScanCompleted(object sender, EventArgs e)
 		{
-			TaskButton.Text = "Rescan";
-			TaskButton.Enabled = true;
+			_currentSceanAddress++;
+			if (_currentSceanAddress == _totalAddress)
+			{
+				TaskButton.Text = "Rescan";
+				TaskButton.Enabled = true;
+			}
 		}
 
 		private void DeviceFound(object sender, DeviceDetails e)
