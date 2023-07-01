@@ -65,7 +65,6 @@ namespace SocketFileTransfer.Canvas
 			if (_currentSceanAddress == _totalAddress)
 			{
 				TaskButton.Text = "Rescan";
-				TaskButton.Enabled = true;
 			}
 		}
 
@@ -164,16 +163,25 @@ namespace SocketFileTransfer.Canvas
 
 		private void TaskButton_Click(object sender, EventArgs e)
 		{
-			TaskButton.Text = "Cancel";
-			TaskButton.Enabled = false;
-			foreach (var item in _clients)
+			if (TaskButton.Text == "Rescan")
 			{
-				item.Value.Item1.Dispose();
+				TaskButton.Text = "Cancel";
+				foreach (var item in _clients)
+				{
+					item.Value.Item1.Dispose();
+				}
+				_clients.Clear();
+				listBox1.Items.Clear();
+				_currentSceanAddress = 0;
+				Scan();
 			}
-			_clients.Clear();
-			listBox1.Items.Clear();
-			_currentSceanAddress = 0;
-			Scan();
+            else
+            {
+				TaskButton.Text = "Rescan";
+				_cancellationTokenSource.Cancel();
+				_cancellationTokenSource.Dispose();
+			}
+            
 		}
 	}
 }
