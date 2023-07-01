@@ -175,13 +175,13 @@ namespace SocketFileTransfer.Canvas
 				_currentSceanAddress = 0;
 				Scan();
 			}
-            else
-            {
+			else
+			{
 				TaskButton.Text = "Rescan";
 				_cancellationTokenSource.Cancel();
 				_cancellationTokenSource.Dispose();
 			}
-            
+
 		}
 	}
 }

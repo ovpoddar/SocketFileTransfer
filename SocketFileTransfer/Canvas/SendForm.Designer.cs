@@ -79,7 +79,6 @@ namespace SocketFileTransfer.Canvas
 			// TaskButton
 			// 
 			TaskButton.Dock = System.Windows.Forms.DockStyle.Bottom;
-			TaskButton.Enabled = false;
 			TaskButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			TaskButton.Location = new System.Drawing.Point(0, 551);
 			TaskButton.Name = "TaskButton";
