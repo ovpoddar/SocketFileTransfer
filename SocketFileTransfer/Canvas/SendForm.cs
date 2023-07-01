@@ -172,6 +172,7 @@ namespace SocketFileTransfer.Canvas
 			}
 			_clients.Clear();
 			listBox1.Items.Clear();
+			_currentSceanAddress = 0;
 			Scan();
 		}
 	}
