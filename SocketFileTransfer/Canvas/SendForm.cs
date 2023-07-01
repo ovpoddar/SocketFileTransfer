@@ -18,9 +18,9 @@ namespace SocketFileTransfer.Canvas
 	{
 		//TODO: need a rescan button
 		private readonly Dictionary<string, (Socket, DeviceDetails)> _clients = new();
-		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-		private int _totalAddress = 0;
-		private int _currentSceanAddress = 0;
+		private CancellationTokenSource _cancellationTokenSource;
+		private readonly int _totalAddress;
+		private int _currentSceanAddress;
 
 		public event EventHandler<Connection> OnTransmissionIPFound;
 
@@ -40,7 +40,7 @@ namespace SocketFileTransfer.Canvas
 		void Scan()
 		{
 			var addresses = ProjectStandardUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
-
+			_cancellationTokenSource = new();
 			if (!addresses.Any())
 				MessageBox.Show("No Device found");
 			else
@@ -143,8 +143,8 @@ namespace SocketFileTransfer.Canvas
 			if (!_clients.ContainsKey(item))
 				listBox1.Items.Remove(item);
 
-			var port = await ProjectStandardUtilitiesHelper.SendConnectSignal(_clients[item].Item1);
-			if (port)
+			var isConnected = await ProjectStandardUtilitiesHelper.SendConnectSignal(_clients[item].Item1);
+			if (isConnected)
 			{
 				var responce = new Connection
 				{
@@ -166,7 +166,12 @@ namespace SocketFileTransfer.Canvas
 		{
 			TaskButton.Text = "Cancel";
 			TaskButton.Enabled = false;
-			MessageBox.Show("It under testing.");
+			foreach (var item in _clients)
+			{
+				item.Value.Item1.Dispose();
+			}
+			_clients.Clear();
+			listBox1.Items.Clear();
 			Scan();
 		}
 	}
