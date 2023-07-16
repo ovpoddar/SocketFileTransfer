@@ -62,6 +62,7 @@ namespace SocketFileTransfer.CustomControl
 			LblType.Visible = true;
 			LblName.Size = new Size(Width - 20, 20);
 			LblType.Dock = DockStyle.Fill;
+			BtnCopy.Visible = true;
 			SetBackground(typeOfConnect);
 		}
 
@@ -91,6 +92,11 @@ namespace SocketFileTransfer.CustomControl
 		{
 			this.LblSize.Text = $"{progress.Complete} / {progress.Total}";
 			this.ProgresPanel.Width = (int)(progress.Percentage / 100 * Width);
+		}
+
+		private void BtnCopy_Click(object sender, EventArgs e)
+		{
+			Clipboard.SetText(this.LblType.Text);
 		}
 	}
 }
