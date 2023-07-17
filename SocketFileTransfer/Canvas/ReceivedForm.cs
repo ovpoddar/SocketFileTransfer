@@ -100,7 +100,6 @@ namespace SocketFileTransfer.Canvas
 					{
 						if (client.Key != index)
 							client.Value.Dispose();
-						
 					}
 				}
 			}
