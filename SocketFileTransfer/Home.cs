@@ -63,10 +63,13 @@ namespace SocketFileTransfer
 			if (e.TypeOfConnect == TypeOfConnect.None)
 			{
 				// work on back signal.
-				if (e.ServerSocket != null)
+				if (e.ServerSockets != null)
 				{
-					e.ServerSocket.Close();
-					e.ServerSocket.Dispose();
+					foreach (var item in e.ServerSockets)
+					{
+						item.Close();
+						item.Dispose();
+					}
 				}
 				var indexPage = new Canvas.Index();
 				indexPage.SelectItem += SelectConnectMethod;
@@ -76,7 +79,7 @@ namespace SocketFileTransfer
 			{
 				var transmissionPage = new TransmissionPage(e.Socket);
 				transmissionPage.BackTransmissionRequest += GotTransmissionIp;
-				transmissionPage.ScanSocket = e.ServerSocket;
+				transmissionPage.ScanSocket = e.ServerSockets.First();
 				OpenChildForm(transmissionPage);
 			}
 			if (sender is Control control)

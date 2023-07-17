@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.Canvas
@@ -14,7 +15,7 @@ namespace SocketFileTransfer.Canvas
 	public partial class ReceivedForm : Form
 	{
 		private readonly Dictionary<string, TcpClientModel> _clients = new();
-		private Socket _scanSocket;
+		private Dictionary<int, Socket> _scanSockets = new();
 
 		public event EventHandler<Connection> OnTransmissionIPFound;
 
@@ -31,33 +32,35 @@ namespace SocketFileTransfer.Canvas
 				LblMsg.Text = "Failed To start Your hotspot. Please do it manually or connect your self with a network cable which is connected with router.";
 			else
 			{
+				var index = 0;
 				foreach (var address in addresses)
-					BrodCastSignal(address.Item2.Address);
+				{
+					var scanSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+					scanSocket.Bind(new IPEndPoint(address.Item2.Address, StaticConfiguration.ApplicationRequiredPort));
+					scanSocket.Listen(100);
+					scanSocket.BeginAccept(BroadcastSignal, index);
+					_scanSockets.Add(index, scanSocket);
+					index++;
+				}
 
 				LblMsg.Text = "waiting for user to connect";
 			}
 		}
 
-		private void BrodCastSignal(IPAddress address)
-		{
-			_scanSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			_scanSocket.Bind(new IPEndPoint(address, StaticConfiguration.ApplicationRequiredPort));
-			_scanSocket.Listen(100);
-			_scanSocket.BeginAccept(BroadcastSignal, null);
-		}
 
 		private async void BroadcastSignal(IAsyncResult ar)
 		{
 			try
 			{
-				var client = _scanSocket.EndAccept(ar);
+				var index = (int)ar.AsyncState;
+				var client = _scanSockets[index].EndAccept(ar);
 				var newDevice = await ProjectStandardUtilitiesHelper.ExchangeInformation(client, TypeOfConnect.Received);
 
 				if (newDevice != null
 					&& !_clients.ContainsKey(newDevice))
 				{
 					var buffer = new byte[client.ReceiveBufferSize];
-					client.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, DataReceivedNew, (newDevice, _scanSocket));
+					client.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, DataReceivedNew, (newDevice, _scanSockets[index], index));
 					_clients.Add(newDevice, new TcpClientModel(client, buffer));
 				}
 				else
@@ -65,28 +68,40 @@ namespace SocketFileTransfer.Canvas
 					client.Dispose();
 				}
 
-				_scanSocket.BeginAccept(BroadcastSignal, null);
+				_scanSockets[index].BeginAccept(BroadcastSignal, index);
 			}
 			catch (ObjectDisposedException ex) { }
 			catch (Exception ex) { }
 		}
 		private void DataReceivedNew(IAsyncResult ar)
 		{
-			var (newdevice, scanSocket) = ((string newdevice, Socket scanSocket))ar.AsyncState;
+			var (newdevice, scanSocket, index) = ((string newdevice, Socket scanSocket, int index))ar.AsyncState;
 			try
 			{
 				var received = _clients[newdevice].Socket.EndReceive(ar);
 				var shouldConnect = ProjectStandardUtilitiesHelper.ReceivedConnectedSignal(_clients[newdevice].Socket, _clients[newdevice].Bytes, received);
 				if (shouldConnect)
 				{
+					_clients[newdevice].Socket.Send(Encoding.ASCII.GetBytes("@Connected@"));
+
 					var responce = new Connection
 					{
 						Socket = _clients[newdevice].Socket,
 						TypeOfConnect = TypeOfConnect.Transmission,
-						ServerSocket = scanSocket
+						ServerSockets = new Socket[]
+						{
+							scanSocket
+						}
 					};
 					_clients.Remove(newdevice);
 					OnTransmissionIPFound.Raise(this, responce);
+
+					foreach (var client in _scanSockets)
+					{
+						if (client.Key != index)
+							client.Value.Dispose();
+						
+					}
 				}
 			}
 			catch (Exception ex)
@@ -102,7 +117,7 @@ namespace SocketFileTransfer.Canvas
 		}
 
 		private void BtnBack_Click(object sender, EventArgs e) =>
-			OnTransmissionIPFound.Raise(this, new Connection(_scanSocket, TypeOfConnect.None));
+			OnTransmissionIPFound.Raise(this, new Connection(_scanSockets.Select(a => a.Value).ToArray(), TypeOfConnect.None));
 
 	}
 }

@@ -8,17 +8,17 @@ public class Connection
 	{
 		TypeOfConnect = typeOfConnect;
 	}
-        public Connection(Socket serverSocket, TypeOfConnect typeOfConnect)
-        {
-		ServerSocket = serverSocket;
+	public Connection(Socket[] serverSocket, TypeOfConnect typeOfConnect)
+	{
+		ServerSockets = serverSocket;
 		TypeOfConnect = typeOfConnect;
 	}
-        public Connection()
+	public Connection()
 	{
 
 	}
 
 	public Socket Socket { get; set; }
 	public TypeOfConnect TypeOfConnect { get; set; }
-	public Socket? ServerSocket { get; set; }
+	public Socket[]? ServerSockets { get; set; }
 }

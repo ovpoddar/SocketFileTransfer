@@ -114,7 +114,7 @@ namespace SocketFileTransfer.Canvas
 				socket.Dispose();
 			}
 		}
-
+			
 		void BeginMoniter(IAsyncResult ar)
 		{
 			try
