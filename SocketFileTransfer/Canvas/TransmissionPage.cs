@@ -23,6 +23,8 @@ namespace SocketFileTransfer.Canvas
 		{
 			InitializeComponent();
 			_socket = socket;
+			if (!socket.Connected)
+				BackTransmissionRequest.Raise(this,new Connection(TypeOfConnect.None));
 		}
 
 		private void TransmissionPage_Load(object sender, EventArgs e)
