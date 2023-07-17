@@ -17,6 +17,7 @@ namespace SocketFileTransfer.Canvas
 		private PacketSender _packetSender;
 
 		public event EventHandler<Connection> BackTransmissionRequest;
+		public Socket? ScanSocket;
 
 		public TransmissionPage(Socket socket)
 		{
