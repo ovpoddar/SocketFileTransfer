@@ -96,10 +96,14 @@ namespace SocketFileTransfer.Canvas
 					_clients.Remove(newdevice);
 					OnTransmissionIPFound.Raise(this, responce);
 
-					foreach (var client in _scanSockets)
+					foreach (var ss in _scanSockets)
 					{
-						if (client.Key != index)
-							client.Value.Dispose();
+						if (ss.Key != index)
+						{
+							ss.Value.Close();
+							ss.Value.Dispose();
+							_scanSockets.Remove(ss.Key);
+						}
 					}
 				}
 			}
