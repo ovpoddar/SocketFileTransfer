@@ -16,6 +16,7 @@ namespace SocketFileTransfer.Canvas
 	{
 		private readonly Dictionary<string, TcpClientModel> _clients = new();
 		private Dictionary<int, Socket> _scanSockets = new();
+		private bool _isFinalized= false;
 
 		public event EventHandler<Connection> OnTransmissionIPFound;
 
@@ -67,12 +68,14 @@ namespace SocketFileTransfer.Canvas
 				{
 					client.Dispose();
 				}
-
+				if (_isFinalized)
+					return;
 				_scanSockets[index].BeginAccept(BroadcastSignal, index);
 			}
 			catch (ObjectDisposedException ex) { }
 			catch (Exception ex) { }
 		}
+
 		private void DataReceivedNew(IAsyncResult ar)
 		{
 			var (newdevice, scanSocket, index) = ((string newdevice, Socket scanSocket, int index))ar.AsyncState;
@@ -91,6 +94,7 @@ namespace SocketFileTransfer.Canvas
 							scanSocket
 						}
 					};
+					_isFinalized = true;
 					_clients.Remove(newdevice);
 					OnTransmissionIPFound.Raise(this, responce);
 

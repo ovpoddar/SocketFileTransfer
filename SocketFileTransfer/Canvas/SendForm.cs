@@ -21,6 +21,8 @@ namespace SocketFileTransfer.Canvas
 		private CancellationTokenSource _cancellationTokenSource;
 		private readonly int _totalAddress;
 		private int _currentSceanAddress;
+		private bool _isFinalized = false;
+
 
 		public event EventHandler<Connection> OnTransmissionIPFound;
 
@@ -119,6 +121,9 @@ namespace SocketFileTransfer.Canvas
 		{
 			try
 			{
+				if (_isFinalized)
+					return;
+
 				var (deviceDetails, socket, device) = ((DeviceDetails deviceDetails, Socket socket, string device))ar.AsyncState;
 				listBox1.InvokeFunctionInThreadSafeWay(ar =>
 				{
@@ -141,6 +146,8 @@ namespace SocketFileTransfer.Canvas
 			var item = listBox1.SelectedItem.ToString();
 			if (!_clients.ContainsKey(item))
 				listBox1.Items.Remove(item);
+			
+			_isFinalized = true;
 
 			ProjectStandardUtilitiesHelper.SendConnectSignal(_clients[item].Item1);
 
