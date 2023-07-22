@@ -66,7 +66,7 @@ namespace SocketFileTransfer.Canvas
 				Array.Copy(buffer, fullPacket, buffer.Length - 1);
 				Array.Copy(restOfPacket, 0, fullPacket, buffer.Length, restOfPacket.Length);
 				NetworkPacket networkPack = fullPacket;
-				if (fullPacket is null)
+				if (fullPacket.Length == 0)
 				{
 					buffer = new byte[8];
 					_socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
