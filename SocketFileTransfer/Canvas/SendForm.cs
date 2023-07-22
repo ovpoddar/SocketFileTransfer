@@ -139,7 +139,7 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private async Task ListBox1_SelectedIndexChangedAsync(object sender, EventArgs e)
+		private async void ListBox1_SelectedIndexChangedAsync(object sender, EventArgs e)
 		{
 			if (listBox1.SelectedIndex == -1)
 				return;
