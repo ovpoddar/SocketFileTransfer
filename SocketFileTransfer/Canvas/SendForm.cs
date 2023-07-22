@@ -139,7 +139,7 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
+		private async Task ListBox1_SelectedIndexChangedAsync(object sender, EventArgs e)
 		{
 			if (listBox1.SelectedIndex == -1)
 				return;
@@ -149,15 +149,19 @@ namespace SocketFileTransfer.Canvas
 			
 			_isFinalized = true;
 
-			ProjectStandardUtilitiesHelper.SendConnectSignal(_clients[item].Item1);
-
-			var responce = new Connection
+			var isConnected = await ProjectStandardUtilitiesHelper.SendConnectSignal(_clients[item].Item1);
+			if (isConnected)
 			{
-				Socket = _clients[item].Item1,
-				TypeOfConnect = TypeOfConnect.Transmission
-			};
-			_clients.Remove(item);
-			OnTransmissionIPFound.Raise(this, responce);
+				var responce = new Connection
+				{
+					Socket = _clients[item].Item1,
+					TypeOfConnect = TypeOfConnect.Transmission
+				};
+				_clients.Remove(item);
+				OnTransmissionIPFound.Raise(this, responce);
+			}
+			else
+				MessageBox.Show("Failed to negotiate.");
 			// dispose all the rest clients
 		}
 

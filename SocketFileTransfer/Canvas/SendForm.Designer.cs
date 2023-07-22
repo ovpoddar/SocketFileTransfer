@@ -74,7 +74,7 @@ namespace SocketFileTransfer.Canvas
 			listBox1.Name = "listBox1";
 			listBox1.Size = new System.Drawing.Size(386, 544);
 			listBox1.TabIndex = 1;
-			listBox1.SelectedIndexChanged += ListBox1_SelectedIndexChanged;
+			listBox1.SelectedIndexChanged += ListBox1_SelectedIndexChangedAsync;
 			// 
 			// TaskButton
 			// 
