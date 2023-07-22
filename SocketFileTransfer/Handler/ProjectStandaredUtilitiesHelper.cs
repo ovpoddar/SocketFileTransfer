@@ -24,13 +24,10 @@ internal static class ProjectStandardUtilitiesHelper
 		where ip.Address.AddressFamily == AddressFamily.InterNetwork // removing ipv6 addresses
 		select (networkInterfaceType, ip);
 
-	public static async Task<bool> SendConnectSignal(Socket socket)
+	public static void SendConnectSignal(Socket socket)
 	{
 		var message = "@@Connected@@";
 		SendDetails(socket, message.AsSpan());
-
-		var receivedConfirmation = await ReadDetails(socket);
-		return receivedConfirmation == "@Connected@";
 	}
 
 	public static bool ReceivedConnectedSignal(Socket socket, byte[] messageAsBytes, int messageLength)
@@ -38,10 +35,7 @@ internal static class ProjectStandardUtilitiesHelper
 		if (messageLength == 0)
 			return false;
 		var receivedMessage = Encoding.ASCII.GetString(messageAsBytes, 0, messageLength);
-		var result = receivedMessage == "@@Connected@@";
-		var message = "@Connected@";
-		SendDetails(socket, message.AsSpan());
-		return result;
+		return receivedMessage == "@@Connected@@";
 	}
 
 	public static byte[] GetHashCode(string filePath)

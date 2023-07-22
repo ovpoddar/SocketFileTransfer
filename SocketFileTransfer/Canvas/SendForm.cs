@@ -114,7 +114,7 @@ namespace SocketFileTransfer.Canvas
 				socket.Dispose();
 			}
 		}
-			
+
 		void BeginMoniter(IAsyncResult ar)
 		{
 			try
@@ -142,19 +142,15 @@ namespace SocketFileTransfer.Canvas
 			if (!_clients.ContainsKey(item))
 				listBox1.Items.Remove(item);
 
-			var isConnected = await ProjectStandardUtilitiesHelper.SendConnectSignal(_clients[item].Item1);
-			if (isConnected)
+			ProjectStandardUtilitiesHelper.SendConnectSignal(_clients[item].Item1);
+
+			var responce = new Connection
 			{
-				var responce = new Connection
-				{
-					Socket = _clients[item].Item1,
-					TypeOfConnect = TypeOfConnect.Transmission
-				};
-				_clients.Remove(item);
-				OnTransmissionIPFound.Raise(this, responce);
-			}
-			else
-				MessageBox.Show("Failed to negotiate.");
+				Socket = _clients[item].Item1,
+				TypeOfConnect = TypeOfConnect.Transmission
+			};
+			_clients.Remove(item);
+			OnTransmissionIPFound.Raise(this, responce);
 			// dispose all the rest clients
 		}
 

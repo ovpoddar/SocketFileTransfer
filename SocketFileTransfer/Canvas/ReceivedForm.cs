@@ -82,9 +82,6 @@ namespace SocketFileTransfer.Canvas
 				var shouldConnect = ProjectStandardUtilitiesHelper.ReceivedConnectedSignal(_clients[newdevice].Socket, _clients[newdevice].Bytes, received);
 				if (shouldConnect)
 				{
-					// not needed
-					// _clients[newdevice].Socket.Send(Encoding.ASCII.GetBytes("@Connected@"));
-
 					var responce = new Connection
 					{
 						Socket = _clients[newdevice].Socket,
