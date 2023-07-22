@@ -142,13 +142,12 @@ namespace SocketFileTransfer.Canvas
 			if (!_clients.ContainsKey(item))
 				listBox1.Items.Remove(item);
 
-			var socket = _clients[item].Item1;
-			var isConnected = await ProjectStandardUtilitiesHelper.SendConnectSignal(socket);
+			var isConnected = await ProjectStandardUtilitiesHelper.SendConnectSignal(_clients[item].Item1);
 			if (isConnected)
 			{
 				var responce = new Connection
 				{
-					Socket = socket,
+					Socket = _clients[item].Item1,
 					TypeOfConnect = TypeOfConnect.Transmission
 				};
 				_clients.Remove(item);
