@@ -11,27 +11,30 @@ namespace SocketFileTransfer
 	public partial class Home : Form
 	{
 		private Form _currentChildForm;
+
 		public Home()
 		{
 			InitializeComponent();
 
-			if (!TestForWIFIOrLanConnection()) return;
+			if (!TestForWIFIOrLanConnection()) 
+				return;
 
 			var indexPage = new Canvas.Index();
 			indexPage.SelectItem += SelectConnectMethod;
 			OpenChildForm(indexPage);
 		}
 
-		private bool TestForWIFIOrLanConnection()
+		private static bool TestForWIFIOrLanConnection()
 		{
-			if (!NetworkInterface.GetIsNetworkAvailable()) return false;
+			if (!NetworkInterface.GetIsNetworkAvailable())
+				return false;
 
 			var netWorkInterfaces = NetworkInterface.GetAllNetworkInterfaces().ToList();
 
 			return netWorkInterfaces.Any(e =>
-			(e.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
-			e.NetworkInterfaceType == NetworkInterfaceType.Wireless80211) &&
-			e.OperationalStatus == OperationalStatus.Up);
+				(e.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
+				e.NetworkInterfaceType == NetworkInterfaceType.Wireless80211) &&
+				e.OperationalStatus == OperationalStatus.Up);
 		}
 
 		private void SelectConnectMethod(object sender, TypeOfConnect e)
@@ -40,43 +43,48 @@ namespace SocketFileTransfer
 			{
 				case TypeOfConnect.Send:
 					var connectSend = new SendForm();
-					connectSend.OnTransmissionIpFound += GotTransmissionIp;
+					connectSend.OnTransmissionIPFound += GotTransmissionIp;
 					OpenChildForm(connectSend);
 					break;
 				case TypeOfConnect.Received:
 					var connectReceived = new ReceivedForm();
-					connectReceived.OnTransmissionIpFound += GotTransmissionIp;
+					connectReceived.OnTransmissionIPFound += GotTransmissionIp;
 					OpenChildForm(connectReceived);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(e), e, null);
 			}
-			var control = sender as Control;
-			if (control != null)
+			if (sender is Control control)
 				control.Dispose();
 		}
 
-		private void GotTransmissionIp(object sender, ConnectionDetails e)
+		private void GotTransmissionIp(object sender, Connection e)
 		{
-			switch (e.TypeOfConnect)
+			if (e.TypeOfConnect == TypeOfConnect.None)
 			{
-				case TypeOfConnect.Send:
-				case TypeOfConnect.Received:
-					var transmisssionPage = new TransmissionPage(e);
-					transmisssionPage.BackTransmissionRequest += GotTransmissionIp;
-					OpenChildForm(transmisssionPage);
-					break;
-				case TypeOfConnect.None:
-					var indexPage = new Canvas.Index();
-					indexPage.SelectItem += SelectConnectMethod;
-					OpenChildForm(indexPage);
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(e), e, null);
+				// work on back signal.
+				if (e.ServerSockets != null)
+				{
+					foreach (var item in e.ServerSockets)
+					{
+						item.Close();
+						item.Dispose();
+					}
+				}
+				var indexPage = new Canvas.Index();
+				indexPage.SelectItem += SelectConnectMethod;
+				OpenChildForm(indexPage);
 			}
-			var control = sender as Control;
-			if (control != null)
+			else
+			{
+				var transmissionPage = new TransmissionPage(e.Socket);
+				transmissionPage.BackTransmissionRequest += GotTransmissionIp;
+				transmissionPage.ScanSocket = e.ServerSockets?.FirstOrDefault();
+				OpenChildForm(transmissionPage);
+			}
+			if (sender is Control control)
 				control.Dispose();
+			GC.Collect();
 		}
 
 		private void BtnExit_Click(object sender, EventArgs e) =>
@@ -85,10 +93,7 @@ namespace SocketFileTransfer
 		private void OpenChildForm(Form childForm)
 		{
 			//open only form
-			if (_currentChildForm != null)
-			{
-				_currentChildForm.Close();
-			}
+			_currentChildForm?.Close();
 			_currentChildForm = childForm;
 			//End
 			childForm.TopLevel = false;

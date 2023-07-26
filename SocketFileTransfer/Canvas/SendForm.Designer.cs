@@ -25,6 +25,11 @@ namespace SocketFileTransfer.Canvas
 
 				_clients.Clear();
 			}
+			if (disposing && !_cancellationTokenSource.IsCancellationRequested)
+			{
+				_cancellationTokenSource.Cancel();
+				_cancellationTokenSource.Dispose();
+			}
 			base.Dispose(disposing);
 		}
 
@@ -38,6 +43,7 @@ namespace SocketFileTransfer.Canvas
 		{
 			BtnBack = new System.Windows.Forms.Button();
 			listBox1 = new System.Windows.Forms.ListBox();
+			TaskButton = new System.Windows.Forms.Button();
 			SuspendLayout();
 			// 
 			// BtnBack
@@ -68,7 +74,19 @@ namespace SocketFileTransfer.Canvas
 			listBox1.Name = "listBox1";
 			listBox1.Size = new System.Drawing.Size(386, 544);
 			listBox1.TabIndex = 1;
-			listBox1.SelectedIndexChanged += ListBox1_SelectedIndexChanged;
+			listBox1.SelectedIndexChanged += ListBox1_SelectedIndexChangedAsync;
+			// 
+			// TaskButton
+			// 
+			TaskButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+			TaskButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			TaskButton.Location = new System.Drawing.Point(0, 551);
+			TaskButton.Name = "TaskButton";
+			TaskButton.Size = new System.Drawing.Size(386, 30);
+			TaskButton.TabIndex = 2;
+			TaskButton.Text = "Cancel";
+			TaskButton.UseVisualStyleBackColor = true;
+			TaskButton.Click += TaskButton_Click;
 			// 
 			// SendForm
 			// 
@@ -76,6 +94,7 @@ namespace SocketFileTransfer.Canvas
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			BackColor = System.Drawing.Color.FromArgb(49, 57, 66);
 			ClientSize = new System.Drawing.Size(386, 581);
+			Controls.Add(TaskButton);
 			Controls.Add(listBox1);
 			Controls.Add(BtnBack);
 			Name = "SendForm";
@@ -88,5 +107,6 @@ namespace SocketFileTransfer.Canvas
 
 		private System.Windows.Forms.Button BtnBack;
 		private System.Windows.Forms.ListBox listBox1;
+		private System.Windows.Forms.Button TaskButton;
 	}
 }

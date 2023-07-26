@@ -34,6 +34,7 @@ namespace SocketFileTransfer.CustomControl
 			LblSize = new System.Windows.Forms.Label();
 			LblText = new System.Windows.Forms.Label();
 			ProgresPanel = new System.Windows.Forms.Panel();
+			BtnCopy = new System.Windows.Forms.Button();
 			SuspendLayout();
 			// 
 			// LblType
@@ -89,10 +90,22 @@ namespace SocketFileTransfer.CustomControl
 			ProgresPanel.Size = new System.Drawing.Size(0, 18);
 			ProgresPanel.TabIndex = 4;
 			// 
+			// BtnCopy
+			// 
+			BtnCopy.Location = new System.Drawing.Point(338, 68);
+			BtnCopy.Name = "BtnCopy";
+			BtnCopy.Size = new System.Drawing.Size(43, 32);
+			BtnCopy.TabIndex = 5;
+			BtnCopy.Text = "Copy";
+			BtnCopy.UseVisualStyleBackColor = true;
+			BtnCopy.Visible = false;
+			BtnCopy.Click += BtnCopy_Click;
+			// 
 			// CPFile
 			// 
 			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			Controls.Add(BtnCopy);
 			Controls.Add(ProgresPanel);
 			Controls.Add(LblType);
 			Controls.Add(LblSize);
@@ -111,5 +124,6 @@ namespace SocketFileTransfer.CustomControl
 		private System.Windows.Forms.Label LblSize;
 		private System.Windows.Forms.Label LblText;
 		private System.Windows.Forms.Panel ProgresPanel;
+		private System.Windows.Forms.Button BtnCopy;
 	}
 }

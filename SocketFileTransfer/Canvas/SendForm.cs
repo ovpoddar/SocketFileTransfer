@@ -1,4 +1,5 @@
-﻿using SocketFileTransfer.ExtendClass;
+﻿using SocketFileTransfer.Configuration;
+using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
@@ -7,25 +8,41 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.Canvas
 {
 	public partial class SendForm : Form
 	{
-		private readonly Dictionary<string, (TcpClient, DeviceDetails)> _clients = new();
+		//TODO: need a rescan button
+		private readonly Dictionary<string, (Socket, DeviceDetails)> _clients = new();
+		private CancellationTokenSource _cancellationTokenSource;
+		private readonly int _totalAddress;
+		private int _currentSceanAddress;
+		private bool _isFinalized = false;
 
-		public event EventHandler<ConnectionDetails> OnTransmissionIpFound;
+
+		public event EventHandler<Connection> OnTransmissionIPFound;
 
 		public SendForm()
 		{
 			InitializeComponent();
+
+			var addresses = ProjectStandardUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
+			_totalAddress = addresses.Count();
 		}
 
 		private void StartScanForm_Load(object sender, EventArgs e)
 		{
-			var addresses = ProjectStandardUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
+			Scan();
+		}
 
+		void Scan()
+		{
+			var addresses = ProjectStandardUtilitiesHelper.DeviceNetworkInterfaceDiscovery();
+			_cancellationTokenSource = new();
 			if (!addresses.Any())
 				MessageBox.Show("No Device found");
 			else
@@ -36,85 +53,142 @@ namespace SocketFileTransfer.Canvas
 			}
 		}
 
-		private void FindDevices((NetworkInterfaceType, UnicastIPAddressInformation) address)
+		async void FindDevices((NetworkInterfaceType, UnicastIPAddressInformation) address)
 		{
 			var arp = new ArpRequestHandler(address.Item2.Address, address.Item1);
 			arp.OnDeviceFound += DeviceFound;
-			_ = arp.GetNetWorkDevices();
+			arp.OnScanComplete += ScanCompleted;
+			await arp.GetNetWorkDevices(_cancellationTokenSource.Token);
 		}
 
-		private void DeviceFound(object sender, DeviceDetails e)
+		void ScanCompleted(object sender, EventArgs e)
 		{
-			var tcpClient = new TcpClient();
+			_currentSceanAddress++;
+			if (_currentSceanAddress == _totalAddress)
+			{
+				TaskButton.Text = "Rescan";
+			}
+		}
+
+		void DeviceFound(object sender, DeviceDetails e)
+		{
+			var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			try
 			{
-				tcpClient.BeginConnect(e.IP, 1400, ConnectToEndPoint, (e, tcpClient));
+				var connectingPort = new IPEndPoint(e.IP, StaticConfiguration.ApplicationRequiredPort);
+				socket.BeginConnect(connectingPort, StartConnecting, (e, socket));
 			}
 			catch
 			{
-				tcpClient.Dispose();
+				socket.Dispose();
 			}
 		}
 
-		private async void ConnectToEndPoint(IAsyncResult ar)
+		async void StartConnecting(IAsyncResult ar)
 		{
-			var connectedDeviceDetails = ar.AsyncState as (DeviceDetails DeviceDetails, TcpClient TcpClient)?;
-			if (!connectedDeviceDetails.HasValue)
-				return;
+			var (deviceDetails, socket) = ((DeviceDetails deviceDetails, Socket socket))ar.AsyncState;
 
 			try
 			{
-				connectedDeviceDetails.Value.TcpClient.EndConnect(ar);
-				var device = await ProjectStandardUtilitiesHelper.ExchangeInformation(connectedDeviceDetails.Value.TcpClient, TypeOfConnect.Send);
+				socket.EndConnect(ar);
+				var device = await ProjectStandardUtilitiesHelper.ExchangeInformation(socket, TypeOfConnect.Send);
 
-				// device is not unique here.
 				if (device != null)
 				{
-					// need to look at connectedDeviceDetails.Value.DeviceDetails.NetworkInterfaceType
-					_clients.Add(device, (connectedDeviceDetails.Value.TcpClient, connectedDeviceDetails.Value.DeviceDetails));
-					listBox1.InvokeFunctionInThreadSafeWay(() =>
+					if (_clients.ContainsKey(device))
+						throw new Exception("Already have an connection.So throw it for disposal.");
+
+					_clients.Add(device, (socket, deviceDetails));
+					listBox1.InvokeFunctionInThreadSafeWay(a =>
 					{
-						listBox1.Items.Add($"{device}");
+						a.Items.Add($"{device}");
 					});
-					// start reading because when reading has issue thats means user disconnected.
+					var buffer = new byte[16];
+					socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, BeginMoniter, (deviceDetails, socket, device));
 				}
 				else
 				{
-					connectedDeviceDetails.Value.TcpClient.Dispose();
+					socket.Dispose();
 				}
 			}
-			catch (Exception)
+			catch
 			{
-				connectedDeviceDetails.Value.TcpClient.Dispose();
+				socket.Dispose();
 			}
 		}
 
-		private async void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
+		void BeginMoniter(IAsyncResult ar)
+		{
+			try
+			{
+				if (_isFinalized)
+					return;
+
+				var (deviceDetails, socket, device) = ((DeviceDetails deviceDetails, Socket socket, string device))ar.AsyncState;
+				listBox1.InvokeFunctionInThreadSafeWay(ar =>
+				{
+					ar.Items.Remove($"{device}");
+				});
+				_clients.Remove(device);
+				socket.Disconnect(true);
+				socket.Dispose();
+			}
+			catch
+			{
+
+			}
+		}
+
+		private async void ListBox1_SelectedIndexChangedAsync(object sender, EventArgs e)
 		{
 			if (listBox1.SelectedIndex == -1)
 				return;
 			var item = listBox1.SelectedItem.ToString();
 			if (!_clients.ContainsKey(item))
 				listBox1.Items.Remove(item);
+			
+			_isFinalized = true;
 
-			var port = await ProjectStandardUtilitiesHelper.SendConnectSignalWithPort(_clients[item].Item1);
-			if (port != null)
-				OnTransmissionIpFound.Raise(this, new ConnectionDetails()
+			var isConnected = await ProjectStandardUtilitiesHelper.SendConnectSignal(_clients[item].Item1);
+			if (isConnected)
+			{
+				var responce = new Connection
 				{
-					EndPoint = IPEndPoint.Parse(_clients[item].Item2.IP.ToString() + ":" + port),
-					TypeOfConnect = TypeOfConnect.Send
-				});
+					Socket = _clients[item].Item1,
+					TypeOfConnect = TypeOfConnect.Transmission
+				};
+				_clients.Remove(item);
+				OnTransmissionIPFound.Raise(this, responce);
+			}
 			else
 				MessageBox.Show("Failed to negotiate.");
+			// dispose all the rest clients
 		}
 
-		private void BtnBack_Click(object sender, EventArgs e)
+		private void BtnBack_Click(object sender, EventArgs e) =>
+			OnTransmissionIPFound.Raise(this, new Connection(TypeOfConnect.None));
+
+		private void TaskButton_Click(object sender, EventArgs e)
 		{
-			OnTransmissionIpFound.Raise(this, new ConnectionDetails()
+			if (TaskButton.Text == "Rescan")
 			{
-				EndPoint = null,
-				TypeOfConnect = TypeOfConnect.None
-			});
+				TaskButton.Text = "Cancel";
+				foreach (var item in _clients)
+				{
+					item.Value.Item1.Dispose();
+				}
+				_clients.Clear();
+				listBox1.Items.Clear();
+				_currentSceanAddress = 0;
+				Scan();
+			}
+			else
+			{
+				TaskButton.Text = "Rescan";
+				_cancellationTokenSource.Cancel();
+				_cancellationTokenSource.Dispose();
+			}
+
 		}
 	}
 }

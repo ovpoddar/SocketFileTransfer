@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿// Ignore Spelling: Arp
+
+using System.Net;
 using System.Runtime.InteropServices;
 
 namespace UtilityTools;
@@ -16,19 +18,19 @@ public abstract class ArpBase
 		_address = address;
 	}
 
-	public IEnumerable<IPAddress> GenerateIpList()
+	public IEnumerable<IPAddress> GenerateIPList()
 	{
 		var tempRoleIp = _startAddress;
 		for (var i = 0; i < 255; i++)
 		{
-			tempRoleIp = IncrementIp(tempRoleIp);
+			tempRoleIp = IncrementIP(tempRoleIp);
 			if (tempRoleIp.ToString().AsSpan().SequenceEqual(_address.ToString().AsSpan()))
 				continue;
 			yield return tempRoleIp;
 		}
 	}
 
-	IPAddress IncrementIp(IPAddress ip)
+	static IPAddress IncrementIP(IPAddress ip)
 	{
 		var ipAsByte = ip.GetAddressBytes();
 
@@ -40,7 +42,7 @@ public abstract class ArpBase
 		return new IPAddress(ipAsByte);
 	}
 
-	public async Task<bool> CheckIpAddressWithARP(IPAddress ipAddress)
+	public static async Task<bool> CheckIPAddressWithARP(IPAddress ipAddress)
 	{
 		var macAddress = new byte[6];
 		var len = (uint)macAddress.Length;

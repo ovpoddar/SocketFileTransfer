@@ -7,7 +7,7 @@ using UtilityTools.Helpers;
 namespace UtilityTools;
 public sealed class Wifi
 {
-	private static Wifi _instance = null;
+	private static Wifi? _instance;
 	private readonly InterfaceInfo? _interface;
 
 	private const string _hotspotTemplate = "Models/HotspotConfiguration.xml";
@@ -43,7 +43,7 @@ public sealed class Wifi
 				if (!radioSet.HardwareOn.GetValueOrDefault()) // Hardware radio state is off.
 					return false;
 
-				return radioSet.SoftwareOn.HasValue ? radioSet.SoftwareOn.Value : false; // Software radio state is off.
+				return radioSet.SoftwareOn ?? false; // Software radio state is off.
 			});
 
 	}
@@ -81,7 +81,7 @@ public sealed class Wifi
 			TimeSpan.FromSeconds(10));
 	}
 
-	string CreateProfile(string profileName, string password)
+	static string CreateProfile(string profileName, string password)
 	{
 		var template = File.ReadAllText(_hotspotTemplate);
 		var profileNameInByte = Encoding.Default.GetBytes(profileName);
@@ -92,7 +92,7 @@ public sealed class Wifi
 		return string.Format(template, profileName, profileNameInHEX, password);
 	}
 
-	string GeneratePassword()
+	static string GeneratePassword()
 	{
 		var random = new Random(DateTime.UtcNow.Day);
 		var password = random.Next(00000000, 99999999);

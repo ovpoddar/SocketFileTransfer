@@ -14,14 +14,14 @@ internal class NativeWifiCustom
 			throw new ArgumentException("The specified interface ID is invalid.", "interfaceId");
 
 		if (string.IsNullOrWhiteSpace(profileXml))
-			throw new ArgumentNullException("profileXml");
+			throw new ArgumentNullException(nameof(profileXml));
 
 		var profileName = GetProfileName(profileXml);
 		var checkIfExist = NativeWifi.EnumerateProfiles()
 			.Any(a => a.Name == profileName);
 
 		if (string.IsNullOrWhiteSpace(profileName))
-			throw new ArgumentNullException("profileXml");
+			throw new ArgumentNullException(nameof(profileXml));
 
 		if (!overwrite && checkIfExist)
 			return false;
