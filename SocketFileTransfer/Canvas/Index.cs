@@ -46,5 +46,11 @@ namespace SocketFileTransfer.Canvas
 			var senderButton = sender as CButton;
 			senderButton.BackColor = Color.FromArgb(96, 97, 97);
 		}
+
+		private void Settings_Click(object sender, EventArgs e)
+		{
+			SelectItem.Raise(this, TypeOfConnect.Settings);
+			this.Dispose();
+		}
 	}
 }

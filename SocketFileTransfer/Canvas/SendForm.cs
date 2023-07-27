@@ -1,5 +1,4 @@
-﻿using SocketFileTransfer.Configuration;
-using SocketFileTransfer.ExtendClass;
+﻿using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
@@ -9,7 +8,6 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.Canvas
@@ -75,7 +73,7 @@ namespace SocketFileTransfer.Canvas
 			var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			try
 			{
-				var connectingPort = new IPEndPoint(e.IP, StaticConfiguration.ApplicationRequiredPort);
+				var connectingPort = new IPEndPoint(e.IP, ConfigurationSetting.ApplicationRequiredPort);
 				socket.BeginConnect(connectingPort, StartConnecting, (e, socket));
 			}
 			catch
@@ -146,7 +144,7 @@ namespace SocketFileTransfer.Canvas
 			var item = listBox1.SelectedItem.ToString();
 			if (!_clients.ContainsKey(item))
 				listBox1.Items.Remove(item);
-			
+
 			_isFinalized = true;
 
 			var isConnected = await ProjectStandardUtilitiesHelper.SendConnectSignal(_clients[item].Item1);

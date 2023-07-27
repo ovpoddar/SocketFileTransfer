@@ -31,7 +31,7 @@ internal class ArpRequestHandler : ArpBase
 
 		try
 		{
-			await Parallel.ForEachAsync(ipAddresses,po, async (ipAddress, _) =>
+			await Parallel.ForEachAsync(ipAddresses, po, async (ipAddress, _) =>
 			{
 				var response = await CheckIPAddressWithARP(ipAddress);
 				if (response)

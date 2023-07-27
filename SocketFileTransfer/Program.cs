@@ -1,3 +1,4 @@
+using SocketFileTransfer.Handler;
 using System;
 using System.Windows.Forms;
 
@@ -14,6 +15,9 @@ namespace SocketFileTransfer
 			Application.SetHighDpiMode(HighDpiMode.SystemAware);
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
+			if (!ConfigurationSetting.IsInitialized)
+				ConfigurationSetting.Initialized();
+			ConfigurationSetting.Load();
 			Application.Run(new Home());
 		}
 	}

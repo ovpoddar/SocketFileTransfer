@@ -1,5 +1,4 @@
-﻿using SocketFileTransfer.Configuration;
-using SocketFileTransfer.ExtendClass;
+﻿using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Handler;
 using SocketFileTransfer.Model;
 using System;
@@ -7,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Windows.Forms;
 
 namespace SocketFileTransfer.Canvas
@@ -16,7 +14,7 @@ namespace SocketFileTransfer.Canvas
 	{
 		private readonly Dictionary<string, TcpClientModel> _clients = new();
 		private Dictionary<int, Socket> _scanSockets = new();
-		private bool _isFinalized= false;
+		private bool _isFinalized = false;
 
 		public event EventHandler<Connection> OnTransmissionIPFound;
 
@@ -37,7 +35,7 @@ namespace SocketFileTransfer.Canvas
 				foreach (var address in addresses)
 				{
 					var scanSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-					scanSocket.Bind(new IPEndPoint(address.Item2.Address, StaticConfiguration.ApplicationRequiredPort));
+					scanSocket.Bind(new IPEndPoint(address.Item2.Address, ConfigurationSetting.ApplicationRequiredPort));
 					scanSocket.Listen(100);
 					scanSocket.BeginAccept(BroadcastSignal, index);
 					_scanSockets.Add(index, scanSocket);

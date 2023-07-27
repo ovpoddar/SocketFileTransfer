@@ -16,7 +16,7 @@ namespace SocketFileTransfer
 		{
 			InitializeComponent();
 
-			if (!TestForWIFIOrLanConnection()) 
+			if (!TestForWIFIOrLanConnection())
 				return;
 
 			var indexPage = new Canvas.Index();
@@ -51,8 +51,13 @@ namespace SocketFileTransfer
 					connectReceived.OnTransmissionIPFound += GotTransmissionIp;
 					OpenChildForm(connectReceived);
 					break;
+				case TypeOfConnect.Settings:
+					var setting = new SettingPage();
+					// setting.OnTransmissionIPFound += GotTransmissionIp;
+					OpenChildForm(setting);
+					break;
 				default:
-					throw new ArgumentOutOfRangeException(nameof(e), e, null);
+					throw new NotImplementedException($"{nameof(e)} is not implemented");
 			}
 			if (sender is Control control)
 				control.Dispose();

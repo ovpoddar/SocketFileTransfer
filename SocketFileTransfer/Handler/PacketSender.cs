@@ -1,5 +1,4 @@
-﻿using SocketFileTransfer.Configuration;
-using SocketFileTransfer.ExtendClass;
+﻿using SocketFileTransfer.ExtendClass;
 using SocketFileTransfer.Model;
 using System;
 using System.IO;
@@ -74,7 +73,7 @@ internal class PacketSender
 		if (ContentType.File == networkPacket.PacketType)
 		{
 			var fileInfo = (FileDetails)networkPacket.Data;
-			var filePath = Path.Combine(StaticConfiguration.StoredLocation, fileInfo.Name);
+			var filePath = Path.Combine(ConfigurationSetting.SavePath, fileInfo.Name);
 			var fileSize = fileInfo.Size;
 			CreateFile(filePath);
 
