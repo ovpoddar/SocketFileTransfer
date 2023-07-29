@@ -29,24 +29,37 @@ partial class SettingPage
 	private void InitializeComponent()
 	{
 		flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+		BtnBack = new System.Windows.Forms.Button();
 		SuspendLayout();
 		// 
 		// flowLayoutPanel1
 		// 
 		flowLayoutPanel1.AutoScroll = true;
-		flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+		flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
 		flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-		flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+		flowLayoutPanel1.Location = new System.Drawing.Point(0, 36);
 		flowLayoutPanel1.Name = "flowLayoutPanel1";
-		flowLayoutPanel1.Size = new System.Drawing.Size(386, 581);
+		flowLayoutPanel1.Size = new System.Drawing.Size(386, 545);
 		flowLayoutPanel1.TabIndex = 0;
 		flowLayoutPanel1.WrapContents = false;
+		// 
+		// BtnBack
+		// 
+		BtnBack.Dock = System.Windows.Forms.DockStyle.Top;
+		BtnBack.Location = new System.Drawing.Point(0, 0);
+		BtnBack.Name = "BtnBack";
+		BtnBack.Size = new System.Drawing.Size(386, 38);
+		BtnBack.TabIndex = 1;
+		BtnBack.Text = "button1";
+		BtnBack.UseVisualStyleBackColor = true;
+		BtnBack.Click += BtnBack_Click;
 		// 
 		// SettingPage
 		// 
 		AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 		AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 		ClientSize = new System.Drawing.Size(386, 581);
+		Controls.Add(BtnBack);
 		Controls.Add(flowLayoutPanel1);
 		Name = "SettingPage";
 		Text = "SettingPage";
@@ -56,4 +69,5 @@ partial class SettingPage
 	#endregion
 
 	private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+	private System.Windows.Forms.Button BtnBack;
 }

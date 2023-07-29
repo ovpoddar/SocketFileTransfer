@@ -53,7 +53,7 @@ namespace SocketFileTransfer
 					break;
 				case TypeOfConnect.Settings:
 					var setting = new SettingPage();
-					// setting.OnTransmissionIPFound += GotTransmissionIp;
+					setting.OnTransmissionIPFound += GotTransmissionIp;
 					OpenChildForm(setting);
 					break;
 				default:

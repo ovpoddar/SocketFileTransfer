@@ -1,7 +1,12 @@
 ﻿using SocketFileTransfer.Attributes;
+using SocketFileTransfer.Canvas;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace SocketFileTransfer.Handler;
 internal sealed class ConfigurationSetting
@@ -25,7 +30,7 @@ internal sealed class ConfigurationSetting
 		while (!string.IsNullOrWhiteSpace(config))
 		{
 			var spliterIndex = config.IndexOf(':');
-
+			
 			var key = config[..spliterIndex];
 			var value = config[(spliterIndex + 1)..];
 
@@ -38,7 +43,6 @@ internal sealed class ConfigurationSetting
 			proprity.Property.SetValue(null, Convert.ChangeType(value, proprity.Type));
 			config = sr.ReadLine();
 		}
-
 	}
 
 	public static void Initialized()
@@ -52,7 +56,7 @@ internal sealed class ConfigurationSetting
 					(a.GetCustomAttributes(true).OfType<SettingOptionAttribute>().FirstOrDefault()).Type
 				})
 				.ToList();
-		using var stream = File.Open(_settingFile, FileMode.Create, FileAccess.Write, FileShare.None);
+		using var stream = File.Open(_settingFile, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None);
 		using var sr = new StreamWriter(stream);
 		foreach (var property in properties)
 		{
@@ -63,26 +67,70 @@ internal sealed class ConfigurationSetting
 		}
 	}
 
-	private static DirectoryInfo _savePath;
+	private static void UpdateSetting(string proprityName, object value)
+	{
+		var tempFileName = Path.GetTempFileName();
+		try
+		{
+			using (var streamReader = new StreamReader(_settingFile))
+			using (var streamWriter = new StreamWriter(tempFileName))
+			{
+				string line;
+				while ((line = streamReader.ReadLine()) != null)
+				{
+					if (!string.IsNullOrWhiteSpace(line))
+					{
+						var spliterIndex = line.IndexOf(':');
+						var key = line[..spliterIndex];
+						if(key != proprityName)
+							streamWriter.WriteLine(line);
+						else
+							streamWriter.WriteLine(proprityName+':'+ value.ToString());
+					}
+				}
+			}
+			File.Copy(tempFileName, _settingFile, true);
+		}
+		finally
+		{
+			File.Delete(tempFileName);
+		}
+	}
 
-	[SettingOption(typeof(string))]
+	private static string _savePath;
+
+	[SettingOption(typeof(string), "Received File Location")]
 	public static string SavePath
 	{
 		get => _savePath == null
 			? Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
-			: _savePath.ToString();
-		set => _savePath = new(value);
+			: _savePath;
+		set
+		{
+			if (_savePath != null)
+				UpdateSetting(nameof(SavePath), value);
+			_savePath = value;
+		}
 	}
 
 	private static int? _applicationRequiredPort;
 
-	[SettingOption(typeof(int))]
+	[SettingOption(typeof(int), "Port application is using to connect. i.e. make sure the device you are trying to connect has same value.")]
 	public static int ApplicationRequiredPort
 	{
 		get => _applicationRequiredPort.HasValue
 			? _applicationRequiredPort.Value
 			: 1400;
-		set => _applicationRequiredPort = value;
+		set
+		{
+			if (_applicationRequiredPort != null)
+				UpdateSetting(nameof(ApplicationRequiredPort), value);
+			_applicationRequiredPort = value;
+		}
 	}
 
+	public static void Reset()
+	{
+		File.Delete(_settingFile);
+	}
 }
