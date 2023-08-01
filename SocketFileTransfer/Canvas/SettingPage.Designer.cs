@@ -35,6 +35,7 @@ partial class SettingPage
 		// flowLayoutPanel1
 		// 
 		flowLayoutPanel1.AutoScroll = true;
+		flowLayoutPanel1.BackColor = System.Drawing.Color.FromArgb(59, 72, 81);
 		flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
 		flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
 		flowLayoutPanel1.Location = new System.Drawing.Point(0, 36);
@@ -45,13 +46,16 @@ partial class SettingPage
 		// 
 		// BtnBack
 		// 
+		BtnBack.BackColor = System.Drawing.Color.FromArgb(49, 57, 66);
 		BtnBack.Dock = System.Windows.Forms.DockStyle.Top;
+		BtnBack.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 		BtnBack.Location = new System.Drawing.Point(0, 0);
 		BtnBack.Name = "BtnBack";
 		BtnBack.Size = new System.Drawing.Size(386, 38);
 		BtnBack.TabIndex = 1;
-		BtnBack.Text = "button1";
-		BtnBack.UseVisualStyleBackColor = true;
+		BtnBack.Text = "Back";
+		BtnBack.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+		BtnBack.UseVisualStyleBackColor = false;
 		BtnBack.Click += BtnBack_Click;
 		// 
 		// SettingPage
