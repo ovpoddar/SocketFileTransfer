@@ -12,15 +12,9 @@ using System.Text;
 namespace SocketFileTransfer.Handler;
 internal sealed class ConfigurationSetting
 {
-	private static string _settingFile;
+	private static string _settingFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Setting.txt");
+
 	public static bool IsInitialized => File.Exists(_settingFile);
-
-    static ConfigurationSetting()
-    {
-		GetDownloadFolder(new Guid("374DE290-123F-4565-9164-39C4925E467B"), 0, IntPtr.Zero, out var path);
-		_settingFile = Path.Combine(path, "Setting.txt");
-	}
-
     public static void Load()
 	{
 		using var sr = File.OpenText(_settingFile);
@@ -109,9 +103,12 @@ internal sealed class ConfigurationSetting
 	[SettingOption(typeof(string), "Received File Location")]
 	public static string SavePath
 	{
-		get => _savePath == null
-			? Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
-			: _savePath;
+		get
+		{
+			GetDownloadFolder(new Guid("374DE290-123F-4565-9164-39C4925E467B"), 0, IntPtr.Zero, out var path);
+			return _savePath ?? path;
+		}
+
 		set
 		{
 			if (_savePath != null)
