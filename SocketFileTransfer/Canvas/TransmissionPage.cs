@@ -80,7 +80,7 @@ namespace SocketFileTransfer.Canvas
 					_socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, OnReceivedEnd, buffer);
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				Logging(ContentType.Commend, "User is Disconnected", TypeOfConnect.None);
 			}

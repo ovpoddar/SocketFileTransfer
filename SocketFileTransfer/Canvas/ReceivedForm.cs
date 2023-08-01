@@ -70,8 +70,8 @@ namespace SocketFileTransfer.Canvas
 					return;
 				_scanSockets[index].BeginAccept(BroadcastSignal, index);
 			}
-			catch (ObjectDisposedException ex) { }
-			catch (Exception ex) { }
+			catch (ObjectDisposedException) { }
+			catch (Exception) { }
 		}
 
 		private void DataReceivedNew(IAsyncResult ar)
@@ -107,7 +107,7 @@ namespace SocketFileTransfer.Canvas
 					}
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				_clients[newdevice].Socket.Dispose();
 				_clients.Remove(newdevice);
