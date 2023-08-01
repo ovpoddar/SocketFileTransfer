@@ -1,13 +1,8 @@
-﻿using Microsoft.VisualBasic;
-using SocketFileTransfer.Attributes;
-using SocketFileTransfer.Canvas;
+﻿using SocketFileTransfer.Attributes;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace SocketFileTransfer.Handler;
 internal sealed class ConfigurationSetting
@@ -15,7 +10,7 @@ internal sealed class ConfigurationSetting
 	private static string _settingFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Setting.txt");
 
 	public static bool IsInitialized => File.Exists(_settingFile);
-    public static void Load()
+	public static void Load()
 	{
 		using var sr = File.OpenText(_settingFile);
 		var config = sr.ReadLine();
@@ -31,7 +26,7 @@ internal sealed class ConfigurationSetting
 		while (!string.IsNullOrWhiteSpace(config))
 		{
 			var spliterIndex = config.IndexOf(':');
-			
+
 			var key = config[..spliterIndex];
 			var value = config[(spliterIndex + 1)..];
 
@@ -83,10 +78,10 @@ internal sealed class ConfigurationSetting
 					{
 						var spliterIndex = line.IndexOf(':');
 						var key = line[..spliterIndex];
-						if(key != proprityName)
+						if (key != proprityName)
 							streamWriter.WriteLine(line);
 						else
-							streamWriter.WriteLine(proprityName+':'+ value.ToString());
+							streamWriter.WriteLine(proprityName + ':' + value.ToString());
 					}
 				}
 			}
@@ -138,6 +133,6 @@ internal sealed class ConfigurationSetting
 		File.Delete(_settingFile);
 	}
 
-	[DllImport("shell32.dll", EntryPoint ="SHGetKnownFolderPath",CharSet = CharSet.Unicode)]
+	[DllImport("shell32.dll", EntryPoint = "SHGetKnownFolderPath", CharSet = CharSet.Unicode)]
 	static extern void GetDownloadFolder([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags, IntPtr hToken, out string ppszPath);
 }
