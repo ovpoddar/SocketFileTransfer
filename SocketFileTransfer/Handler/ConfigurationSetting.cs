@@ -11,10 +11,15 @@ using System.Text;
 namespace SocketFileTransfer.Handler;
 internal sealed class ConfigurationSetting
 {
-	private const string _settingFile = "C:\\Users\\Ayan\\Desktop\\setting.txt";
+	private static string _settingFile;
 	public static bool IsInitialized => File.Exists(_settingFile);
 
-	public static void Load()
+    static ConfigurationSetting()
+    {
+		_settingFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Setting.txt");
+	}
+
+    public static void Load()
 	{
 		using var sr = File.OpenText(_settingFile);
 		var config = sr.ReadLine();
