@@ -109,6 +109,8 @@ namespace SocketFileTransfer.Canvas
 			}
 			catch (Exception)
 			{
+				if (!_clients.ContainsKey(newdevice))
+					return;
 				_clients[newdevice].Socket.Dispose();
 				_clients.Remove(newdevice);
 			}

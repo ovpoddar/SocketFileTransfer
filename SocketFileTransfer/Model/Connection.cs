@@ -20,5 +20,5 @@ public class Connection
 
 	public Socket Socket { get; set; }
 	public TypeOfConnect TypeOfConnect { get; set; }
-	public Socket[]? ServerSockets { get; set; }
+	public Socket[] ServerSockets { get; set; }
 }

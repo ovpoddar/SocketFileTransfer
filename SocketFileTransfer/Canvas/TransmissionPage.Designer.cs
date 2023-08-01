@@ -18,11 +18,11 @@ namespace SocketFileTransfer.Canvas
 			{
 				components.Dispose();
 			}
-			if(disposing)
+			if (disposing)
 			{
 				_socket.Dispose();
 			}
-			if(disposing && ScanSocket != null)
+			if (disposing && ScanSocket != null)
 			{
 				ScanSocket.Close();
 				ScanSocket.Dispose();
@@ -38,30 +38,30 @@ namespace SocketFileTransfer.Canvas
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.Windows.Forms.Button button1;
+			System.Windows.Forms.Button BtnBack;
 			PanelContainer = new System.Windows.Forms.FlowLayoutPanel();
 			panel1 = new System.Windows.Forms.Panel();
 			BtnOperate = new System.Windows.Forms.Button();
 			TxtMessage = new System.Windows.Forms.TextBox();
-			button1 = new System.Windows.Forms.Button();
+			BtnBack = new System.Windows.Forms.Button();
 			panel1.SuspendLayout();
 			SuspendLayout();
 			// 
-			// button1
+			// BtnBack
 			// 
-			button1.BackColor = System.Drawing.Color.FromArgb(49, 57, 66);
-			button1.Dock = System.Windows.Forms.DockStyle.Top;
-			button1.FlatAppearance.BorderSize = 0;
-			button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			button1.Location = new System.Drawing.Point(0, 0);
-			button1.Margin = new System.Windows.Forms.Padding(0);
-			button1.Name = "button1";
-			button1.Size = new System.Drawing.Size(384, 37);
-			button1.TabIndex = 2;
-			button1.Text = "Back";
-			button1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			button1.UseVisualStyleBackColor = false;
-			button1.Click += Button1_Click_1;
+			BtnBack.BackColor = System.Drawing.Color.FromArgb(49, 57, 66);
+			BtnBack.Dock = System.Windows.Forms.DockStyle.Top;
+			BtnBack.FlatAppearance.BorderSize = 0;
+			BtnBack.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			BtnBack.Location = new System.Drawing.Point(0, 0);
+			BtnBack.Margin = new System.Windows.Forms.Padding(0);
+			BtnBack.Name = "BtnBack";
+			BtnBack.Size = new System.Drawing.Size(384, 37);
+			BtnBack.TabIndex = 2;
+			BtnBack.Text = "Back";
+			BtnBack.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			BtnBack.UseVisualStyleBackColor = false;
+			BtnBack.Click += BtnBack_Click;
 			// 
 			// PanelContainer
 			// 
@@ -116,7 +116,7 @@ namespace SocketFileTransfer.Canvas
 			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			ClientSize = new System.Drawing.Size(384, 573);
-			Controls.Add(button1);
+			Controls.Add(BtnBack);
 			Controls.Add(panel1);
 			Controls.Add(PanelContainer);
 			Name = "TransmissionPage";
@@ -133,6 +133,6 @@ namespace SocketFileTransfer.Canvas
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.TextBox TxtMessage;
 		private System.Windows.Forms.Button BtnOperate;
-		private System.Windows.Forms.Button button1;
+		private System.Windows.Forms.Button BtnBack;
 	}
 }

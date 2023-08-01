@@ -163,7 +163,7 @@ namespace SocketFileTransfer.Canvas
 			});
 		}
 
-		private void Button1_Click_1(object sender, EventArgs e)
+		private void BtnBack_Click(object sender, EventArgs e)
 		{
 			if (!_socket.Connected || MessageBox.Show("Do you really want to left?", "Exit", MessageBoxButtons.YesNo) != DialogResult.No)
 				BackTransmissionRequest.Raise(this, new Connection(TypeOfConnect.None));
