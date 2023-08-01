@@ -1,4 +1,5 @@
-﻿using SocketFileTransfer.Attributes;
+﻿using Microsoft.VisualBasic;
+using SocketFileTransfer.Attributes;
 using SocketFileTransfer.Canvas;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,8 @@ internal sealed class ConfigurationSetting
 
     static ConfigurationSetting()
     {
-		_settingFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Setting.txt");
+		GetDownloadFolder(new Guid("374DE290-123F-4565-9164-39C4925E467B"), 0, IntPtr.Zero, out var path);
+		_settingFile = Path.Combine(path, "Setting.txt");
 	}
 
     public static void Load()
@@ -138,4 +140,7 @@ internal sealed class ConfigurationSetting
 	{
 		File.Delete(_settingFile);
 	}
+
+	[DllImport("shell32.dll", EntryPoint ="SHGetKnownFolderPath",CharSet = CharSet.Unicode)]
+	static extern void GetDownloadFolder([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags, IntPtr hToken, out string ppszPath);
 }
