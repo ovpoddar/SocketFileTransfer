@@ -34,9 +34,9 @@ partial class SettingPage
 		// 
 		// flowLayoutPanel1
 		// 
+		flowLayoutPanel1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 		flowLayoutPanel1.AutoScroll = true;
 		flowLayoutPanel1.BackColor = System.Drawing.Color.FromArgb(59, 72, 81);
-		flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
 		flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
 		flowLayoutPanel1.Location = new System.Drawing.Point(0, 36);
 		flowLayoutPanel1.Name = "flowLayoutPanel1";

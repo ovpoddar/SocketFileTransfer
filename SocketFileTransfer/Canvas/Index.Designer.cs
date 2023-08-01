@@ -64,14 +64,18 @@ namespace SocketFileTransfer.Canvas
 			// 
 			// Settings
 			// 
+			Settings.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
 			Settings.AutoEllipsis = true;
-			Settings.BackColor = System.Drawing.Color.Transparent;
+			Settings.BackColor = System.Drawing.Color.FromArgb(49, 57, 66);
+			Settings.BackgroundImage = Properties.Resources.settings;
+			Settings.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+			Settings.FlatAppearance.BorderSize = 0;
 			Settings.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			Settings.Location = new System.Drawing.Point(311, 12);
+			Settings.Location = new System.Drawing.Point(324, 12);
 			Settings.Name = "Settings";
-			Settings.Size = new System.Drawing.Size(61, 53);
+			Settings.Size = new System.Drawing.Size(48, 48);
 			Settings.TabIndex = 1;
-			Settings.Text = "Settings";
+			Settings.UseMnemonic = false;
 			Settings.UseVisualStyleBackColor = false;
 			Settings.Click += Settings_Click;
 			// 
