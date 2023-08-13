@@ -28,15 +28,38 @@ public partial class SettingPage : Form
             var proprityName = string.IsNullOrEmpty(displayLabel) ? field.Name : displayLabel;
             var value = field.GetValue(null);
             var label = new Label { Text = proprityName, AutoSize = true, Margin = new Padding(0, 20, 0, 0) };
-            Control textbox =
-                field.Name == nameof(ConfigurationSetting.SavePath)
-                ? new TextBoxWithButton { Text = value.ToString(), Width = flowLayoutPanel1.Width, Name = field.Name }
-                : new TextBox { Text = value.ToString(), Width = flowLayoutPanel1.Width, Name = field.Name };
-            textbox.KeyUp += Textbox_KeyUp;
-            textbox.LostFocus += Textbox_LostFocus;
             flowLayoutPanel1.Controls.Add(label);
-            flowLayoutPanel1.Controls.Add(textbox);
+            
+            if (field.Name == nameof(ConfigurationSetting.SavePath))
+            {
+                var textbox = new TextBoxWithButton { Text = value.ToString(), Width = flowLayoutPanel1.Width };
+                textbox.textBox1.Name = field.Name;
+                textbox.textBox1.LostFocus += Textbox_LostFocus;
+                textbox.textBox1.TextChanged += TextBox_TextChange;
+                flowLayoutPanel1.Controls.Add(textbox);
+            }
+            else
+            {
+                var textbox = new TextBox { Text = value.ToString(), Width = flowLayoutPanel1.Width, Name = field.Name };
+                textbox.TextChanged += TextBox_TextChange;
+                textbox.LostFocus += Textbox_LostFocus;
+                flowLayoutPanel1.Controls.Add(textbox);
+            }
         }
+    }
+
+    private void TextBox_TextChange(object sender, EventArgs e)
+    {
+        try
+        {
+            var textbox = sender as TextBox;
+            var field = typeof(ConfigurationSetting).GetProperties()
+                .FirstOrDefault(a => a.Name == textbox.Name);
+            var value = Convert.ChangeType(textbox.Text, field.GetCustomAttributes(true).OfType<SettingOptionAttribute>().FirstOrDefault().Type);
+            field.SetValue(null, value);
+        }
+        catch
+        { }
     }
 
     private void Textbox_LostFocus(object sender, EventArgs e)
@@ -62,19 +85,6 @@ public partial class SettingPage : Form
         }
     }
 
-    private void Textbox_KeyUp(object sender, KeyEventArgs e)
-    {
-        try
-        {
-            var textbox = sender as TextBox;
-            var field = typeof(ConfigurationSetting).GetProperties()
-                .FirstOrDefault(a => a.Name == textbox.Name);
-            var value = Convert.ChangeType(textbox.Text, field.GetCustomAttributes(true).OfType<SettingOptionAttribute>().FirstOrDefault().Type);
-            field.SetValue(null, value);
-        }
-        catch
-        { }
-    }
 
     private void BtnBack_Click(object sender, EventArgs e)
     {

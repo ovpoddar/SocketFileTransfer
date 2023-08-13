@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace SocketFileTransfer.CustomControl;
 public partial class TextBoxWithButton : UserControl
@@ -21,4 +23,7 @@ public partial class TextBoxWithButton : UserControl
         if (result == DialogResult.OK)
             this.textBox1.Text = folderDlg.SelectedPath;
     }
+
+    public static implicit operator System.Windows.Forms.TextBox(TextBoxWithButton button) =>
+        button.textBox1;
 }
