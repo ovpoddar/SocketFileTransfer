@@ -1,83 +1,102 @@
 ﻿
 namespace SocketFileTransfer.Canvas
 {
-    partial class Index
-    {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
+	partial class Index
+	{
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && (components != null))
+			{
+				components.Dispose();
+			}
+			base.Dispose(disposing);
+		}
 
-        #region Windows Form Designer generated code
+		#region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
-        private void InitializeComponent()
-        {
-            this.Send = new SocketFileTransfer.CustomControl.CButton();
-            this.BtnReceived = new SocketFileTransfer.CustomControl.CButton();
-            this.SuspendLayout();
-            // 
-            // Send
-            // 
-            this.Send.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(97)))), ((int)(((byte)(97)))));
-            this.Send.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(236)))), ((int)(((byte)(236)))));
-            this.Send.Location = new System.Drawing.Point(36, 209);
-            this.Send.Name = "Send";
-            this.Send.Size = new System.Drawing.Size(144, 144);
-            this.Send.TabIndex = 0;
-            this.Send.Text = "Send";
-            this.Send.UseVisualStyleBackColor = false;
-            this.Send.Click += new System.EventHandler(this.Send_Click);
-            this.Send.MouseEnter += new System.EventHandler(this.OnMouseEnterButton);
-            this.Send.MouseLeave += new System.EventHandler(this.OnMouseLeaveButton);
-            // 
-            // BtnReceived
-            // 
-            this.BtnReceived.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(97)))), ((int)(((byte)(97)))));
-            this.BtnReceived.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(236)))), ((int)(((byte)(236)))));
-            this.BtnReceived.Location = new System.Drawing.Point(211, 212);
-            this.BtnReceived.Name = "BtnReceived";
-            this.BtnReceived.Size = new System.Drawing.Size(142, 142);
-            this.BtnReceived.TabIndex = 0;
-            this.BtnReceived.Text = "Received";
-            this.BtnReceived.UseVisualStyleBackColor = false;
-            this.BtnReceived.Click += new System.EventHandler(this.BtnReceived_Click);
-            this.BtnReceived.MouseEnter += new System.EventHandler(this.OnMouseEnterButton);
-            this.BtnReceived.MouseLeave += new System.EventHandler(this.OnMouseLeaveButton);
-            // 
-            // Index
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(57)))), ((int)(((byte)(66)))));
-            this.ClientSize = new System.Drawing.Size(384, 573);
-            this.Controls.Add(this.BtnReceived);
-            this.Controls.Add(this.Send);
-            this.Name = "Index";
-            this.Text = "Home";
-            this.ResumeLayout(false);
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		private void InitializeComponent()
+		{
+			Send = new CustomControl.CButton();
+			BtnReceived = new CustomControl.CButton();
+			Settings = new System.Windows.Forms.Button();
+			SuspendLayout();
+			// 
+			// Send
+			// 
+			Send.BackColor = System.Drawing.Color.FromArgb(96, 97, 97);
+			Send.ForeColor = System.Drawing.Color.FromArgb(236, 236, 236);
+			Send.Location = new System.Drawing.Point(36, 209);
+			Send.Name = "Send";
+			Send.Size = new System.Drawing.Size(144, 144);
+			Send.TabIndex = 0;
+			Send.Text = "Send";
+			Send.UseVisualStyleBackColor = false;
+			Send.Click += Send_Click;
+			Send.MouseEnter += OnMouseEnterButton;
+			Send.MouseLeave += OnMouseLeaveButton;
+			// 
+			// BtnReceived
+			// 
+			BtnReceived.BackColor = System.Drawing.Color.FromArgb(96, 97, 97);
+			BtnReceived.ForeColor = System.Drawing.Color.FromArgb(236, 236, 236);
+			BtnReceived.Location = new System.Drawing.Point(211, 212);
+			BtnReceived.Name = "BtnReceived";
+			BtnReceived.Size = new System.Drawing.Size(142, 142);
+			BtnReceived.TabIndex = 0;
+			BtnReceived.Text = "Received";
+			BtnReceived.UseVisualStyleBackColor = false;
+			BtnReceived.Click += BtnReceived_Click;
+			BtnReceived.MouseEnter += OnMouseEnterButton;
+			BtnReceived.MouseLeave += OnMouseLeaveButton;
+			// 
+			// Settings
+			// 
+			Settings.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			Settings.AutoEllipsis = true;
+			Settings.BackColor = System.Drawing.Color.FromArgb(49, 57, 66);
+			Settings.BackgroundImage = Properties.Resources.settings;
+			Settings.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+			Settings.FlatAppearance.BorderSize = 0;
+			Settings.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			Settings.Location = new System.Drawing.Point(324, 12);
+			Settings.Name = "Settings";
+			Settings.Size = new System.Drawing.Size(48, 48);
+			Settings.TabIndex = 1;
+			Settings.UseMnemonic = false;
+			Settings.UseVisualStyleBackColor = false;
+			Settings.Click += Settings_Click;
+			// 
+			// Index
+			// 
+			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			BackColor = System.Drawing.Color.FromArgb(49, 57, 66);
+			ClientSize = new System.Drawing.Size(384, 573);
+			Controls.Add(Settings);
+			Controls.Add(BtnReceived);
+			Controls.Add(Send);
+			Name = "Index";
+			Text = "Home";
+			ResumeLayout(false);
+		}
 
-        }
+		#endregion
 
-        #endregion
-
-        private CustomControl.CButton Send;
-        private CustomControl.CButton BtnReceived;
-    }
+		private CustomControl.CButton Send;
+		private CustomControl.CButton BtnReceived;
+		private System.Windows.Forms.Button Settings;
+	}
 }

@@ -2,8 +2,9 @@
 
 public enum TypeOfConnect
 {
-	Send,
-	Received,
-	Transmission,
-	None
+    Send,
+    Received,
+    Transmission,
+    Settings,
+    None
 }
