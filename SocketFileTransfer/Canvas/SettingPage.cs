@@ -29,7 +29,7 @@ public partial class SettingPage : Form
             var value = field.GetValue(null);
             var label = new Label { Text = proprityName, AutoSize = true, Margin = new Padding(0, 20, 0, 0) };
             Control textbox =
-                field.Name == nameof(ConfigurationSetting.SavePath) 
+                field.Name == nameof(ConfigurationSetting.SavePath)
                 ? new TextBoxWithButton { Text = value.ToString(), Width = flowLayoutPanel1.Width, Name = field.Name }
                 : new TextBox { Text = value.ToString(), Width = flowLayoutPanel1.Width, Name = field.Name };
             textbox.KeyUp += Textbox_KeyUp;
