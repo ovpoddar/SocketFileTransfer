@@ -99,7 +99,6 @@ namespace SocketFileTransfer.CustomControl
             BtnCopy.TabIndex = 5;
             BtnCopy.Text = "Copy";
             BtnCopy.UseVisualStyleBackColor = true;
-            BtnCopy.Visible = false;
             BtnCopy.Click += BtnCopy_Click;
             // 
             // CPFile
