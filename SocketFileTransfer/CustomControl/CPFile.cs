@@ -1,6 +1,8 @@
 ﻿using SocketFileTransfer.Model;
 using System;
+using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
@@ -63,6 +65,7 @@ namespace SocketFileTransfer.CustomControl
             LblName.Size = new Size(Width - 20, 20);
             LblType.Dock = DockStyle.Fill;
             BtnCopy.Visible = true;
+            LblType.TextAlign = ContentAlignment.TopLeft;
             SetBackground(typeOfConnect);
         }
 
@@ -85,6 +88,13 @@ namespace SocketFileTransfer.CustomControl
         {
             var encoding = Encoding.GetEncoding(messageReport.EncodingPage);
             var message = encoding.GetString(messageReport.Message);
+
+            if(message.Contains(Environment.NewLine))
+            {
+                var nelinesCount = message.Split(Environment.NewLine).Length;
+                this.Height = this.Height + (int)((30 * nelinesCount) * .5);
+            }
+
             LblType.Text += message;
         }
 
