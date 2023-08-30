@@ -1,4 +1,4 @@
-﻿namespace SocketFileTransfer;
+﻿namespace SocketFileTransfer.Pages;
 
 public partial class MainPage : ContentPage
 {
