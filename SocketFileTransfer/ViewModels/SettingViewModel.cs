@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SocketFileTransfer.Services;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SocketFileTransfer.ViewModels;
 public class SettingViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler PropertyChanged;
 
-
     private int _applicationRequiredPort;
-
     public int ApplicationRequiredPort
     {
         get => _applicationRequiredPort;
@@ -24,7 +18,6 @@ public class SettingViewModel : INotifyPropertyChanged
     }
 
     private string _savePath;
-
     public string SavePath
     {
         get => _savePath;
@@ -34,5 +27,4 @@ public class SettingViewModel : INotifyPropertyChanged
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SavePath)));
         }
     }
-
 }
