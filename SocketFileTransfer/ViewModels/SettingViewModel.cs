@@ -4,6 +4,16 @@ using System.ComponentModel;
 namespace SocketFileTransfer.ViewModels;
 public class SettingViewModel : INotifyPropertyChanged
 {
+    public SettingViewModel(SettingViewModel setting)
+    {
+        this.ApplicationRequiredPort = setting.ApplicationRequiredPort;
+        this.SavePath = setting.SavePath;
+    }
+    public SettingViewModel()
+    {
+        
+    }
+
     public event PropertyChangedEventHandler PropertyChanged;
 
     private int _applicationRequiredPort;

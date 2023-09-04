@@ -11,14 +11,8 @@ public class SettingModel : SettingViewModel
 {
     private readonly ISettingService _settingService;
 
-    public SettingModel(ISettingService settingService)
+    public SettingModel(ISettingService settingService) : base(settingService.Setting)
     {
         _settingService = settingService;
-        Task.Run(async () =>
-        {
-            var initialValue = await _settingService.Load();
-            base.ApplicationRequiredPort = initialValue.ApplicationRequiredPort;
-            base.SavePath = initialValue.SavePath;
-        });
     }
 }

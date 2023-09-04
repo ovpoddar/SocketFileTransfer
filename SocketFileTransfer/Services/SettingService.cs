@@ -9,28 +9,35 @@ using System.Threading.Tasks;
 namespace SocketFileTransfer.Services;
 public class SettingService : ISettingService
 {
-    private string SettingFile { get => "Setting.json"; }
+    private static string SettingFile { get => "Setting.json"; }
+
+    public SettingViewModel Setting { get; set; } = new SettingViewModel();
+
+    public SettingService()
+    {
+        Load();
+    }
 
     public void Initialized()
     {
         throw new NotImplementedException();
     }
 
-    public async Task<SettingViewModel> Load()
+    private void Load()
     {
-        using var stream = await FileSystem.OpenAppPackageFileAsync(SettingFile);
-        using var reader = new StreamReader(stream);
-
+        using var stream = FileSystem.OpenAppPackageFileAsync(SettingService.SettingFile);
+        using var reader = new StreamReader(stream.Result);
         var contents = reader.ReadToEnd();
-        return JsonSerializer.Deserialize<SettingViewModel>(contents);
+
+        Setting = JsonSerializer.Deserialize<SettingViewModel>(contents);
     }
 
     public void Reset()
     {
-        throw new NotImplementedException();
+        using var stream = FileSystem.OpenAppPackageFileAsync(SettingService.SettingFile);
     }
 
-    public void UpdateSetting(string proprityName, object value)
+    public void UpdateSetting(string propertyName, object value)
     {
         throw new NotImplementedException();
     }

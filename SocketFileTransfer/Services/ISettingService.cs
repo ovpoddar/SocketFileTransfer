@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace SocketFileTransfer.Services;
 public interface ISettingService
 {
-    Task<SettingViewModel> Load();
+    SettingViewModel Setting { get; set; }
     void Initialized();
     void Reset();
     void UpdateSetting(string proprityName, object value);

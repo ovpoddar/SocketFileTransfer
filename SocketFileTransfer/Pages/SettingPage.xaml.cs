@@ -6,7 +6,6 @@ namespace SocketFileTransfer.Pages;
 
 public partial class SettingPage : ContentPage
 {
-
     public SettingPage(SettingModel model)
 	{
 		InitializeComponent();
