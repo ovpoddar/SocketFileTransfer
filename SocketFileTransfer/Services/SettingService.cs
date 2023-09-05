@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace SocketFileTransfer.Services;
 public class SettingService : ISettingService
 {
-    private static string SettingFile { get => "Setting.json"; }
+    private string SettingFile { get => "Setting.json"; }
 
     public SettingViewModel Setting { get; set; } = new SettingViewModel();
 
@@ -25,7 +25,7 @@ public class SettingService : ISettingService
 
     private void Load()
     {
-        using var stream = FileSystem.OpenAppPackageFileAsync(SettingService.SettingFile);
+        using var stream = FileSystem.OpenAppPackageFileAsync(SettingFile);
         using var reader = new StreamReader(stream.Result);
         var contents = reader.ReadToEnd();
 
@@ -34,7 +34,7 @@ public class SettingService : ISettingService
 
     public void Reset()
     {
-        using var stream = FileSystem.OpenAppPackageFileAsync(SettingService.SettingFile);
+        using var stream = FileSystem.OpenAppPackageFileAsync(SettingFile);
     }
 
     public void UpdateSetting(string propertyName, object value)
