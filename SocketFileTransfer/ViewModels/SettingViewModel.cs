@@ -11,7 +11,7 @@ public class SettingViewModel : INotifyPropertyChanged
     }
     public SettingViewModel()
     {
-        
+
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

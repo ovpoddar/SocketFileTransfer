@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using SocketFileTransfer.Extensions;
+using SocketFileTransfer.Helpers;
 using SocketFileTransfer.Models;
 using SocketFileTransfer.Pages;
 using SocketFileTransfer.Services;
 using SocketFileTransfer.ViewModels;
+using System.Runtime.CompilerServices;
 
 namespace SocketFileTransfer;
 public static class MauiProgram
@@ -20,6 +22,7 @@ public static class MauiProgram
             });
 
         builder.Services.AddSingleton<ISettingService, SettingService>();
+        builder.Services.AddSingleton<ISettingHelper, SettingHelper>();
         builder.Services.AddSingleton<SettingModel>();
 
         builder.AddPages(typeof(MauiProgram));
@@ -28,6 +31,17 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        return builder.Build();
+        var app = builder.Build();
+        var setting = app.Services.GetRequiredService<ISettingService>();
+        var result = setting.Initialized();
+        if (result)
+            return app;
+        else
+        {
+            setting.Reset();
+            result = setting.Initialized();
+            if(result) return app;
+            throw new Exception("Fail to initialize setting.");
+        }
     }
 }

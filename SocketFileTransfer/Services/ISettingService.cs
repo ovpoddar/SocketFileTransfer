@@ -9,7 +9,7 @@ namespace SocketFileTransfer.Services;
 public interface ISettingService
 {
     SettingViewModel Setting { get; set; }
-    void Initialized();
+    bool Initialized();
     void Reset();
     void UpdateSetting(string proprityName, object value);
 }

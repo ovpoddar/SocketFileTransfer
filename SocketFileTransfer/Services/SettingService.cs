@@ -1,7 +1,9 @@
-﻿using SocketFileTransfer.ViewModels;
+﻿using SocketFileTransfer.Helpers;
+using SocketFileTransfer.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -9,32 +11,55 @@ using System.Threading.Tasks;
 namespace SocketFileTransfer.Services;
 public class SettingService : ISettingService
 {
-    private string SettingFile { get => "Setting.json"; }
+    private readonly ISettingHelper _settingHelper;
 
     public SettingViewModel Setting { get; set; } = new SettingViewModel();
 
-    public SettingService()
+    public SettingService(ISettingHelper settingHelper)
     {
-        Load();
+        _settingHelper = settingHelper;
     }
 
-    public void Initialized()
+    public bool Initialized()
     {
-        throw new NotImplementedException();
+            var storageLocation = _settingHelper.GetSettingPath() ?? throw new Exception("Missing Setting Path Location.");
+            var fileinfo = new FileInfo(storageLocation);
+            if (!fileinfo.Exists)
+            {
+                using var writter = fileinfo.CreateText();
+                Reset(writter);
+                writter.Close();
+            }
+
+        try
+        {
+            using var context = fileinfo.OpenRead();
+            Setting = JsonSerializer.Deserialize<SettingViewModel>(context);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
-    private void Load()
+    void Reset(StreamWriter stream)
     {
-        using var stream = FileSystem.OpenAppPackageFileAsync(SettingFile);
-        using var reader = new StreamReader(stream.Result);
-        var contents = reader.ReadToEnd();
-
-        Setting = JsonSerializer.Deserialize<SettingViewModel>(contents);
+        var defaultSetting = new SettingViewModel
+        {
+            ApplicationRequiredPort = 1400,
+            SavePath = _settingHelper.GetSettingPath(),
+        };
+        stream.Write(JsonSerializer.Serialize(defaultSetting));
+        stream.Flush();
     }
 
     public void Reset()
     {
-        using var stream = FileSystem.OpenAppPackageFileAsync(SettingFile);
+        var storageLocation = _settingHelper.GetSettingPath();
+        using var Sr = new StreamWriter(storageLocation);
+        Reset(Sr);
+        Sr.Close();
     }
 
     public void UpdateSetting(string propertyName, object value)
