@@ -19,6 +19,8 @@ public class SettingHelper : ISettingHelper
         GetDownloadFolder(new Guid("374DE290-123F-4565-9164-39C4925E467B"), 0, IntPtr.Zero, out var path);
         return path;
 #elif ANDROID
+        var path = Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryDownloads).Path;
+        return path;
 #elif IOS
 #elif MACCATALYST
 #endif

@@ -22,14 +22,14 @@ public class SettingService : ISettingService
 
     public bool Initialized()
     {
-            var storageLocation = _settingHelper.GetSettingPath() ?? throw new Exception("Missing Setting Path Location.");
-            var fileinfo = new FileInfo(storageLocation);
-            if (!fileinfo.Exists)
-            {
-                using var writter = fileinfo.CreateText();
-                Reset(writter);
-                writter.Close();
-            }
+        var storageLocation = _settingHelper.GetSettingPath() ?? throw new Exception("Missing Setting Path Location.");
+        var fileinfo = new FileInfo(storageLocation);
+        if (!fileinfo.Exists)
+        {
+            using var writter = fileinfo.CreateText();
+            Reset(writter);
+            writter.Close();
+        }
 
         try
         {
@@ -48,7 +48,7 @@ public class SettingService : ISettingService
         var defaultSetting = new SettingViewModel
         {
             ApplicationRequiredPort = 1400,
-            SavePath = _settingHelper.GetSettingPath(),
+            SavePath = _settingHelper.GetStoragePath(),
         };
         stream.Write(JsonSerializer.Serialize(defaultSetting));
         stream.Flush();
