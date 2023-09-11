@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +23,10 @@ public class SettingHelper : ISettingHelper
         return path;
 #elif IOS
 #elif MACCATALYST
+    var libraryPath = FileSystem.AppDataDirectory.AsSpan();
+    var replaceIndex = libraryPath.LastIndexOf("/");
+    libraryPath = libraryPath.Slice(0, replaceIndex);
+    return Path.Combine(libraryPath.ToString(), "Downloads");
 #endif
     }
 
