@@ -22,11 +22,13 @@ public class SettingHelper : ISettingHelper
         var path = Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryDownloads).Path;
         return path;
 #elif IOS
+        return FileSystem.AppDataDirectory;
 #elif MACCATALYST
     var libraryPath = FileSystem.AppDataDirectory.AsSpan();
     libraryPath = libraryPath[..libraryPath.LastIndexOf("/")];
     return Path.Combine(libraryPath.ToString(), "Downloads");
 #endif
+        return "";
     }
 
 #if WINDOWS
