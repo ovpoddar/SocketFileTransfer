@@ -28,7 +28,7 @@ public class SettingHelper : ISettingHelper
     libraryPath = libraryPath[..libraryPath.LastIndexOf("/")];
     return Path.Combine(libraryPath.ToString(), "Downloads");
 #endif
-        return "";
+        throw new NotSupportedException();
     }
 
 #if WINDOWS
