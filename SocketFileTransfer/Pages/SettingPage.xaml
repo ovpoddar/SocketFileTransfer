@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SocketFileTransfer.Pages.SettingPage"
@@ -7,10 +7,21 @@
              x:DataType="viewmodel:SettingViewModel">
     <StackLayout>
         <Label Text="Port application is using to connect. i.e. make sure the device you are trying to connect has same value."></Label>
-        <Editor Text="{Binding ApplicationRequiredPort}"/>
+        <Entry Text="{Binding ApplicationRequiredPort}"
+               Keyboard="Numeric"/>
 
         <Label Text="Received File Location"></Label>
-        <Editor Text="{Binding SavePath}" />
+        <Grid>
+            <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="45"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
 
+            <Entry Text="{Binding SavePath}" />
+            <Button x:Name="OpenFolder"
+                    Text="..."
+                    Grid.Column="1"
+                    ></Button>
+        </Grid>
     </StackLayout>
 </ContentPage>
