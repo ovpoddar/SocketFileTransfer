@@ -1,5 +1,6 @@
 ﻿using SocketFileTransfer.Services;
 using System.ComponentModel;
+using System.Windows.Input;
 
 namespace SocketFileTransfer.ViewModels;
 public class SettingViewModel : INotifyPropertyChanged
@@ -39,6 +40,5 @@ public class SettingViewModel : INotifyPropertyChanged
     }
 
     public ICommand OpenDialogBox => new Command(() => OpenDialogAsync());
-    public ICommand Test => new Command(() => TestAsync());
     public virtual void OpenDialogAsync() { }
 }
