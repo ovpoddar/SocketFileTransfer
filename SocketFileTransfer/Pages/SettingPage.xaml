@@ -21,6 +21,7 @@
             <Button x:Name="OpenFolder"
                     Text="..."
                     Grid.Column="1"
+                    Command="{Binding OpenDialogBox}"
                     ></Button>
         </Grid>
     </StackLayout>

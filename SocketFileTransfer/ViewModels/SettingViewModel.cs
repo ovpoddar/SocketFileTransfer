@@ -37,4 +37,8 @@ public class SettingViewModel : INotifyPropertyChanged
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SavePath)));
         }
     }
+
+    public ICommand OpenDialogBox => new Command(() => OpenDialogAsync());
+    public ICommand Test => new Command(() => TestAsync());
+    public virtual void OpenDialogAsync() { }
 }

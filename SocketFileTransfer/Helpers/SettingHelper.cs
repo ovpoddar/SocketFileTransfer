@@ -24,9 +24,9 @@ public class SettingHelper : ISettingHelper
 #elif IOS
         return FileSystem.AppDataDirectory;
 #elif MACCATALYST
-    var libraryPath = FileSystem.AppDataDirectory.AsSpan();
-    libraryPath = libraryPath[..libraryPath.LastIndexOf("/")];
-    return Path.Combine(libraryPath.ToString(), "Downloads");
+        var libraryPath = FileSystem.AppDataDirectory.AsSpan();
+        libraryPath = libraryPath[..libraryPath.LastIndexOf("/")];
+        return Path.Combine(libraryPath.ToString(), "Downloads");
 #endif
         throw new NotSupportedException();
     }
