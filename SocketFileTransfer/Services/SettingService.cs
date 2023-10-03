@@ -57,13 +57,17 @@ public class SettingService : ISettingService
     public void Reset()
     {
         var storageLocation = _settingHelper.GetSettingPath();
-        using var Sr = new StreamWriter(storageLocation);
-        Reset(Sr);
-        Sr.Close();
+        using var sr = new StreamWriter(storageLocation);
+        Reset(sr);
+        sr.Close();
     }
 
-    public void UpdateSetting(string propertyName, object value)
+    public void UpdateSetting(SettingViewModel model)
     {
-        throw new NotImplementedException();
+        var storageLocation = _settingHelper.GetSettingPath() ?? throw new Exception("Missing Setting Path Location.");
+        using var sr = new StreamWriter(storageLocation);
+        var setting = JsonSerializer.Serialize(model);
+        sr.Write(setting);
+        sr.Flush();
     }
 }

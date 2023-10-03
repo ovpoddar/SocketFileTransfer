@@ -1,5 +1,6 @@
 ﻿using SocketFileTransfer.Services;
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using System.Windows.Input;
 
 namespace SocketFileTransfer.ViewModels;
@@ -38,7 +39,7 @@ public class SettingViewModel : INotifyPropertyChanged
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SavePath)));
         }
     }
-
+    [JsonIgnore]
     public ICommand OpenDialogBox => new Command(() => OpenDialogAsync());
     public virtual void OpenDialogAsync() { }
 }

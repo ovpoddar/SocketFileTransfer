@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SocketFileTransfer.Pages.HomePage"
+             Title="HomePage"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="10*, 90*">
+        <Grid ColumnDefinitions="80*, 20*">
+            <ImageButton Source="settings.svg" 
+                         HorizontalOptions="Center"
+                         VerticalOptions="Center" Grid.Column="1"
+                         Clicked="NavigateSeting"></ImageButton>
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -11,5 +11,5 @@ public interface ISettingService
     SettingViewModel Setting { get; set; }
     bool Initialized();
     void Reset();
-    void UpdateSetting(string proprityName, object value);
+    void UpdateSetting(SettingViewModel model);
 }

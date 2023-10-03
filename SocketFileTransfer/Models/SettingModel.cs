@@ -35,6 +35,7 @@ public class SettingModel : SettingViewModel
         var result = await FolderPicker.PickAsync(base.SavePath, default);
         result.EnsureSuccess();
         base.SavePath = result.Folder.Path;
-
     }
+
+    
 }
