@@ -7,11 +7,16 @@
     Shell.NavBarIsVisible="False">
 
     <Grid RowDefinitions="10*, 90*">
-        <Grid ColumnDefinitions="80*, 20*">
+        <Grid ColumnDefinitions="*, auto">
             <ImageButton
                 Grid.Column="1"
+                Margin="4"
                 Clicked="NavigateSeting"
                 HorizontalOptions="Center"
+                MaximumHeightRequest="80"
+                MaximumWidthRequest="80"
+                MinimumHeightRequest="40"
+                MinimumWidthRequest="40"
                 Source="settings.png"
                 VerticalOptions="Center" />
         </Grid>
