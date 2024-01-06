@@ -25,4 +25,10 @@ public partial class SettingPage : ContentPage
     {
         Application.Current.MainPage = new AppShell();
     }
+
+    protected override bool OnBackButtonPressed()
+    {
+        Application.Current.MainPage = new AppShell();
+        return !base.OnBackButtonPressed();
+    }
 }

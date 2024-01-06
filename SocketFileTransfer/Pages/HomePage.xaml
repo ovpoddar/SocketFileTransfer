@@ -5,20 +5,44 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     Title="HomePage"
     Shell.NavBarIsVisible="False">
-
-    <Grid RowDefinitions="10*, 90*">
-        <Grid ColumnDefinitions="*, auto">
-            <ImageButton
-                Grid.Column="1"
-                Margin="4"
-                Clicked="NavigateSeting"
-                HorizontalOptions="Center"
-                MaximumHeightRequest="80"
-                MaximumWidthRequest="80"
-                MinimumHeightRequest="40"
-                MinimumWidthRequest="40"
-                Source="settings.png"
-                VerticalOptions="Center" />
+    <Grid>
+        <Grid RowDefinitions="10*, 90*">
+            <Grid ColumnDefinitions="*, auto">
+                <ImageButton
+                    Grid.Column="1"
+                    Margin="4"
+                    Clicked="NavigateSeting"
+                    HorizontalOptions="Center"
+                    MaximumHeightRequest="80"
+                    MaximumWidthRequest="80"
+                    MinimumHeightRequest="40"
+                    MinimumWidthRequest="40"
+                    Source="settings.png"
+                    VerticalOptions="Center" />
+            </Grid>
         </Grid>
+        <VerticalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+            <HorizontalStackLayout Spacing="20">
+                <Button
+                    CornerRadius="100"
+                    HorizontalOptions="Fill"
+                    MaximumHeightRequest="300"
+                    MaximumWidthRequest="300"
+                    MinimumHeightRequest="150"
+                    MinimumWidthRequest="150"
+                    Text="Send"
+                    VerticalOptions="Fill" />
+                <Button
+                    CornerRadius="100"
+                    HorizontalOptions="Fill"
+                    MaximumHeightRequest="300"
+                    MaximumWidthRequest="300"
+                    MinimumHeightRequest="150"
+                    MinimumWidthRequest="150"
+                    Text="Received"
+                    VerticalOptions="Fill" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+
     </Grid>
 </ContentPage>
